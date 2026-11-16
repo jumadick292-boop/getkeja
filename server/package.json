@@ -7,13 +7,9 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "dev": "node --env-file=.env --import tsx --watch src/main.ts",
+    "dev": "node --env-file=.env --watch src/main.ts",
     "build": "tsc",
     "start": "node dist/main.js",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -33,16 +29,8 @@
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.6",
-    "@types/node": "^24.0.0",
+    "@types/node": "^22.0.0",
     "@types/pg": "^8.15.0",
-    "@types/supertest": "^6.0.3",
-    "eslint": "^9.0.0",
-    "eslint-config-prettier": "^10.1.8",
-    "prettier": "^3.0.0",
-    "supertest": "^7.3.1",
-    "tsx": "^4.0.0",
-    "typescript": "^5.8.0",
-    "typescript-eslint": "^8.0.0",
-    "vitest": "^3.0.0"
+    "typescript": "^5.8.0"
   }
 }
