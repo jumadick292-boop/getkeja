@@ -4,9 +4,15 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "Client/**"
+      - ".github/workflows/frontend-ci.yml"
   pull_request:
     branches:
       - main
+    paths:
+      - "Client/**"
+      - ".github/workflows/frontend-ci.yml"
 
 permissions:
   contents: read
