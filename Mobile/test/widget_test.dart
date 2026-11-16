@@ -1,30 +1,70 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_keja_mobile/main.dart';
 import 'package:material_ui/material_ui.dart';
 
-import 'package:get_keja_mobile/main.dart';
-
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('home page shows the GetKeja experience', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const GetKejaApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('GetKeja'), findsOneWidget);
+    expect(find.text('Find your next home'), findsOneWidget);
+    expect(find.text('Featured homes'), findsOneWidget);
+    expect(find.text('Nairobi, Kenya'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+  testWidgets('default Flutter demo UI is gone', (WidgetTester tester) async {
+    await tester.pumpWidget(const GetKejaApp());
+
+    expect(find.text('Flutter Demo Home Page'), findsNothing);
+    expect(find.text('You have pushed the button this many times:'), findsNothing);
+    expect(find.byIcon(Icons.add), findsNothing);
+  });
+
+  testWidgets('service tiles surface a placeholder message', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const GetKejaApp());
+
+    await tester.tap(find.text('Laundries'));
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Laundries is coming soon'), findsOneWidget);
+  });
+
+  testWidgets('bottom navigation switches tabs', (WidgetTester tester) async {
+    await tester.pumpWidget(const GetKejaApp());
+
+    await tester.tap(find.text('Profile'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Coming soon'), findsOneWidget);
+  });
+
+  testWidgets('notification button surfaces a placeholder message', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const GetKejaApp());
+
+    await tester.tap(find.byTooltip('Notifications'));
+    await tester.pump();
+
+    expect(find.text('Notifications is coming soon'), findsOneWidget);
+  });
+
+  testWidgets('lays out compact phone screens without overflow', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(720, 1600);
+    tester.view.devicePixelRatio = 2.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(const GetKejaApp());
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Properties'), findsOneWidget);
+    expect(find.text('Featured homes'), findsOneWidget);
   });
 }
