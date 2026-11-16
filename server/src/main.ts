@@ -1,22 +1,59 @@
-import express, { type Request, type Response } from 'express';
-import helmet from 'helmet';
-import cookieParser from 'cookie-parser';
 import { pino } from 'pino';
-import { pinoHttp } from 'pino-http';
+import { createApp } from './app.js';
+import { loadEnv, type Env } from './config/env.js';
 
-const logger = pino();
-const app = express();
-const port = Number(process.env.PORT) || 4000;
+let env: Env;
+try {
+  env = loadEnv();
+} catch (error) {
+  console.error(error instanceof Error ? error.message : error);
+  process.exit(1);
+}
 
-app.use(helmet());
-app.use(express.json());
-app.use(cookieParser());
-app.use(pinoHttp({ logger }));
+const logger = pino({ level: env.LOG_LEVEL });
 
-app.get('/health', (_req: Request, res: Response) => {
-  res.status(200).json({ status: 'ok' });
+const app = createApp({
+  logger,
+  cookieSecret: env.COOKIE_SECRET,
+  trustProxy: env.TRUST_PROXY,
 });
 
-app.listen(port, () => {
-  logger.info(`Server listening on port ${port}`);
+const server = app.listen(env.PORT, () => {
+  logger.info(`Server listening on port ${env.PORT}`);
+});
+
+let shuttingDown = false;
+
+function shutdown(signal: NodeJS.Signals): void {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  logger.info({ signal }, 'shutting down');
+
+  const forceExit = setTimeout(() => {
+    logger.error('forced shutdown after 10s');
+    process.exit(1);
+  }, 10_000);
+  forceExit.unref();
+
+  server.close((error) => {
+    if (error) {
+      logger.error({ err: error }, 'failed to close server');
+      process.exit(1);
+    }
+    logger.info('server closed');
+    process.exit(0);
+  });
+}
+
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
+
+process.on('uncaughtException', (error) => {
+  logger.fatal({ err: error }, 'uncaught exception');
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason) => {
+  logger.fatal({ err: reason }, 'unhandled rejection');
+  process.exit(1);
 });
