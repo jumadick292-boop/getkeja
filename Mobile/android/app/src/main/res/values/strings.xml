@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GetKeja</string>
+    <string name="google_client_id">YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com</string>
+    <string name="default_notification_channel_id">getkeja_default</string>
+    <string name="default_notification_channel_name">General notifications</string>
+    <string name="default_notification_channel_description">General app notifications</string>
+</resources>

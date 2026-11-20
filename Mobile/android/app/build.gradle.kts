@@ -3,6 +3,7 @@ import java.util.Properties
 
 plugins {
     id("com.android.application")
+    id("com.google.gms.google-services")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
@@ -13,9 +14,14 @@ val hasReleaseKeystore = keystorePropertiesFile.exists()
 if (hasReleaseKeystore) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
+val mapsPropertiesFile = rootProject.file("local.properties")
+val mapsProperties = Properties()
+if (mapsPropertiesFile.exists()) {
+    mapsProperties.load(FileInputStream(mapsPropertiesFile))
+}
 
 android {
-    namespace = "com.getkeja.get_keja_mobile"
+    namespace = "com.getkeja.mobile.a7c29f"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -26,11 +32,13 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.getkeja.get_keja_mobile"
+        applicationId = "com.getkeja.mobile.a7c29f"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
+        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] =
+            mapsProperties.getProperty("GOOGLE_MAPS_API_KEY", "")
         // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION
         // is added automatically by Flutter. (https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions)
         // You can force using the value of versionCode by specifying the `-P force-version-code-ignoring-abi=true`

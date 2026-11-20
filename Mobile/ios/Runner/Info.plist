@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Get Keja Mobile</string>
+	<string>GetKeja</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -24,8 +24,63 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>getkeja</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>getkeja</string>
+			</array>
+		</dict>
+		<!-- Google Sign-In URL scheme (reversed client ID) -->
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.googleusercontent.apps.YOUR_REVERSED_CLIENT_ID</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.YOUR_REVERSED_CLIENT_ID</string>
+			</array>
+		</dict>
+	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>googlechrome</string>
+		<string>googlechromes</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>localhost</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+			<key>127.0.0.1</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>GetKeja needs camera access to scan QR codes for MFA setup.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>GetKeja lets you choose profile photos and business logos to upload.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>GetKeja uses your location only when you choose to save a location for a profile.</string>
+	<key>GMSApiKey</key>
+	<string>$(GOOGLE_MAPS_API_KEY)</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>GetKeja uses Face ID to securely authenticate you without entering your password.</string>
+	<key>NSUserNotificationAlertStyle</key>
+	<string>banner</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -49,6 +104,10 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

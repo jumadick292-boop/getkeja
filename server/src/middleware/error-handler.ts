@@ -11,10 +11,9 @@ type RequestWithLogger = Request & { log?: Logger };
 
 export const notFoundHandler: RequestHandler = (req, res) => {
   res.status(404).json({
-    error: {
-      code: 'NOT_FOUND',
-      message: `Cannot ${req.method} ${req.originalUrl}`,
-    },
+    success: false,
+    message: `Cannot ${req.method} ${req.originalUrl}`,
+    code: 'NOT_FOUND',
   });
 };
 
@@ -35,10 +34,9 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   }
 
   res.status(status).json({
-    error: {
-      code: resolveCode(status, error),
-      message: resolveMessage(status, error),
-    },
+    success: false,
+    message: resolveMessage(status, error),
+    code: resolveCode(status, error),
   });
 };
 
@@ -54,7 +52,12 @@ function resolveCode(status: number, error: HttpError | undefined): string {
   if (error?.type === 'entity.too.large') return 'PAYLOAD_TOO_LARGE';
   if (error?.type === 'entity.parse.failed') return 'INVALID_JSON';
   if (status >= 500) return 'INTERNAL_ERROR';
-  return 'REQUEST_ERROR';
+  if (status === 429) return 'RATE_LIMITED';
+  if (status === 401) return 'UNAUTHORIZED';
+  if (status === 403) return 'FORBIDDEN';
+  if (status === 404) return 'NOT_FOUND';
+  if (status === 409) return 'CONFLICT';
+  return 'VALIDATION_ERROR';
 }
 
 function resolveMessage(status: number, error: HttpError | undefined): string {

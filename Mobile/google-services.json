@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "637144504554",
+    "project_id": "getkeja-aef74",
+    "storage_bucket": "getkeja-aef74.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:637144504554:android:12f1ea7017bb9ba6d31f93",
+        "android_client_info": {
+          "package_name": "com.getkeja.get_keja_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcIlmwIcC90CuuIdvUOgIqKw_2Q0-NIYg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

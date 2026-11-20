@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "427193718679",
+    "project_id": "getkeja1",
+    "storage_bucket": "getkeja1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:427193718679:android:36d90c94158bbf9ebf96d2",
+        "android_client_info": {
+          "package_name": "com.getkeja.mobile.a7c29f"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "427193718679-pjeqvevoammqef20vk31rlj53fn1qq2m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.getkeja.mobile.a7c29f",
+            "certificate_hash": "b19ee084654b02753723407314eaa5b61e25e957"
+          }
+        },
+        {
+          "client_id": "427193718679-qbiuh7k0vic9c55h8bac8ucs1tsv8klv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4Fu0yunaKFvIgeRh1eo3m0YO4o2inZWg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "427193718679-pdveir8uhdherombife0l5i95a2kpgev.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

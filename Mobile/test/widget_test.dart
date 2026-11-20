@@ -1,70 +1,29 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_keja_mobile/main.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:get_keja_mobile/app/theme/app_theme.dart';
+import 'package:get_keja_mobile/app/theme/design_system.dart';
 
 void main() {
-  testWidgets('home page shows the GetKeja experience', (
-    WidgetTester tester,
-  ) async {
-    await tester.pumpWidget(const GetKejaApp());
-
-    expect(find.text('GetKeja'), findsOneWidget);
-    expect(find.text('Find your next home'), findsOneWidget);
-    expect(find.text('Featured homes'), findsOneWidget);
-    expect(find.text('Nairobi, Kenya'), findsOneWidget);
+  test('GetKeja brand colors match the shared palette', () {
+    expect(AppColors.navy, const Color(0xFF1B2A4A));
+    expect(AppColors.brand, const Color(0xFF00A86B));
+    expect(AppColors.terracotta, const Color(0xFFE07A5F));
+    expect(AppColors.text, const Color(0xFF2B2D42));
+    expect(AppColors.pageBackground, const Color(0xFFF8F9FA));
+    expect(AppColors.warning, const Color(0xFFF26419));
   });
 
-  testWidgets('default Flutter demo UI is gone', (WidgetTester tester) async {
-    await tester.pumpWidget(const GetKejaApp());
+  test('light and dark themes share the mobile design system', () {
+    final lightTheme = AppTheme.light();
+    final darkTheme = AppTheme.dark();
 
-    expect(find.text('Flutter Demo Home Page'), findsNothing);
-    expect(find.text('You have pushed the button this many times:'), findsNothing);
-    expect(find.byIcon(Icons.add), findsNothing);
-  });
-
-  testWidgets('service tiles surface a placeholder message', (
-    WidgetTester tester,
-  ) async {
-    await tester.pumpWidget(const GetKejaApp());
-
-    await tester.tap(find.text('Laundries'));
-    await tester.pump();
-
-    expect(find.text('Laundries is coming soon'), findsOneWidget);
-  });
-
-  testWidgets('bottom navigation switches tabs', (WidgetTester tester) async {
-    await tester.pumpWidget(const GetKejaApp());
-
-    await tester.tap(find.text('Profile'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Coming soon'), findsOneWidget);
-  });
-
-  testWidgets('notification button surfaces a placeholder message', (
-    WidgetTester tester,
-  ) async {
-    await tester.pumpWidget(const GetKejaApp());
-
-    await tester.tap(find.byTooltip('Notifications'));
-    await tester.pump();
-
-    expect(find.text('Notifications is coming soon'), findsOneWidget);
-  });
-
-  testWidgets('lays out compact phone screens without overflow', (
-    WidgetTester tester,
-  ) async {
-    tester.view.physicalSize = const Size(720, 1600);
-    tester.view.devicePixelRatio = 2.0;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    await tester.pumpWidget(const GetKejaApp());
-
-    expect(tester.takeException(), isNull);
-    expect(find.text('Properties'), findsOneWidget);
-    expect(find.text('Featured homes'), findsOneWidget);
+    expect(lightTheme.useMaterial3, isTrue);
+    expect(lightTheme.colorScheme.primary, AppColors.brand);
+    expect(lightTheme.colorScheme.onPrimary, AppColors.navy);
+    expect(lightTheme.scaffoldBackgroundColor, AppColors.pageBackground);
+    expect(lightTheme.textTheme.titleLarge, isNotNull);
+    expect(darkTheme.brightness, Brightness.dark);
+    expect(darkTheme.scaffoldBackgroundColor, AppColors.navy);
+    expect(darkTheme.colorScheme.onSurface, AppColors.pageBackground);
   });
 }

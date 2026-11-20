@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="brand">#00A86B</color>
+    <color name="navy">#1B2A4A</color>
+    <color name="terracotta">#E07A5F</color>
+    <color name="warning">#F26419</color>
+    <color name="error">#B42318</color>
+    <color name="page_background">#F8F9FA</color>
+    <color name="dark_surface">#243454</color>
+    <color name="border">#E3E6EA</color>
+    <color name="text">#2B2D42</color>
+    <color name="muted_text">#626575</color>
+</resources>

@@ -20,7 +20,9 @@ describe('errorHandler', () => {
 
     expect(response.status).toBe(500);
     expect(response.body).toEqual({
-      error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
+      success: false,
+      code: 'INTERNAL_ERROR',
+      message: 'Internal server error',
     });
     expect(JSON.stringify(response.body)).not.toContain('hunter2');
   });
@@ -34,7 +36,9 @@ describe('errorHandler', () => {
 
     expect(response.status).toBe(409);
     expect(response.body).toEqual({
-      error: { code: 'REQUEST_ERROR', message: 'Listing is not available' },
+      success: false,
+      code: 'CONFLICT',
+      message: 'Listing is not available',
     });
   });
 
@@ -46,6 +50,17 @@ describe('errorHandler', () => {
     const response = await request(app).get('/boom');
 
     expect(response.status).toBe(500);
-    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    expect(response.body.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('uses the rate-limit error code for throttled requests', async () => {
+    const app = appThrowing(() => {
+      throw Object.assign(new Error('Too many requests'), { status: 429 });
+    });
+
+    const response = await request(app).get('/boom');
+
+    expect(response.status).toBe(429);
+    expect(response.body.code).toBe('RATE_LIMITED');
   });
 });

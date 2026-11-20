@@ -1,0 +1,289 @@
+openapi: 3.1.0
+info:
+  title: GetKeja Authentication API
+  version: 1.0.0
+  description: Authentication and mobile session contract for GetKeja.
+servers:
+  - url: http://localhost:4000/api/v1/auth
+paths:
+  /login/email:
+    post:
+      summary: Authenticate with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 1 }
+      responses:
+        "200":
+          description: Primary authentication result; MFA is still required.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PrimaryAuthResponse" }
+        "401":
+          description: Generic invalid-credentials response.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+  /login/phone:
+    post:
+      summary: Authenticate with a Kenyan phone number and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone, password]
+              properties:
+                phone: { type: string, example: "+254712345678" }
+                password: { type: string }
+      responses:
+        "200":
+          description: Primary authentication result.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PrimaryAuthResponse" }
+  /login/phone-otp/request:
+    post:
+      summary: Request a phone login OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone]
+              properties:
+                phone: { type: string }
+      responses:
+        "200": { description: Enumeration-resistant accepted response. }
+        "429": { description: Rate limit exceeded. }
+  /login/phone-otp/verify:
+    post:
+      summary: Verify a phone login OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone, otp]
+              properties:
+                phone: { type: string }
+                otp: { type: string }
+      responses:
+        "200":
+          description: Primary authentication result; independent MFA is still required.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PrimaryAuthResponse" }
+  /mfa/enrollment/start:
+    post:
+      summary: Start restricted MFA enrollment
+      security:
+        - mfaEnrollment: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [methodType]
+              properties:
+                methodType: { type: string, enum: [totp, sms, email, recovery_codes] }
+                methodName: { type: string }
+                phoneNumber: { type: string }
+                makePrimary: { type: boolean }
+      responses:
+        "200": { description: Enrollment details, including methodId. }
+        "401": { description: Invalid or expired enrollment transaction. }
+  /mfa/enrollment/verify:
+    post:
+      summary: Verify an MFA enrollment method
+      security:
+        - mfaEnrollment: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mfaMethodId, code]
+              properties:
+                mfaMethodId: { type: string, format: uuid }
+                code: { type: string }
+      responses:
+        "200": { description: Enrollment completed; sign in again to obtain an MFA challenge. }
+  /mfa/enrollment/request-code:
+    post:
+      summary: Send an email or SMS code to complete enrollment
+      security:
+        - mfaEnrollment: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mfaMethodId]
+              properties:
+                mfaMethodId: { type: string, format: uuid }
+      responses:
+        "200": { description: Verification code sent. }
+        "429": { description: Resend cooldown is active. }
+  /mfa/challenge/request-code:
+    post:
+      summary: Send a code for an SMS or email login challenge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [challengeId, methodType]
+              properties:
+                challengeId: { type: string, format: uuid }
+                methodType: { type: string, enum: [sms, email] }
+      responses:
+        "200": { description: Verification code sent. }
+        "429": { description: Resend cooldown is active. }
+  /mfa/methods/request-code:
+    post:
+      summary: Send a code to verify an SMS or email method management action
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mfaMethodId]
+              properties:
+                mfaMethodId: { type: string, format: uuid }
+      responses:
+        "200": { description: Verification code sent. }
+        "429": { description: Resend cooldown is active. }
+  /mfa/verify:
+    post:
+      summary: Complete a login MFA challenge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [challengeId]
+              properties:
+                challengeId: { type: string, format: uuid }
+                methodType: { type: string, enum: [totp, sms, email, recovery_codes] }
+                code: { type: string }
+                totpCode: { type: string }
+                recoveryCode: { type: string }
+      responses:
+        "200":
+          description: Full session issued after successful MFA.
+          headers:
+            x-access-token:
+              schema: { type: string }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SessionResponse" }
+  /refresh:
+    post:
+      summary: Rotate a refresh token
+      parameters:
+        - in: header
+          name: X-Client-Platform
+          schema: { type: string, enum: [mobile] }
+          required: false
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken: { type: string }
+      responses:
+        "200":
+          description: Rotated token pair for mobile, or a refreshed cookie for web.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SessionResponse" }
+        "401": { description: Refresh token invalid, expired, or reused. }
+  /me:
+    get:
+      summary: Get the authenticated user
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Current authenticated user. }
+        "401": { description: Missing or invalid access token. }
+  /sessions:
+    get:
+      summary: List the current user's sessions
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Session list. }
+  /devices:
+    get:
+      summary: List the current user's devices
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Device list. }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+    mfaEnrollment:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: "Use the value: MFA-Enrollment <opaque-enrollment-token>."
+  schemas:
+    PrimaryAuthResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success: { const: true }
+        message: { type: string }
+        data:
+          type: object
+          required: [authenticationStatus]
+          properties:
+            authenticationStatus:
+              type: string
+              enum: [mfa_required, mfa_enrollment_required]
+            challengeId: { type: string, format: uuid }
+            enrollmentToken: { type: string }
+            availableMethods:
+              type: array
+              items: { type: string }
+    SessionResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+        data:
+          type: object
+          properties:
+            accessToken: { type: string }
+            refreshToken: { type: string }
+            expiresIn: { type: integer }
+    ErrorResponse:
+      type: object
+      required: [success, message, code]
+      properties:
+        success: { const: false }
+        message: { type: string }
+        code: { type: string }

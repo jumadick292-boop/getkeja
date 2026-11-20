@@ -54,4 +54,26 @@ describe('loadEnv', () => {
   it('rejects an invalid port', () => {
     expect(() => loadEnv({ ...validEnv, PORT: '70000' })).toThrow(/PORT/);
   });
+
+  it('allows the server to start with incomplete optional Cloudinary credentials', () => {
+    const env = loadEnv({
+      ...validEnv,
+      CLOUDINARY_CLOUD_NAME: 'getkeja',
+    });
+
+    expect(env.CLOUDINARY_CLOUD_NAME).toBe('getkeja');
+    expect(env.CLOUDINARY_API_KEY).toBeUndefined();
+    expect(env.CLOUDINARY_API_SECRET).toBeUndefined();
+  });
+
+  it('accepts a complete Cloudinary configuration', () => {
+    const env = loadEnv({
+      ...validEnv,
+      CLOUDINARY_CLOUD_NAME: 'getkeja',
+      CLOUDINARY_API_KEY: 'cloudinary-key',
+      CLOUDINARY_API_SECRET: 'cloudinary-secret',
+    });
+
+    expect(env.CLOUDINARY_CLOUD_NAME).toBe('getkeja');
+  });
 });

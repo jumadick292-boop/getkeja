@@ -7,10 +7,25 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-getkeja}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
       POSTGRES_DB: ${POSTGRES_DB:-getkeja}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -23,16 +38,19 @@ services:
     environment:
       NODE_ENV: production
       PORT: 4000
-      DATABASE_URL: postgres://${POSTGRES_USER:-getkeja}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-getkeja}
+      DATABASE_URL: ${DATABASE_URL:?Set URL-encoded DATABASE_URL in .env}
       DB_POOL_MAX: ${DB_POOL_MAX:-20}
       COOKIE_SECRET: ${COOKIE_SECRET:?Set COOKIE_SECRET in .env}
       CSRF_SECRET: ${CSRF_SECRET:?Set CSRF_SECRET in .env}
       LOG_LEVEL: ${LOG_LEVEL:-info}
       TRUST_PROXY: ${TRUST_PROXY:-false}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
     ports:
       - "${SERVER_PORT:-4000}:4000"
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     healthcheck:
       test:
@@ -75,3 +93,4 @@ services:
 
 volumes:
   db-data:
+  redis-data:
