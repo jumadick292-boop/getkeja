@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import { NotificationService } from './notification.service.js';
 import { NotificationPreferenceService } from './notification.service.js';
 import { NotificationTemplateService } from './notification.service.js';
+import { findNotificationById } from './auth.repository.js';
 import type { AuthenticatedRequest } from './auth.middleware.js';
 
 const notificationService = new NotificationService();
@@ -96,6 +97,37 @@ export class NotificationController {
       res.json({
         success: true,
         data: { count },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getNotificationById(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userId = req.user!.id;
+      const idParam = req.params.id;
+      const id = Array.isArray(idParam) ? idParam[0] : idParam;
+      if (!id) {
+        res.status(400).json({ success: false, error: 'Notification id is required' });
+        return;
+      }
+
+      const notification = await findNotificationById(id);
+      if (!notification) {
+        res.status(404).json({ success: false, error: 'Notification not found' });
+        return;
+      }
+
+      // Enforce user-scoped access: prevent IDOR.
+      if (notification.userId !== userId) {
+        res.status(404).json({ success: false, error: 'Notification not found' });
+        return;
+      }
+
+      res.json({
+        success: true,
+        data: notification,
       });
     } catch (error) {
       next(error);

@@ -61,6 +61,7 @@ export const specialized = {
 export const locations = {
   save: (userId: string, data: SavedLocationInput) => repo.saveLocation(userId, data),
   list: (userId: string, profileId?: string) => repo.getLocations(userId, profileId),
+  delete: (userId: string, locationId: string) => repo.deleteLocation(userId, locationId),
 };
 
 export const serviceAreas = {

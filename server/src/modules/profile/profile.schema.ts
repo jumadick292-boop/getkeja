@@ -265,6 +265,9 @@ export const placeSearchQuerySchema = z.object({
 export const placeIdParamsSchema = z.object({
   placeId: z.string().trim().min(1).max(255),
 }).strict();
+export const savedLocationIdParamsSchema = z.object({
+  locationId: z.string().uuid(),
+}).strict();
 export const verificationDocumentSchema = z.object({
   documentType: z.string().trim().min(1).max(80).default('supporting_document'),
 }).strict();

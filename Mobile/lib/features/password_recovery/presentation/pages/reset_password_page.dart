@@ -27,6 +27,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -45,8 +46,10 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
   }
 
   Future<void> _submit() async {
+    if (_isSubmitting || ref.read(authNotifierProvider).isLoading) return;
     if (!_formKey.currentState!.validate()) return;
 
+    setState(() => _isSubmitting = true);
     final notifier = ref.read(authNotifierProvider.notifier);
     try {
       await notifier.handleAction(
@@ -66,6 +69,8 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(error.message)));
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
@@ -86,7 +91,8 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: AppSpacing.screenPadding,
           child: Form(
             key: _formKey,
@@ -121,9 +127,8 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                 // Title
                 Text(
                   'Choose a new password',
-                  style: AppTypography.headlineMedium.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
+                  style: AppTypography.titleLarge.copyWith(
+                    fontWeight: FontWeight.w700,
                     color: theme.colorScheme.onSurface,
                   ),
                 ),
@@ -206,8 +211,8 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                 // Submit button
                 PrimaryButton(
                   label: 'Update password',
-                  isLoading: authState.isLoading,
-                  onPressed: _submit,
+                  isLoading: authState.isLoading || _isSubmitting,
+                  onPressed: _isSubmitting ? null : _submit,
                 ),
 
                 const SizedBox(height: 24),
@@ -225,8 +230,6 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                     ),
                   ),
                 ),
-
-                const Spacer(),
 
                 // Help text
                 Text(

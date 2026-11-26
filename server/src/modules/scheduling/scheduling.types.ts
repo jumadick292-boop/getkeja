@@ -1,6 +1,6 @@
 // Shared scheduling domain types (Task 13.9).
 
-export type SchedulingDomain = 'moving' | 'garbage' | 'garbage_occurrence' | 'laundry' | 'home_maintenance' | 'cleaning' | 'installation';
+export type SchedulingDomain = 'moving' | 'garbage' | 'garbage_occurrence' | 'laundry' | 'home_maintenance' | 'cleaning' | 'installation' | 'finishing';
 export type SchedulingStatus = 'proposed' | 'confirmed' | 'cancelled' | 'completed' | 'missed';
 export type RescheduleParty = 'customer' | 'provider';
 export type RescheduleStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
@@ -16,6 +16,7 @@ export interface SchedulingActivity {
   homeMaintenanceJobId: string | null;
   cleaningJobId: string | null;
   installationJobId: string | null;
+  finishingJobId: string | null;
   startAt: string;
   endAt: string;
   timeZone: string;

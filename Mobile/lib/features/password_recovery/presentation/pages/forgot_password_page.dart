@@ -96,9 +96,8 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
                   // Title
                   Text(
                     'Reset your password',
-                    style: AppTypography.headlineMedium.copyWith(
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.5,
+                    style: AppTypography.titleLarge.copyWith(
+                      fontWeight: FontWeight.w700,
                       color: theme.colorScheme.onSurface,
                     ),
                   ),

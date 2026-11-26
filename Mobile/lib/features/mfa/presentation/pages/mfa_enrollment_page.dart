@@ -227,9 +227,8 @@ class _MfaEnrollmentPageState extends ConsumerState<MfaEnrollmentPage> {
                 // Title
                 Text(
                   'Secure your account',
-                  style: AppTypography.headlineMedium.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
+                  style: AppTypography.titleLarge.copyWith(
+                    fontWeight: FontWeight.w700,
                     color: theme.colorScheme.onSurface,
                   ),
                 ),
@@ -524,7 +523,10 @@ class _MfaMethodOption extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Text(
                           title,
@@ -533,8 +535,7 @@ class _MfaMethodOption extends StatelessWidget {
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        if (isRecommended) ...[
-                          const SizedBox(width: 8),
+                        if (isRecommended)
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
@@ -552,7 +553,6 @@ class _MfaMethodOption extends StatelessWidget {
                               ),
                             ),
                           ),
-                        ],
                       ],
                     ),
                     const SizedBox(height: 2),

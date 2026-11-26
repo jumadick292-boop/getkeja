@@ -17,10 +17,17 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    await tester.pumpWidget(_app(_RecordingAuthNotifier()));
+    await tester.pumpWidget(
+      _app(_RecordingAuthNotifier(), textScaleFactor: 1.3),
+    );
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
+    expect(find.text('What do you need?'), findsOneWidget);
+    expect(find.text('Properties'), findsOneWidget);
+    expect(find.text('Laundries'), findsOneWidget);
+    expect(find.text('Movers'), findsOneWidget);
+    expect(find.text('Garbage'), findsOneWidget);
   });
 
   testWidgets('profile tab links to profile and account settings', (
@@ -59,7 +66,7 @@ void main() {
   });
 }
 
-Widget _app(_RecordingAuthNotifier notifier) {
+Widget _app(_RecordingAuthNotifier notifier, {double textScaleFactor = 1}) {
   final router = GoRouter(
     initialLocation: '/dashboard',
     routes: [
@@ -91,6 +98,12 @@ Widget _app(_RecordingAuthNotifier notifier) {
       routerConfig: router,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(
+          context,
+        ).copyWith(textScaler: TextScaler.linear(textScaleFactor)),
+        child: child!,
+      ),
     ),
   );
 }

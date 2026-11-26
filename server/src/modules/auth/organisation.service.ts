@@ -49,6 +49,20 @@ export interface UpdateMemberInput {
   removedBy?: string;
 }
 
+// Map an organization membership role to a concrete RBAC role id.
+function mapOrgRoleToRoleId(role: string): string {
+  switch (role) {
+    case 'owner':
+      return 'organization_owner';
+    case 'admin':
+      return 'organization_admin';
+    case 'member':
+    case 'staff':
+    default:
+      return 'organization_member';
+  }
+}
+
 export async function createOrganisation(input: CreateOrganisationInput, ownerId: string): Promise<Organisation> {
   const existing = await repo.findOrganisationBySlug(input.slug);
   if (existing) {
@@ -57,8 +71,8 @@ export async function createOrganisation(input: CreateOrganisationInput, ownerId
 
   const organisation = await repo.createOrganisation(input);
 
-  // Add creator as owner
-  await repo.addOrganisationMember(organisation.id, ownerId, 'owner', ownerId);
+  // Add creator as active owner
+  await repo.addActiveOrganisationMember(organisation.id, ownerId, 'owner');
 
   // Create global role assignment for organization owner
   await repo.createRoleAssignment({
@@ -66,8 +80,8 @@ export async function createOrganisation(input: CreateOrganisationInput, ownerId
     roleId: 'organization_owner',
     scope: 'organization',
     organizationId: organisation.id,
-    resourceType: 'organization',
-    resourceId: organisation.id,
+    resourceType: null,
+    resourceId: null,
     assignedBy: ownerId,
     expiresAt: null,
   });
@@ -249,12 +263,13 @@ export async function createInvitation(
     throw new ConflictError('User is already a member of this organization');
   }
 
+  const rawToken = randomUUID();
   const invitation = await repo.createOrganisationInvitation({
     organisationId,
     email: input.email,
     role: input.role,
     invitedBy: input.invitedBy,
-    tokenHash: createHash('sha256').update(randomUUID()).digest('hex'),
+    tokenHash: createHash('sha256').update(rawToken).digest('hex'),
     expiresAt: input.expiresAt ?? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days default
   });
 
@@ -271,7 +286,7 @@ export async function createInvitation(
     metadata: { action: 'create_invitation', email: input.email, role: input.role },
   });
 
-  return { ...invitation, token: (invitation as any).token };
+  return { ...invitation, token: rawToken };
 }
 
 export async function acceptInvitation(token: string, userId: string): Promise<OrganisationMember> {
@@ -301,14 +316,20 @@ export async function acceptInvitation(token: string, userId: string): Promise<O
     throw new ForbiddenError('Failed to accept invitation');
   }
 
+  // Ensure an active membership row exists for the accepting user.
+  const existingMembers = await repo.getOrganisationMembers(invitation.organisationId);
+  if (!existingMembers.some((m) => m.userId === userId)) {
+    await repo.addActiveOrganisationMember(invitation.organisationId, userId, invitation.role);
+  }
+
   // Create role assignment for the organization role
   await repo.createRoleAssignment({
     userId,
-    roleId: invitation.role,
+    roleId: mapOrgRoleToRoleId(invitation.role),
     scope: 'organization',
     organizationId: invitation.organisationId,
-    resourceType: 'organization',
-    resourceId: invitation.organisationId,
+    resourceType: null,
+    resourceId: null,
     assignedBy: invitation.invitedBy,
     expiresAt: null,
   });
@@ -404,11 +425,11 @@ export async function updateMember(
     // Create new role assignment
     await repo.createRoleAssignment({
       userId: member.userId,
-      roleId: input.role,
+      roleId: mapOrgRoleToRoleId(input.role),
       scope: 'organization',
       organizationId: organisationId,
-      resourceType: 'organization',
-      resourceId: organisationId,
+      resourceType: null,
+      resourceId: null,
       assignedBy: userId,
       expiresAt: null,
     });
@@ -530,7 +551,7 @@ export async function revokeInvitation(
     throw new ForbiddenError('Organization membership required');
   }
 
-  const invitation = await repo.findOrganisationInvitationByTokenHash(invitationId);
+  const invitation = await repo.findOrganisationInvitationById(invitationId);
   if (!invitation || invitation.organisationId !== organisationId) {
     throw new NotFoundError('Invitation not found');
   }
@@ -549,4 +570,66 @@ export async function revokeInvitation(
     userAgent: null,
     metadata: { action: 'revoke_invitation', email: invitation.email, reason },
   });
+}
+
+/**
+ * Decline a pending invitation. The recipient must own the invitation email.
+ * The token is hashed and matched; replay/expiry are enforced.
+ */
+export async function declineInvitation(token: string, userId: string): Promise<void> {
+  const tokenHash = createHash('sha256').update(token).digest('hex');
+  const invitation = await repo.findOrganisationInvitationByTokenHash(tokenHash);
+  if (!invitation) throw new NotFoundError('Invalid or expired invitation');
+  if (invitation.status !== 'pending') {
+    throw new ForbiddenError('Invitation has already been used or revoked');
+  }
+  if (invitation.expiresAt < new Date()) {
+    throw new ForbiddenError('Invitation has expired');
+  }
+  const user = await repo.findUserById(userId);
+  if (!user || user.email.toLowerCase() !== invitation.email.toLowerCase()) {
+    throw new ForbiddenError('This invitation is for a different email address');
+  }
+  await repo.declineOrganisationInvitation(invitation.id, userId);
+  await repo.createAuthorizationAuditEvent({
+    userId,
+    action: 'decline_invitation',
+    resourceType: 'organization_invitation',
+    resourceId: invitation.id,
+    permission: 'organization.manage_members',
+    allowed: true,
+    ipAddress: null,
+    userAgent: null,
+    metadata: { action: 'decline_invitation' },
+  });
+}
+
+/**
+ * Deactivate an organization. Owner/admin only. Inactive organizations are
+ * excluded from provider context resolution and do not receive requests.
+ */
+export async function deactivateOrganisation(
+  organisationId: string,
+  userId: string,
+  active: boolean,
+): Promise<Organisation> {
+  const isOwner = await authz.isOrganizationOwner(userId, organisationId);
+  const hasPermission = await authz.hasPermission(userId, 'organization.update');
+  if (!isOwner && !hasPermission) {
+    throw new ForbiddenError('Insufficient permissions to change organization status');
+  }
+  const updated = await repo.setOrganisationActive(organisationId, active, userId);
+  if (!updated) throw new NotFoundError('Organization not found');
+  await repo.createAuthorizationAuditEvent({
+    userId,
+    action: active ? 'reactivate_organization' : 'deactivate_organization',
+    resourceType: 'organization',
+    resourceId: organisationId,
+    permission: 'organization.update',
+    allowed: true,
+    ipAddress: null,
+    userAgent: null,
+    metadata: { action: 'organization_status', active },
+  });
+  return updated;
 }

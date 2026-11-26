@@ -10,6 +10,7 @@ import '../../../../core/errors/app_exceptions.dart';
 import '../../../../core/storage/secure_storage.dart';
 import '../../../../core/widgets/design_widgets.dart';
 import '../../../authentication/presentation/state/auth_state.dart';
+import '../../../authentication/presentation/state/auth_navigation.dart';
 
 String resolveUnauthenticatedStartupDestination(String? onboardingCompleted) =>
     onboardingCompleted == 'true' ? '/welcome' : '/onboarding';
@@ -72,26 +73,11 @@ class _SplashPageState extends ConsumerState<SplashPage>
 
   void _navigateBasedOnAuthState(AuthState authState) {
     if (!mounted) return;
-
-    if (authState.isAuthenticated) {
-      context.go('/dashboard');
-    } else if (authState.isMfaRequired) {
-      final challengeId = (authState as dynamic).challengeId as String?;
-      final methods = (authState as dynamic).availableMethods as List<String>?;
-      context.go(
-        '/mfa/challenge?challengeId=${challengeId ?? ''}&methods=${methods?.join(',') ?? ''}',
-      );
-    } else if (authState.isMfaEnrollmentRequired) {
-      context.go('/mfa/enroll');
-    } else if (authState.isVerificationRequired) {
-      final verificationType =
-          (authState as dynamic).verificationType as String?;
-      if (verificationType == 'phone') {
-        context.go('/verify-phone');
-      } else {
-        context.go('/verify-email');
-      }
-    } else {
+    navigateForAuthState(context, authState);
+    if (!authState.isAuthenticated &&
+        !authState.isMfaRequired &&
+        !authState.isMfaEnrollmentRequired &&
+        !authState.isVerificationRequired) {
       _routeUnauthenticatedUser();
     }
   }

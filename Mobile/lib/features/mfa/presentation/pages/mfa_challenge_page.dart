@@ -9,6 +9,7 @@ import '../../../../core/widgets/design_widgets.dart';
 import '../../../../core/errors/app_exceptions.dart';
 import '../../../../core/validators/validators.dart';
 import '../../../authentication/presentation/state/auth_state.dart';
+import '../../../authentication/presentation/state/auth_navigation.dart';
 
 class MfaChallengePage extends ConsumerStatefulWidget {
   const MfaChallengePage({
@@ -96,7 +97,7 @@ class _MfaChallengePageState extends ConsumerState<MfaChallengePage>
         code: _codeControllers[methodType]!.text.trim(),
       );
       if (!mounted) return;
-      _handleAuthNavigation(ref.read(authNotifierProvider));
+      navigateForAuthState(context, ref.read(authNotifierProvider));
     } on AppException catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -133,14 +134,6 @@ class _MfaChallengePageState extends ConsumerState<MfaChallengePage>
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(error.message)));
-    }
-  }
-
-  void _handleAuthNavigation(AuthState authState) {
-    if (authState.isAuthenticated) {
-      context.go('/dashboard');
-    } else if (authState.isMfaEnrollmentRequired) {
-      context.go('/mfa/enroll');
     }
   }
 
@@ -185,9 +178,8 @@ class _MfaChallengePageState extends ConsumerState<MfaChallengePage>
               // Title
               Text(
                 'Verify your identity',
-                style: AppTypography.headlineMedium.copyWith(
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
+                style: AppTypography.titleLarge.copyWith(
+                  fontWeight: FontWeight.w700,
                   color: theme.colorScheme.onSurface,
                 ),
               ),

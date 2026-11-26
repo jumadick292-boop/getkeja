@@ -1,4 +1,5 @@
 import { randomUUID, createHash, timingSafeEqual } from 'node:crypto';
+import type { PoolClient } from 'pg';
 import { pool } from '../../db/pool.js';
 import { ConflictError } from '../../shared/errors.js';
 import type {
@@ -908,6 +909,23 @@ export async function findOrganisationBySlug(slug: string): Promise<Organisation
   return result.rows[0];
 }
 
+export async function addActiveOrganisationMember(
+  organisationId: string,
+  userId: string,
+  role: string,
+): Promise<OrganisationMember> {
+  const id = randomUUID();
+  const result = await pool.query<OrganisationMember>(
+    `INSERT INTO organisation_members (id, organisation_id, user_id, role, status, joined_at)
+     VALUES ($1, $2, $3, $4, 'active', NOW())
+     RETURNING id, organisation_id as "organisationId", user_id as "userId", role, status,
+       invited_by as "invitedBy", created_at as "invitedAt", joined_at as "joinedAt",
+       removed_at as "removedAt", removed_by as "removedBy", created_at as "createdAt", updated_at as "updatedAt"`,
+    [id, organisationId, userId, role],
+  );
+  return result.rows[0]!;
+}
+
 export async function addOrganisationMember(
   organisationId: string,
   userId: string,
@@ -919,7 +937,7 @@ export async function addOrganisationMember(
     `INSERT INTO organisation_members (id, organisation_id, user_id, role, status, invited_by, invited_at)
      VALUES ($1, $2, $3, $4, 'invited', $5, NOW())
      RETURNING id, organisation_id as "organisationId", user_id as "userId", role, status,
-       invited_by as "invitedBy", invited_at as "invitedAt", joined_at as "joinedAt",
+       invited_by as "invitedBy", created_at as "invitedAt", joined_at as "joinedAt",
        removed_at as "removedAt", removed_by as "removedBy", created_at as "createdAt", updated_at as "updatedAt"`,
     [id, organisationId, userId, role, invitedBy],
   );
@@ -929,7 +947,7 @@ export async function addOrganisationMember(
 export async function findOrganisationMembers(organisationId: string): Promise<OrganisationMember[]> {
   const result = await pool.query<OrganisationMember>(
     `SELECT id, organisation_id as "organisationId", user_id as "userId", role, status,
-       invited_by as "invitedBy", invited_at as "invitedAt", joined_at as "joinedAt",
+       invited_by as "invitedBy", created_at as "invitedAt", joined_at as "joinedAt",
        removed_at as "removedAt", removed_by as "removedBy", created_at as "createdAt", updated_at as "updatedAt"
 FROM organisation_members WHERE organisation_id = $1 AND status = 'active'`,
      [organisationId],
@@ -1006,7 +1024,7 @@ export async function findPendingOrganisationInvitation(
        token_hash as "tokenHash", status, expires_at as "expiresAt", accepted_at as "acceptedAt",
        accepted_by as "acceptedBy", revoked_at as "revokedAt", revoked_by as "revokedBy",
        revoked_reason as "revokedReason", created_at as "createdAt", updated_at as "updatedAt",
-       invited_at as "invitedAt"
+       created_at as "invitedAt"
      FROM organisation_invitations
      WHERE organisation_id = $1 AND email = $2 AND status = 'pending'`,
     [organisationId, email],
@@ -1017,7 +1035,7 @@ export async function findPendingOrganisationInvitation(
 export async function getOrganisationMembers(organisationId: string): Promise<OrganisationMember[]> {
   const result = await pool.query<OrganisationMember>(
     `SELECT id, organisation_id as "organisationId", user_id as "userId", role, status,
-       invited_by as "invitedBy", invited_at as "invitedAt", joined_at as "joinedAt",
+       invited_by as "invitedBy", created_at as "invitedAt", joined_at as "joinedAt",
        removed_at as "removedAt", removed_by as "removedBy", created_at as "createdAt", updated_at as "updatedAt"
      FROM organisation_members WHERE organisation_id = $1`,
     [organisationId],
@@ -1041,7 +1059,7 @@ export async function createOrganisationInvitation(data: {
        token_hash as "tokenHash", status, expires_at as "expiresAt", accepted_at as "acceptedAt",
        accepted_by as "acceptedBy", revoked_at as "revokedAt", revoked_by as "revokedBy",
        revoked_reason as "revokedReason", created_at as "createdAt", updated_at as "updatedAt",
-       invited_at as "invitedAt"`,
+       created_at as "invitedAt"`,
     [id, data.organisationId, data.email, data.role, data.invitedBy, data.tokenHash, data.expiresAt],
   );
   return result.rows[0]!;
@@ -1053,9 +1071,41 @@ export async function findOrganisationInvitationByTokenHash(tokenHash: string): 
        token_hash as "tokenHash", status, expires_at as "expiresAt", accepted_at as "acceptedAt",
        accepted_by as "acceptedBy", revoked_at as "revokedAt", revoked_by as "revokedBy",
        revoked_reason as "revokedReason", created_at as "createdAt", updated_at as "updatedAt",
-       invited_at as "invitedAt"
+       created_at as "invitedAt"
      FROM organisation_invitations WHERE token_hash = $1`,
     [tokenHash],
+  );
+  return result.rows[0];
+}
+
+export async function findOrganisationInvitationById(invitationId: string): Promise<OrganisationInvitation | undefined> {
+  const result = await pool.query<OrganisationInvitation>(
+    `SELECT id, organisation_id as "organisationId", email, role, invited_by as "invitedBy",
+       token_hash as "tokenHash", status, expires_at as "expiresAt", accepted_at as "acceptedAt",
+       accepted_by as "acceptedBy", revoked_at as "revokedAt", revoked_by as "revokedBy",
+       revoked_reason as "revokedReason", created_at as "createdAt", updated_at as "updatedAt",
+       created_at as "invitedAt"
+      FROM organisation_invitations WHERE id = $1`,
+    [invitationId],
+  );
+  return result.rows[0];
+}
+
+export async function setOrganisationActive(
+  organisationId: string,
+  active: boolean,
+  userId: string,
+): Promise<Organisation | undefined> {
+  const result = await pool.query<Organisation>(
+    `UPDATE organisations SET is_active = $2, updated_at = NOW()
+      WHERE id = $1
+      RETURNING id, name, slug, type, description, contact_email as "contactEmail",
+        contact_phone as "contactPhone", address, city, county, country,
+        registration_number as "registrationNumber", tax_id as "taxId",
+        logo_url as "logoUrl", website_url as "websiteUrl",
+        is_verified as "isVerified", verification_status as "verificationStatus",
+        is_active as "isActive", created_at as "createdAt", updated_at as "updatedAt"`,
+    [organisationId, active],
   );
   return result.rows[0];
 }
@@ -1072,8 +1122,26 @@ export async function acceptOrganisationInvitation(
        token_hash as "tokenHash", status, expires_at as "expiresAt", accepted_at as "acceptedAt",
        accepted_by as "acceptedBy", revoked_at as "revokedAt", revoked_by as "revokedBy",
        revoked_reason as "revokedReason", created_at as "createdAt", updated_at as "updatedAt",
-       invited_at as "invitedAt"`,
+       created_at as "invitedAt"`,
     [invitationId, userId],
+  );
+  return result.rows[0];
+}
+
+export async function declineOrganisationInvitation(
+  invitationId: string,
+  userId: string
+): Promise<OrganisationInvitation | undefined> {
+  const result = await pool.query<OrganisationInvitation>(
+    `UPDATE organisation_invitations
+     SET status = 'declined', updated_at = NOW()
+     WHERE id = $1 AND status = 'pending'
+     RETURNING id, organisation_id as "organisationId", email, role, invited_by as "invitedBy",
+       token_hash as "tokenHash", status, expires_at as "expiresAt", accepted_at as "acceptedAt",
+       accepted_by as "acceptedBy", revoked_at as "revokedAt", revoked_by as "revokedBy",
+       revoked_reason as "revokedReason", created_at as "createdAt", updated_at as "updatedAt",
+       created_at as "invitedAt"`,
+    [invitationId],
   );
   return result.rows[0];
 }
@@ -1088,7 +1156,7 @@ export async function getOrganisationInvitations(
        token_hash as "tokenHash", status, expires_at as "expiresAt", accepted_at as "acceptedAt",
        accepted_by as "acceptedBy", revoked_at as "revokedAt", revoked_by as "revokedBy",
        revoked_reason as "revokedReason", created_at as "createdAt", updated_at as "updatedAt",
-       invited_at as "invitedAt"
+       created_at as "invitedAt"
      FROM organisation_invitations WHERE organisation_id = $1`;
   const params: unknown[] = [organisationId];
   let paramIndex = 2;
@@ -1118,7 +1186,7 @@ export async function revokeOrganisationInvitation(
        token_hash as "tokenHash", status, expires_at as "expiresAt", accepted_at as "acceptedAt",
        accepted_by as "acceptedBy", revoked_at as "revokedAt", revoked_by as "revokedBy",
        revoked_reason as "revokedReason", created_at as "createdAt", updated_at as "updatedAt",
-       invited_at as "invitedAt"`,
+       created_at as "invitedAt"`,
     [invitationId, revokedBy, reason],
   );
   return result.rows[0];
@@ -1127,7 +1195,7 @@ export async function revokeOrganisationInvitation(
 export async function findOrganisationMemberById(memberId: string): Promise<OrganisationMember | undefined> {
   const result = await pool.query<OrganisationMember>(
     `SELECT id, organisation_id as "organisationId", user_id as "userId", role, status,
-       invited_by as "invitedBy", invited_at as "invitedAt", joined_at as "joinedAt",
+       invited_by as "invitedBy", created_at as "invitedAt", joined_at as "joinedAt",
        removed_at as "removedAt", removed_by as "removedBy", created_at as "createdAt", updated_at as "updatedAt"
      FROM organisation_members WHERE id = $1`,
     [memberId],
@@ -1166,7 +1234,7 @@ export async function updateOrganisationMember(
   const result = await pool.query<OrganisationMember>(
     `UPDATE organisation_members SET ${fields.join(', ')} WHERE id = $${paramIndex}
      RETURNING id, organisation_id as "organisationId", user_id as "userId", role, status,
-       invited_by as "invitedBy", invited_at as "invitedAt", joined_at as "joinedAt",
+       invited_by as "invitedBy", created_at as "invitedAt", joined_at as "joinedAt",
        removed_at as "removedAt", removed_by as "removedBy", created_at as "createdAt", updated_at as "updatedAt"`,
     values,
   );
@@ -1927,6 +1995,28 @@ export async function findNotificationTemplateByKey(templateKey: string, channel
   return result.rows[0];
 }
 
+export async function findNotificationTemplateByEvent(
+  eventType: string,
+  channel: string,
+  locale: string = 'en',
+): Promise<NotificationTemplate | undefined> {
+  // Resolve the best matching template for an event, honouring an explicit
+  // locale with a graceful fallback chain (requested -> 'en').
+  const locales = locale === 'en' ? ['en'] : [locale, 'en'];
+  for (const loc of locales) {
+    const result = await pool.query<NotificationTemplate>(
+      `SELECT id, template_key as "templateKey", event_type as "eventType", channel, locale, subject, body, is_active as "isActive", version, metadata, created_by as "createdBy", updated_by as "updatedBy", created_at as "createdAt", updated_at as "updatedAt"
+         FROM notification_templates
+        WHERE event_type = $1 AND channel = $2 AND locale = $3 AND is_active = TRUE
+        ORDER BY version DESC
+        LIMIT 1`,
+      [eventType, channel, loc],
+    );
+    if (result.rows[0]) return result.rows[0];
+  }
+  return undefined;
+}
+
 export async function findNotificationTemplates(eventType?: string, channel?: string): Promise<NotificationTemplate[]> {
   const conditions: string[] = ['is_active = TRUE'];
   const values: unknown[] = [];
@@ -2495,7 +2585,7 @@ export async function createNotificationPreferences(data: {
       operational_email, operational_sms, operational_push, operational_in_app,
       marketing_email, marketing_sms, marketing_push, marketing_in_app,
       quiet_hours_start, quiet_hours_end, timezone, metadata
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40)
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42)
     RETURNING
       id, user_id as "userId",
       email_enabled as "emailEnabled", sms_enabled as "smsEnabled", push_enabled as "pushEnabled", in_app_enabled as "inAppEnabled",
@@ -2797,15 +2887,28 @@ export async function createOutboxEvent(data: {
   payload: Record<string, unknown>;
   channels: string[];
   maxRetries?: number;
+  client?: PoolClient;
 }): Promise<NotificationOutbox> {
   const id = randomUUID();
-  const result = await pool.query<NotificationOutbox>(
+  const executor = data.client ?? pool;
+  const result = await executor.query<NotificationOutbox>(
     `INSERT INTO notification_outbox (id, idempotency_key, event_type, category, priority, recipient_user_ids, organisation_id, resource_type, resource_id, payload, channels, max_retries)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+     ON CONFLICT (idempotency_key) DO NOTHING
      RETURNING id, idempotency_key as "idempotencyKey", event_type as "eventType", category, priority, recipient_user_ids as "recipientUserIds", organisation_id as "organisationId", resource_type as "resourceType", resource_id as "resourceId", payload, channels, status, processing_started_at as "processingStartedAt", processing_completed_at as "processingCompletedAt", error_message as "errorMessage", retry_count as "retryCount", max_retries as "maxRetries", next_retry_at as "nextRetryAt", created_at as "createdAt", updated_at as "updatedAt"`,
     [id, data.idempotencyKey, data.eventType, data.category, data.priority, data.recipientUserIds, data.organisationId, data.resourceType, data.resourceId, JSON.stringify(data.payload), data.channels, data.maxRetries ?? 3],
   );
-  return result.rows[0]!;
+  if (result.rows[0]) return result.rows[0];
+
+  // A concurrent insert already persisted this idempotency key. Return the
+  // existing row (within the caller's transaction when supplied) so callers
+  // always receive a concrete outbox event without violating uniqueness.
+  const existing = await executor.query<NotificationOutbox>(
+    `SELECT id, idempotency_key as "idempotencyKey", event_type as "eventType", category, priority, recipient_user_ids as "recipientUserIds", organisation_id as "organisationId", resource_type as "resourceType", resource_id as "resourceId", payload, channels, status, processing_started_at as "processingStartedAt", processing_completed_at as "processingCompletedAt", error_message as "errorMessage", retry_count as "retryCount", max_retries as "maxRetries", next_retry_at as "nextRetryAt", created_at as "createdAt", updated_at as "updatedAt"
+       FROM notification_outbox WHERE idempotency_key = $1`,
+    [data.idempotencyKey],
+  );
+  return existing.rows[0]!;
 }
 
 export async function findOutboxEventByIdempotencyKey(idempotencyKey: string): Promise<NotificationOutbox | undefined> {
@@ -3134,10 +3237,10 @@ export async function createAuthorizationAuditEvent(data: {
 }): Promise<AuthorizationAuditEvent> {
   const id = randomUUID();
   const result = await pool.query<AuthorizationAuditEvent>(
-    `INSERT INTO authorization_audit (id, user_id, action, resource_type, resource_id, permission, allowed, ip_address, user_agent, metadata)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-     RETURNING id, user_id as "userId", action, resource_type as "resourceType", resource_id as "resourceId", permission, allowed, ip_address as "ipAddress", user_agent as "userAgent", metadata, created_at as "createdAt"`,
-    [id, data.userId, data.action, data.resourceType, data.resourceId, data.permission, data.allowed, data.ipAddress, data.userAgent, JSON.stringify(data.metadata)],
+    `INSERT INTO authorization_audit (id, user_id, decision, permission_id, resource_type, resource_id, ip_address, user_agent, metadata)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+     RETURNING id, user_id as "userId", decision, permission_id as "permissionId", resource_type as "resourceType", resource_id as "resourceId", ip_address as "ipAddress", user_agent as "userAgent", metadata, created_at as "createdAt"`,
+    [id, data.userId, data.allowed ? 'allow' : 'deny', data.permission, data.resourceType, data.resourceId, data.ipAddress, data.userAgent, JSON.stringify({ ...data.metadata, action: data.action })],
   );
   return result.rows[0]!;
 }
@@ -3199,7 +3302,7 @@ export async function getAuthorizationAuditEvents(options: {
 // Additional functions needed by authorization.service.ts
 export async function getUserGlobalRoleIds(userId: string): Promise<string[]> {
   const result = await pool.query<{ role_id: string }>(
-    `SELECT role_id FROM role_assignments WHERE user_id = $1 AND scope = 'platform' AND (expires_at IS NULL OR expires_at > NOW())`,
+    `SELECT role_id FROM role_assignments WHERE user_id = $1 AND scope = 'global' AND (expires_at IS NULL OR expires_at > NOW())`,
     [userId],
   );
   return result.rows.map(r => r.role_id);
@@ -3208,7 +3311,7 @@ export async function getUserGlobalRoleIds(userId: string): Promise<string[]> {
 export async function getUserOrganisationMemberships(userId: string): Promise<OrganisationMember[]> {
   const result = await pool.query<OrganisationMember>(
     `SELECT id, organisation_id as "organisationId", user_id as "userId", role, status,
-       invited_by as "invitedBy", invited_at as "invitedAt", joined_at as "joinedAt",
+       invited_by as "invitedBy", created_at as "invitedAt", joined_at as "joinedAt",
        removed_at as "removedAt", removed_by as "removedBy", created_at as "createdAt", updated_at as "updatedAt"
      FROM organisation_members WHERE user_id = $1 AND status IN ('active', 'invited')`,
     [userId],
@@ -3354,7 +3457,7 @@ export async function deleteProperty(propertyId: string): Promise<boolean> {
 
 export async function findPropertyOwnerships(propertyId: string): Promise<any[]> {
   const result = await pool.query(
-    `SELECT user_id, ownership_percentage FROM property_ownerships WHERE property_id = $1`,
+    `SELECT user_id as "userId", ownership_share as "ownershipShare", status FROM property_ownerships WHERE property_id = $1`,
     [propertyId],
   );
   return result.rows;
@@ -3362,7 +3465,7 @@ export async function findPropertyOwnerships(propertyId: string): Promise<any[]>
 
 export async function findPropertyAssignments(propertyId: string): Promise<any[]> {
   const result = await pool.query(
-    `SELECT user_id, role FROM property_assignments WHERE property_id = $1`,
+    `SELECT user_id as "userId", status FROM property_assignments WHERE property_id = $1`,
     [propertyId],
   );
   return result.rows;
@@ -3370,7 +3473,7 @@ export async function findPropertyAssignments(propertyId: string): Promise<any[]
 
 export async function findUnitsByProperty(propertyId: string): Promise<any[]> {
   const result = await pool.query(
-    `SELECT id, property_id, name, unit_number, unit_type, floor, area_sqm, status, created_at, updated_at
+    `SELECT id, property_id, unit_number, unit_type, floor_number, bedrooms, bathrooms, area_sqm, status, created_at, updated_at
      FROM units WHERE property_id = $1`,
     [propertyId],
   );
@@ -3379,7 +3482,7 @@ export async function findUnitsByProperty(propertyId: string): Promise<any[]> {
 
 export async function findUnitAccessAssignments(unitId: string): Promise<any[]> {
   const result = await pool.query(
-    `SELECT user_id, role FROM unit_access_assignments WHERE unit_id = $1`,
+    `SELECT user_id as "userId", status FROM unit_access_assignments WHERE unit_id = $1`,
     [unitId],
   );
   return result.rows;

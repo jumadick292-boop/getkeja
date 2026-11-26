@@ -195,9 +195,9 @@ class _AccountPreferencesPageState
     return Scaffold(
       appBar: AppBar(title: Text(l10n.preferencesAndNotifications)),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const AppListSkeleton(rows: 5)
           : SingleChildScrollView(
-              padding: AppSpacing.screenPadding,
+              padding: AppSpacing.compactScreenPadding,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -222,7 +222,7 @@ class _AccountPreferencesPageState
                   ),
                   const SizedBox(height: 16),
                   AppCard(
-                    padding: AppSpacing.cardPadding,
+                    padding: AppSpacing.compactCardPadding,
                     child: Column(
                       children: [
                         _buildDropdownField<String>(
@@ -319,7 +319,7 @@ class _AccountPreferencesPageState
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   // Theme section
                   _buildSectionHeader(
@@ -329,7 +329,7 @@ class _AccountPreferencesPageState
                   ),
                   const SizedBox(height: 16),
                   AppCard(
-                    padding: AppSpacing.cardPadding,
+                    padding: AppSpacing.compactCardPadding,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -389,7 +389,7 @@ class _AccountPreferencesPageState
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   // Currency section
                   _buildSectionHeader(
@@ -399,7 +399,7 @@ class _AccountPreferencesPageState
                   ),
                   const SizedBox(height: 16),
                   AppCard(
-                    padding: AppSpacing.cardPadding,
+                    padding: AppSpacing.compactCardPadding,
                     child: _buildDropdownField<String>(
                       context,
                       label: l10n.defaultCurrency,
@@ -417,7 +417,7 @@ class _AccountPreferencesPageState
                       },
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   // Notification channels section
                   _buildSectionHeader(
@@ -427,7 +427,7 @@ class _AccountPreferencesPageState
                   ),
                   const SizedBox(height: 16),
                   AppCard(
-                    padding: AppSpacing.cardPadding,
+                    padding: AppSpacing.compactCardPadding,
                     child: Column(
                       children: [
                         _buildNotificationSwitch(
@@ -462,7 +462,7 @@ class _AccountPreferencesPageState
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   // Save button
                   PrimaryButton(
@@ -470,7 +470,7 @@ class _AccountPreferencesPageState
                     isLoading: _isSaving,
                     onPressed: _savePreferences,
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),

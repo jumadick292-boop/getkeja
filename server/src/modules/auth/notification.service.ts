@@ -1,6 +1,7 @@
 import {
   createNotificationTemplate,
   findNotificationTemplateByKey,
+  findNotificationTemplateByEvent,
   findNotificationTemplates,
   createNotification,
   createNotificationWithRecipients,
@@ -30,6 +31,12 @@ import {
   updateOutboxEvent,
   findOutboxEventById,
 } from './auth.repository.js';
+import {
+  type OutboxEventInput,
+  enqueueOutboxEventTransactional,
+  classifyEventType,
+  proposalIdempotencyKey,
+} from './transactional-outbox.service.js';
 import type {
   NotificationTemplate,
   Notification,
@@ -48,6 +55,7 @@ import { sendEmail, getEmailProvider, type EmailProvider } from './providers/ema
 import { sendSms, getSmsProvider, type SmsProvider } from './providers/sms.js';
 import { encrypt, decrypt } from './crypto.js';
 import { pool } from '../../db/pool.js';
+import type { PoolClient } from 'pg';
 
 const MAX_RETRIES = 3;
 const RETRY_DELAYS = [60_000, 300_000, 900_000];
@@ -71,12 +79,65 @@ function isQuietHours(prefs: NotificationPreferences): boolean {
   return currentMinutes >= startMinutes || currentMinutes <= endMinutes;
 }
 
+export interface ContactVerification {
+  email: boolean;
+  phone: boolean;
+  push: boolean;
+}
+
+/**
+ * Build a safe deep link for a notification from its business context. The link
+ * carries only a resource type + id; authorization is always re-checked by the
+ * target screen/API when the link is opened (a notification id is never proof
+ * of access). Returns null when there is no navigable resource.
+ */
+export function buildDeepLink(event: {
+  resourceType: string | null;
+  resourceId: string | null;
+  payload: Record<string, unknown>;
+}): string | null {
+  const resourceId =
+    event.resourceId ??
+    (typeof event.payload?.resourceId === 'string' ? (event.payload.resourceId as string) : null);
+  const type = event.resourceType ?? (typeof event.payload?.resourceType === 'string' ? (event.payload.resourceType as string) : null);
+  if (!type || !resourceId) return null;
+  switch (type) {
+    case 'conversation':
+      return `getkeja://messaging/conversations/${resourceId}`;
+    case 'moving_job':
+      return `getkeja://moving/jobs/${resourceId}`;
+    case 'garbage_job':
+      return `getkeja://garbage/jobs/${resourceId}`;
+    case 'laundry_order':
+      return `getkeja://laundry/orders/${resourceId}`;
+    case 'scheduling_activity':
+      return `getkeja://scheduling/calendar`;
+    case 'service_request':
+      return `getkeja://marketplace/requests/${resourceId}`;
+    default:
+      return null;
+  }
+}
+
 function shouldSendViaChannel(
   prefs: NotificationPreferences,
   category: NotificationCategory,
-  channel: NotificationChannel
+  channel: NotificationChannel,
+  verified?: ContactVerification,
 ): boolean {
-  if (isQuietHours(prefs) && channel !== 'in_app') return false;
+  // Essential security notifications must never be suppressed by ordinary
+  // marketing/quiet-hour preferences. They still respect a hard channel opt-out
+  // only via the global channel toggle being explicitly disabled.
+  const isSecurity = category === 'security';
+
+  if (!isSecurity && isQuietHours(prefs) && channel !== 'in_app') return false;
+
+  // Verified-contact enforcement: never email/SMS/push an unverified contact.
+  if (verified) {
+    if (channel === 'email' && !verified.email) return false;
+    if (channel === 'sms' && !verified.phone) return false;
+    if (channel === 'push' && !verified.push) return false;
+  }
 
   switch (channel) {
     case 'email':
@@ -93,12 +154,27 @@ function shouldSendViaChannel(
       break;
   }
 
-  const categoryChannelKey = `${category}${channel.charAt(0).toUpperCase() + channel.slice(1)}` as keyof NotificationPreferences;
+  // Security notifications bypass the per-category channel opt-out so a user
+  // cannot disable essential security alerts through category preferences.
+  if (isSecurity) return true;
+
+  const categoryChannelKey = `${category}${toPascalCase(channel)}` as keyof NotificationPreferences;
   return prefs[categoryChannelKey] === true;
 }
 
+// Convert a snake_case channel id to the PascalCase suffix used by the
+// per-category preference columns, e.g. "in_app" -> "InApp", "email" -> "Email".
+function toPascalCase(value: string): string {
+  return value
+    .split('_')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('');
+}
+
 async function getTemplate(eventType: string, channel: NotificationChannel, locale = 'en'): Promise<NotificationTemplate | undefined> {
-  return findNotificationTemplateByKey(eventType, channel, locale);
+  // Event-based lookup with locale fallback (event_type + channel + locale).
+  return findNotificationTemplateByEvent(eventType, channel, locale);
 }
 
 function renderTemplate(template: NotificationTemplate, data: Record<string, unknown>): { subject: string | null; body: string } {
@@ -113,6 +189,29 @@ function renderTemplate(template: NotificationTemplate, data: Record<string, unk
   }
 
   return { subject, body };
+}
+
+function capitalize(value: string): string {
+  if (!value) return value;
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+/**
+ * Human-readable fallback body used when no template exists for an event.
+ * Site visit payloads carry propertyTitle and scheduledAt, so surface them.
+ */
+function renderFallbackBody(event: { eventType: string; payload: Record<string, unknown> }): string {
+  const payload = event.payload ?? {};
+  const title = typeof payload.propertyTitle === 'string' ? payload.propertyTitle : null;
+  const when = typeof payload.scheduledAt === 'string' ? payload.scheduledAt : null;
+  const reason = typeof payload.reason === 'string' ? payload.reason : null;
+
+  const parts: string[] = [];
+  if (title) parts.push(`Property: ${title}`);
+  if (when) parts.push(`When: ${when}`);
+  if (reason) parts.push(`Reason: ${reason}`);
+  if (parts.length > 0) return parts.join('. ');
+  return capitalize(event.eventType.replace(/[._]/g, ' '));
 }
 
 export class NotificationTemplateService {
@@ -326,6 +425,36 @@ export class NotificationService {
     this.preferenceService = new NotificationPreferenceService();
   }
 
+  /**
+   * Resolve a recipient's preferred locale (en/sw) and contact-verification
+   * state. Used at delivery time so preferences and verification are honoured
+   * when the event is processed, not when it is created.
+   */
+  private async getRecipientProfile(
+    userId: string,
+  ): Promise<{ locale: string; verified: ContactVerification }> {
+    const result = await pool.query<{
+      email_verified: boolean;
+      phone_verified: boolean;
+      locale: string | null;
+    }>(
+      `SELECT u.email_verified, u.phone_verified,
+              (SELECT gi.locale FROM google_identities gi WHERE gi.user_id = u.id AND gi.locale IS NOT NULL LIMIT 1) AS locale
+         FROM users u WHERE u.id = $1 LIMIT 1`,
+      [userId],
+    );
+    const row = result.rows[0];
+    const raw = row?.locale && row.locale.length >= 2 ? row.locale.slice(0, 2).toLowerCase() : 'en';
+    return {
+      locale: raw === 'sw' ? 'sw' : 'en',
+      verified: {
+        email: row?.email_verified === true,
+        phone: row?.phone_verified === true,
+        push: row?.email_verified === true || row?.phone_verified === true,
+      },
+    };
+  }
+
   async createAndSend(data: {
     userId: string;
     organisationId: string | null;
@@ -395,21 +524,87 @@ export class NotificationService {
     return createOutboxEvent(data);
   }
 
+  /**
+   * Persist an outbox event within the caller's active transaction.
+   *
+   * Use this when the business state change and the outbox event must be
+   * atomic: if the outbox insert fails the transaction rolls back and the
+   * state change is never persisted without its notification.
+   */
+  async createOutboxEventTransactional(
+    client: PoolClient,
+    input: OutboxEventInput,
+  ): Promise<NotificationOutbox> {
+    return enqueueOutboxEventTransactional(client, input);
+  }
+
+  /**
+   * Classify an event type for outbox durability.
+   */
+  classifyEventType(eventType: string): 'critical' | 'best_effort' {
+    return classifyEventType(eventType);
+  }
+
+  /**
+   * Build a stable idempotency key for proposal events, incorporating an
+   * optional version number so distinct proposal versions and negotiation
+   * actions have distinct identities.
+   */
+  proposalIdempotencyKey(
+    base: string,
+    proposalId: string,
+    versionNumber?: number | null,
+  ): string {
+    return proposalIdempotencyKey(base, proposalId, versionNumber);
+  }
+
   async processOutboxEvent(outboxId: string): Promise<void> {
     const event = await findOutboxEventById(outboxId);
     if (!event) return;
+
+    if (event.status === 'completed' || event.status === 'processing') {
+      // Already materialised; a redelivered job must not duplicate rows.
+      return;
+    }
 
     await updateOutboxEvent(outboxId, { status: 'processing', processingStartedAt: new Date() });
 
     try {
       for (const userId of event.recipientUserIds) {
         const prefs = await this.preferenceService.getOrCreate(userId);
+        const profile = await this.getRecipientProfile(userId);
+        const template = await getTemplate(event.eventType, 'in_app', profile.locale);
+        const fallbackTitle = event.eventType.replace(/[._]/g, ' ');
+        const fallbackBody = renderFallbackBody(event);
+        const deepLink = buildDeepLink(event);
+
+        // Materialise one persistent notification per recipient so the in-app
+        // list shows the event, then create per-channel delivery attempts for
+        // the channels the user has enabled (and verified) for this category.
+        const notification = await createNotification({
+          userId,
+          organisationId: event.organisationId,
+          eventType: event.eventType,
+          category: event.category,
+          title: template?.subject ?? capitalize(fallbackTitle),
+          body: template?.body
+            ? renderTemplate(template, event.payload).body
+            : fallbackBody,
+          metadata: {
+            ...(event.payload as Record<string, unknown>),
+            resourceType: event.resourceType,
+            resourceId: event.resourceId,
+            ...(deepLink ? { deepLink } : {}),
+          },
+          priority: event.priority,
+          expiresAt: null,
+        });
 
         for (const channel of event.channels) {
-          if (!shouldSendViaChannel(prefs, event.category as NotificationCategory, channel)) continue;
+          if (!shouldSendViaChannel(prefs, event.category as NotificationCategory, channel, profile.verified)) continue;
 
           await createDeliveryAttempt({
-            notificationId: event.id,
+            notificationId: notification.id,
             recipientId: null,
             channel,
             provider: this.getProviderForChannel(channel),

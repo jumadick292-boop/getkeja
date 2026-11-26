@@ -19,9 +19,10 @@ import type {
 } from './auth.types.js';
 import type { RoleAssignmentScope } from './authorization.types.js';
 
-const PERMISSION_CACHE_TTL = 300; // 5 minutes
+const PERMISSION_CACHE_TTL = 60; // 1 minute (reduced from 5 min for faster revocation)
 const PERMISSION_CACHE_PREFIX = 'auth:permissions:';
 const USER_PERMISSIONS_CACHE_PREFIX = 'auth:user-permissions:';
+const ORG_USERS_CACHE_PREFIX = 'auth:org-users:';
 
 async function getRedisClient() {
   try {
@@ -63,6 +64,16 @@ async function setCachedPermissions(userId: string, permissions: ResolvedPermiss
       resolvedAt: permissions.resolvedAt.toISOString(),
     };
     await redis.setex(`${USER_PERMISSIONS_CACHE_PREFIX}${userId}`, PERMISSION_CACHE_TTL, JSON.stringify(toCache));
+
+    // Track which organizations this user belongs to, for org-scoped invalidation.
+    for (const orgId of permissions.organizationMemberships
+      .filter((m: OrganisationMember) => m.status === 'active')
+      .map((m: OrganisationMember) => m.organisationId)) {
+      if (orgId) {
+        await redis.sadd(`${ORG_USERS_CACHE_PREFIX}${orgId}`, userId);
+        await redis.expire(`${ORG_USERS_CACHE_PREFIX}${orgId}`, PERMISSION_CACHE_TTL * 2);
+      }
+    }
   } catch {
     // Redis error, ignore
   }
@@ -82,13 +93,14 @@ export async function invalidateOrganizationPermissionCache(organizationId: stri
   const redis = await getRedisClient();
   if (!redis) return;
   try {
-    // Invalidate all users in this organization - we'd need to track which users belong to which org
-    // For now, we'll use a pattern-based approach or rely on TTL
-    const keys = await redis.keys(`${USER_PERMISSIONS_CACHE_PREFIX}*`);
-    if (keys.length > 0) {
-      // This is a simplified approach - in production you'd want a more targeted invalidation
-      // For now, we'll rely on TTL and the fact that the cache will be refreshed on next request
+    // Invalidate all users who belong to this organization using the
+    // org-users tracking set. Fall back to a full key scan if the set
+    // is missing (e.g. cache was populated before tracking was added).
+    const userIds = await redis.smembers(`${ORG_USERS_CACHE_PREFIX}${organizationId}`);
+    if (userIds.length > 0) {
+      await redis.del(...userIds.map((uid) => `${USER_PERMISSIONS_CACHE_PREFIX}${uid}`));
     }
+    await redis.del(`${ORG_USERS_CACHE_PREFIX}${organizationId}`);
   } catch {
     // Redis error, ignore
   }
@@ -263,6 +275,10 @@ export async function authorize(context: AuthorizationContext): Promise<Authoriz
 
   // 2. Check account status
   if (!user.isActive || user.isSuspended || user.isLocked || user.isDeactivated) {
+    // Invalidate cached permissions so revoked/suspended state takes effect
+    // immediately rather than waiting for TTL expiry.
+    await invalidateUserPermissionCache(userId);
+
     await auditAuthorization({
       userId,
       sessionId,
@@ -603,16 +619,20 @@ export async function canAccessTenancy(
     };
   }
 
-  // First check property access
+  // First check property access — property owners/managers with access
+  // are implicitly granted access to the tenancy. Caretakers with only
+  // unit-access assignments do NOT inherit tenancy (and thus financial)
+  // access through property access alone; they must be tenancy
+  // participants, managers, or hold an explicit tenancy permission.
   const propertyAccess = await canAccessProperty(userId, tenancy.propertyId);
-  if (!propertyAccess.allowed) {
+  if (propertyAccess.allowed && propertyAccess.reason !== 'Unit access assignment') {
     return propertyAccess;
   }
 
   // If no specific permission required, check tenancy participation
   if (!requiredPermission) {
     const participants = await repo.findTenancyParticipants(tenancyId);
-    const isParticipant = participants.some(p => p.userId === userId && p.status === 'active');
+    const isParticipant = participants.some(p => p.user_id === userId);
     if (isParticipant) {
       return {
         allowed: true,
@@ -669,7 +689,132 @@ export async function canAccessTenancy(
 }
 
 /**
- * Check if user can access a specific property document
+ * Compute whether a user may access a property document based on the
+ * document's own visibility and allow-list columns plus the user's real
+ * relationships to the underlying property (ownership, management assignment,
+ * unit/caretaker assignment, tenancy participation, organization membership).
+ *
+ * Fails closed on missing/malformed data. Never trusts client-supplied roles,
+ * user ids, organization ids or property ids — every relationship is resolved
+ * from the database for the document's actual property.
+ */
+export async function computeDocumentVisibilityAccess(
+  userId: string,
+  document: any
+): Promise<{ allowed: boolean; reason: string }> {
+  const deny = (reason: string) => ({ allowed: false, reason });
+  if (!userId) return deny('Authentication required');
+  if (!document || !document.id) return deny('Document not found');
+
+  // Status / expiry gates apply to every visibility.
+  if (document.status && document.status !== 'active') {
+    return deny('Document is not active');
+  }
+  if (document.expiresAt && new Date(document.expiresAt) < new Date()) {
+    return deny('Document has expired');
+  }
+
+  const visibility = document.visibility;
+  const known: string[] = ['private', 'owner', 'manager', 'tenant', 'participant', 'organization', 'public'];
+  if (!visibility || !known.includes(visibility)) {
+    // Unknown / missing visibility fails closed.
+    return deny('Document visibility is not defined');
+  }
+
+  const propertyId = document.propertyId;
+  if (!propertyId) return deny('Document has no property');
+  const property = await repo.findPropertyById(propertyId);
+  if (!property) return deny('Property not found');
+
+  const allowedUserIds: string[] = Array.isArray(document.allowedUserIds) ? document.allowedUserIds : [];
+  const allowedOrgIds: string[] = Array.isArray(document.allowedOrganisationIds) ? document.allowedOrganisationIds : [];
+  const allowedRoles: string[] = Array.isArray(document.allowedRoles) ? document.allowedRoles : [];
+
+  const isUploader = document.uploadedBy === userId;
+  const isExplicitlyListed = allowedUserIds.includes(userId);
+
+  // Ownership / management / unit-staff relationships (all status-checked).
+  const ownerships = await repo.findPropertyOwnerships(propertyId);
+  const isOwner = ownerships.some((o: any) => o.userId === userId && o.status === 'active');
+  const assignments = await repo.findPropertyAssignments(propertyId);
+  const isManager = assignments.some((a: any) => a.userId === userId && a.status === 'active');
+
+  // Unit/caretaker staff — scoped to the document's own unit only.
+  const staffUnitIds = new Set<string>();
+  const units = await repo.findUnitsByProperty(propertyId);
+  for (const unit of units) {
+    const ua = await repo.findUnitAccessAssignments(unit.id);
+    if (ua.some((a: any) => a.userId === userId && a.status === 'active')) {
+      staffUnitIds.add(unit.id);
+    }
+  }
+  const isStaffForDoc = !!document.unitId && staffUnitIds.has(document.unitId);
+
+  // Organization membership (active) and role intersection for allow-listed roles.
+  const memberships = await repo.getUserOrganisationMemberships(userId);
+  const activeOrgIds = memberships.filter((m: any) => m.status === 'active').map((m: any) => m.organisationId);
+  const isOrgMember = !!property.organisationId && activeOrgIds.includes(property.organisationId);
+  const isAllowedOrg = allowedOrgIds.some((id) => activeOrgIds.includes(id));
+  let hasAllowedRole = false;
+  if (allowedRoles.length > 0 && property.organisationId && isOrgMember) {
+    const roleIds = await getUserOrganizationRoleIds(userId, property.organisationId);
+    hasAllowedRole = roleIds.some((r) => allowedRoles.includes(r));
+  }
+
+  // Tenancy participation (tenant) — for the document's tenancy or any active
+  // tenancy on the property/unit the user participates in.
+  let isTenant = false;
+  const tenancyIds = new Set<string>();
+  if (document.tenancyId) tenancyIds.add(document.tenancyId);
+  const propertyTenancies = await repo.findTenanciesByProperty(propertyId, { limit: 100, offset: 0 });
+  for (const t of propertyTenancies) {
+    if (t.status === 'active') tenancyIds.add(t.id);
+  }
+  for (const tid of tenancyIds) {
+    const participants = await repo.findTenancyParticipants(tid);
+    if (participants.some((p: any) => p.user_id === userId)) {
+      isTenant = true;
+      break;
+    }
+  }
+
+  const management = isUploader || isOwner || isManager || (isOrgMember && (allowedRoles.length === 0 || hasAllowedRole));
+
+  switch (visibility as string) {
+    case 'private':
+      // Strictest: only the uploader. Property access alone never grants it.
+      return isUploader ? { allowed: true, reason: 'Document uploader' } : deny('Private document');
+    case 'owner':
+      return isUploader || isOwner ? { allowed: true, reason: 'Property owner' } : deny('Owner-only document');
+    case 'manager':
+      return management ? { allowed: true, reason: 'Property management' } : deny('Manager-only document');
+    case 'tenant':
+      return management || isTenant || isStaffForDoc
+        ? { allowed: true, reason: 'Tenant/property access' }
+        : deny('Tenant document');
+    case 'participant':
+      return management || isTenant || isStaffForDoc || isExplicitlyListed
+        ? { allowed: true, reason: 'Participant access' }
+        : deny('Participant document');
+    case 'organization':
+      return management || isAllowedOrg || isOrgMember
+        ? { allowed: true, reason: 'Organization access' }
+        : deny('Organization document');
+    case 'public':
+      return { allowed: true, reason: 'Public document' };
+    default:
+      return deny('Document visibility is not defined');
+  }
+}
+
+/**
+ * Check if user can access a specific property document.
+ *
+ * Access is granted only when the caller satisfies the document's own
+ * visibility and allow-list rules (see computeDocumentVisibilityAccess). When a
+ * requiredPermission is supplied (management endpoints), the caller must ALSO
+ * pass the standard permission/resource authorization. Property access alone is
+ * never sufficient for a private or restricted document.
  */
 export async function canAccessPropertyDocument(
   userId: string,
@@ -687,37 +832,45 @@ export async function canAccessPropertyDocument(
     };
   }
 
-  // Check property access first
-  const propertyAccess = await canAccessProperty(userId, document.propertyId);
-  if (!propertyAccess.allowed) {
-    return propertyAccess;
-  }
-
-  // If no specific permission required, check document access level
-  if (!requiredPermission) {
-    // Check if user is a tenant in any tenancy for this property
-    const tenancies = await repo.findPropertyDocumentsByTenancy(document.tenancyId || '');
-    // This is a simplified check - in reality you'd check document visibility settings
+  const visibility = await computeDocumentVisibilityAccess(userId, document);
+  if (!visibility.allowed) {
     return {
-      allowed: true,
-      reason: 'Property access grants document access',
+      allowed: false,
+      reason: visibility.reason,
       matchedRoles: [],
       matchedPermissions: [],
       matchedAssignments: [],
     };
   }
 
-  return authorize({
-    userId,
-    sessionId: '',
-    permission: requiredPermission,
-    resourceType: 'document',
-    resourceId: documentId,
-  });
+  if (requiredPermission) {
+    return authorize({
+      userId,
+      sessionId: '',
+      permission: requiredPermission,
+      resourceType: 'document',
+      resourceId: documentId,
+    });
+  }
+
+  return {
+    allowed: true,
+    reason: visibility.reason,
+    matchedRoles: [],
+    matchedPermissions: [],
+    matchedAssignments: [],
+  };
 }
 
 /**
- * Check if user can access a specific site visit
+ * Check if user can access a specific site visit.
+ *
+ * House Seeker participants are allowed when the visit belongs to them
+ * (user_id / created_by). Landlords, managers and caretakers are allowed
+ * through property access, but only managers (ownership or property
+ * assignment) may perform management transitions. Caretakers with unit access
+ * assignments can view visits for units they are assigned to but never inherit
+ * unrestricted landlord access.
  */
 export async function canAccessSiteVisit(
   userId: string,
@@ -735,41 +888,105 @@ export async function canAccessSiteVisit(
     };
   }
 
-  // Check property access first
-  const propertyAccess = await canAccessProperty(userId, visit.propertyId);
-  if (!propertyAccess.allowed) {
-    return propertyAccess;
+  // When a specific permission is required, management rights are decided by
+  // ownership/property-assignment/host checks only. A House Seeker who is the
+  // visitor never inherits management rights, and caretakers with unit-level
+  // access assignments never inherit unrestricted landlord access.
+  if (requiredPermission) {
+    return canManageAnySiteVisit(userId, visitId);
   }
 
-  // If no specific permission required, check visit participant
-  if (!requiredPermission) {
-    // Check if user is the visitor or host
-    if (visit.userId === userId || visit.hostedByUserId === userId) {
-      return {
-        allowed: true,
-        reason: 'Site visit participant',
-        matchedRoles: [],
-        matchedPermissions: [],
-        matchedAssignments: [],
-      };
-    }
-
+  // House Seeker participant (visitor or creator) has read access.
+  if (visit.userId === userId || visit.createdBy === userId) {
     return {
-      allowed: false,
-      reason: 'Not a participant in this site visit',
+      allowed: true,
+      reason: 'Site visit participant',
       matchedRoles: [],
       matchedPermissions: [],
       matchedAssignments: [],
     };
   }
 
-  return authorize({
-    userId,
-    sessionId: '',
-    permission: requiredPermission,
-    resourceType: 'site_visit',
-    resourceId: visitId,
-  });
+  // Host explicitly assigned to this visit.
+  if (visit.hostedByUserId === userId) {
+    return {
+      allowed: true,
+      reason: 'Site visit host',
+      matchedRoles: [],
+      matchedPermissions: [],
+      matchedAssignments: [],
+    };
+  }
+
+  // Otherwise fall back to property access for read-only visibility.
+  return canAccessProperty(userId, visit.propertyId);
+}
+
+/**
+ * Check if a user may perform management actions (confirm/decline/reschedule/
+ * cancel/complete/no-show) on a site visit. Requires ownership or an active
+ * property assignment; caretakers and organisation members without an
+ * assignment are excluded.
+ */
+export async function canManageAnySiteVisit(
+  userId: string,
+  visitId: string
+): Promise<AuthorizationDecision> {
+  const visit = await repo.findSiteVisitById(visitId);
+  if (!visit) {
+    return {
+      allowed: false,
+      reason: 'Site visit not found',
+      matchedRoles: [],
+      matchedPermissions: [],
+      matchedAssignments: [],
+    };
+  }
+
+  const ownerships = await repo.findPropertyOwnerships(visit.propertyId);
+  const isOwner = ownerships.some((o) => o.userId === userId && o.status === 'active');
+  if (isOwner) {
+    return {
+      allowed: true,
+      reason: 'Property owner',
+      matchedRoles: [],
+      matchedPermissions: [],
+      matchedAssignments: [],
+    };
+  }
+
+  const assignments = await repo.findPropertyAssignments(visit.propertyId);
+  const hasAssignment = assignments.some(
+    (a) => a.userId === userId && a.status === 'active',
+  );
+  if (hasAssignment) {
+    return {
+      allowed: true,
+      reason: 'Property assignment',
+      matchedRoles: [],
+      matchedPermissions: [],
+      matchedAssignments: [],
+    };
+  }
+
+  // Named host on the visit row (staff explicitly assigned to host it).
+  if (visit.hostedByUserId === userId) {
+    return {
+      allowed: true,
+      reason: 'Site visit host',
+      matchedRoles: [],
+      matchedPermissions: [],
+      matchedAssignments: [],
+    };
+  }
+
+  return {
+    allowed: false,
+    reason: 'Not a manager of this property',
+    matchedRoles: [],
+    matchedPermissions: [],
+    matchedAssignments: [],
+  };
 }
 
 /**

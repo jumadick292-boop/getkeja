@@ -33,9 +33,9 @@ class OrganizationAccessPage extends ConsumerWidget {
         child: RefreshIndicator(
           onRefresh: () => notifier.loadOrganisations(),
           child: isLoading && organisations.isEmpty
-              ? const Center(child: CircularProgressIndicator())
+              ? const AppListSkeleton(rows: 3)
               : SingleChildScrollView(
-                  padding: AppSpacing.screenPadding,
+                  padding: AppSpacing.compactScreenPadding,
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,10 +64,10 @@ class OrganizationAccessPage extends ConsumerWidget {
                           ),
                         ),
 
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 24),
 
                       AppCard(
-                        padding: AppSpacing.cardPadding,
+                        padding: AppSpacing.compactCardPadding,
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -105,7 +105,7 @@ class OrganizationAccessPage extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ),
@@ -142,7 +142,7 @@ class OrganizationAccessPage extends ConsumerWidget {
   Widget _buildEmptyState(BuildContext context) {
     final theme = Theme.of(context);
     return AppCard(
-      padding: AppSpacing.cardPadding,
+      padding: AppSpacing.compactCardPadding,
       child: Column(
         children: [
           Icon(

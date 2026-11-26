@@ -221,9 +221,9 @@ class _ConnectedAccountsPageState extends ConsumerState<ConnectedAccountsPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Connected accounts')),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const AppListSkeleton(rows: 3)
           : SingleChildScrollView(
-              padding: AppSpacing.screenPadding,
+              padding: AppSpacing.compactScreenPadding,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -258,7 +258,7 @@ class _ConnectedAccountsPageState extends ConsumerState<ConnectedAccountsPage> {
 
                   // Google account
                   AppCard(
-                    padding: AppSpacing.cardPadding,
+                    padding: AppSpacing.compactCardPadding,
                     child: Row(
                       children: [
                         Container(
@@ -414,11 +414,11 @@ class _ConnectedAccountsPageState extends ConsumerState<ConnectedAccountsPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   // Info card
                   AppCard(
-                    padding: AppSpacing.cardPadding,
+                    padding: AppSpacing.compactCardPadding,
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -452,7 +452,7 @@ class _ConnectedAccountsPageState extends ConsumerState<ConnectedAccountsPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),

@@ -9,9 +9,13 @@ import '../../../../core/widgets/design_widgets.dart';
 import '../../../../core/errors/app_exceptions.dart';
 import '../../../../core/validators/validators.dart';
 import '../state/auth_state.dart';
+import '../state/auth_navigation.dart';
 
 class SignInPage extends ConsumerStatefulWidget {
-  const SignInPage({super.key});
+  const SignInPage({this.initialEmail, this.initialPhone, super.key});
+
+  final String? initialEmail;
+  final String? initialPhone;
 
   @override
   ConsumerState<SignInPage> createState() => _SignInPageState();
@@ -25,6 +29,17 @@ class _SignInPageState extends ConsumerState<SignInPage> {
 
   LoginMode _loginMode = LoginMode.emailPassword;
   bool _obscurePassword = true;
+  bool _isBusy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.text = widget.initialEmail ?? '';
+    _phoneController.text = widget.initialPhone ?? '';
+    if (widget.initialPhone != null && widget.initialPhone!.isNotEmpty) {
+      _loginMode = LoginMode.phonePassword;
+    }
+  }
 
   @override
   void dispose() {
@@ -35,8 +50,10 @@ class _SignInPageState extends ConsumerState<SignInPage> {
   }
 
   Future<void> _submit() async {
+    if (_isBusy || ref.read(authNotifierProvider).isLoading) return;
     if (!_formKey.currentState!.validate()) return;
 
+    setState(() => _isBusy = true);
     final notifier = ref.read(authNotifierProvider.notifier);
 
     try {
@@ -60,16 +77,25 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       if (!mounted) return;
 
       final authState = ref.read(authNotifierProvider);
-      _handleAuthNavigation(authState);
+      navigateForAuthState(
+        context,
+        authState,
+        email: _emailController.text.trim(),
+        phone: _phoneController.text.trim(),
+        verificationDeliveryFailed: notifier.emailVerificationDeliveryFailed,
+      );
     } on AppException catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(error.message)));
+    } finally {
+      if (mounted) setState(() => _isBusy = false);
     }
   }
 
   Future<void> _requestEmailOtp() async {
+    if (_isBusy || ref.read(authNotifierProvider).isLoading) return;
     final email = _emailController.text.trim();
     if (Validators.email(email) != null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -78,6 +104,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       return;
     }
 
+    setState(() => _isBusy = true);
     final notifier = ref.read(authNotifierProvider.notifier);
     try {
       await notifier.handleAction(AuthAction.requestEmailOtp(email: email));
@@ -88,10 +115,13 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(error.message)));
+    } finally {
+      if (mounted) setState(() => _isBusy = false);
     }
   }
 
   Future<void> _requestEmailVerification() async {
+    if (_isBusy || ref.read(authNotifierProvider).isLoading) return;
     final email = _emailController.text.trim();
     if (Validators.email(email) != null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -100,6 +130,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       return;
     }
 
+    setState(() => _isBusy = true);
     try {
       await ref
           .read(authNotifierProvider.notifier)
@@ -111,10 +142,13 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(error.message)));
+    } finally {
+      if (mounted) setState(() => _isBusy = false);
     }
   }
 
   Future<void> _requestPhoneOtp() async {
+    if (_isBusy || ref.read(authNotifierProvider).isLoading) return;
     final phone = _phoneController.text.trim();
     if (Validators.phone(phone) != null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -123,6 +157,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       return;
     }
 
+    setState(() => _isBusy = true);
     final notifier = ref.read(authNotifierProvider.notifier);
     try {
       await notifier.handleAction(AuthAction.requestPhoneOtp(phone: phone));
@@ -133,28 +168,8 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(error.message)));
-    }
-  }
-
-  void _handleAuthNavigation(AuthState authState) {
-    if (authState.isAuthenticated) {
-      context.go('/dashboard');
-    } else if (authState.isMfaRequired) {
-      final challengeId = (authState as dynamic).challengeId as String?;
-      final methods = (authState as dynamic).availableMethods as List<String>?;
-      context.go(
-        '/mfa/challenge?challengeId=${challengeId ?? ''}&methods=${methods?.join(',') ?? ''}',
-      );
-    } else if (authState.isMfaEnrollmentRequired) {
-      context.go('/mfa/enroll');
-    } else if (authState.isVerificationRequired) {
-      final verificationType =
-          (authState as dynamic).verificationType as String?;
-      if (verificationType == 'phone') {
-        context.go('/verify-phone');
-      } else {
-        context.go('/verify-email');
-      }
+    } finally {
+      if (mounted) setState(() => _isBusy = false);
     }
   }
 
@@ -200,9 +215,8 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                 // Title
                 Text(
                   'Welcome back',
-                  style: AppTypography.headlineMedium.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
+                  style: AppTypography.titleLarge.copyWith(
+                    fontWeight: FontWeight.w700,
                     color: theme.colorScheme.onSurface,
                   ),
                 ),
@@ -218,6 +232,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                 // Login mode selector
                 _LoginModeSelector(
                   selectedMode: _loginMode,
+                  enabled: !_isBusy && !authState.isLoading,
                   onModeChanged: (mode) => setState(() => _loginMode = mode),
                 ),
                 const SizedBox(height: 24),
@@ -304,12 +319,27 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                     ),
                   ),
                   const SizedBox(height: 8),
+                ] else ...[
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: _isBusy ? null : _requestPhoneOtp,
+                      child: Text(
+                        'Forgot password? Sign in with SMS code',
+                        style: AppTypography.labelMedium.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                 ],
 
                 // OTP options
                 if (_loginMode == LoginMode.emailPassword) ...[
                   TextButton.icon(
-                    onPressed: _requestEmailOtp,
+                    onPressed: _isBusy ? null : _requestEmailOtp,
                     icon: const Icon(Icons.email_outlined, size: 18),
                     label: const Text('Sign in with email OTP instead'),
                     style: TextButton.styleFrom(
@@ -317,7 +347,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                     ),
                   ),
                   TextButton.icon(
-                    onPressed: _requestEmailVerification,
+                    onPressed: _isBusy ? null : _requestEmailVerification,
                     icon: const Icon(
                       Icons.mark_email_unread_outlined,
                       size: 18,
@@ -329,7 +359,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                   ),
                 ] else if (_loginMode == LoginMode.phonePassword) ...[
                   TextButton.icon(
-                    onPressed: _requestPhoneOtp,
+                    onPressed: _isBusy ? null : _requestPhoneOtp,
                     icon: const Icon(Icons.sms_outlined, size: 18),
                     label: const Text('Sign in with SMS OTP instead'),
                     style: TextButton.styleFrom(
@@ -350,8 +380,8 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                 PrimaryButton(
                   label:
                       'Sign in with ${_loginMode == LoginMode.emailPassword ? 'email' : 'phone'}',
-                  isLoading: authState.isLoading,
-                  onPressed: _submit,
+                  isLoading: authState.isLoading || _isBusy,
+                  onPressed: _isBusy ? null : _submit,
                 ),
                 const SizedBox(height: 16),
                 Center(
@@ -363,7 +393,10 @@ class _SignInPageState extends ConsumerState<SignInPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                _GoogleSignInButton(isLoading: authState.isLoading),
+                _GoogleSignInButton(
+                  isLoading: authState.isLoading || _isBusy,
+                  onPressed: _signInWithGoogle,
+                ),
                 const SizedBox(height: 8),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -417,6 +450,30 @@ class _SignInPageState extends ConsumerState<SignInPage> {
       ),
     );
   }
+
+  Future<void> _signInWithGoogle() async {
+    if (_isBusy || ref.read(authNotifierProvider).isLoading) return;
+    setState(() => _isBusy = true);
+    try {
+      final notifier = ref.read(authNotifierProvider.notifier);
+      await notifier.handleAction(const AuthAction.loginWithGoogle());
+      if (!mounted) return;
+      navigateForAuthState(context, ref.read(authNotifierProvider));
+    } on AppException catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            error.code == 'INVALID_CREDENTIALS'
+                ? 'No linked Google sign-in was found. If you already use email and password for GetKeja, sign in that way first, then link Google under Account > Password & login. Otherwise, create an account with Google.'
+                : error.message,
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isBusy = false);
+    }
+  }
 }
 
 enum LoginMode { emailPassword, phonePassword }
@@ -424,10 +481,12 @@ enum LoginMode { emailPassword, phonePassword }
 class _LoginModeSelector extends StatelessWidget {
   const _LoginModeSelector({
     required this.selectedMode,
+    required this.enabled,
     required this.onModeChanged,
   });
 
   final LoginMode selectedMode;
+  final bool enabled;
   final ValueChanged<LoginMode> onModeChanged;
 
   @override
@@ -446,7 +505,9 @@ class _LoginModeSelector extends StatelessWidget {
               label: 'Email',
               icon: Icons.email_outlined,
               isSelected: selectedMode == LoginMode.emailPassword,
-              onTap: () => onModeChanged(LoginMode.emailPassword),
+              onTap: enabled
+                  ? () => onModeChanged(LoginMode.emailPassword)
+                  : null,
             ),
           ),
           Expanded(
@@ -454,7 +515,9 @@ class _LoginModeSelector extends StatelessWidget {
               label: 'Phone',
               icon: Icons.phone_outlined,
               isSelected: selectedMode == LoginMode.phonePassword,
-              onTap: () => onModeChanged(LoginMode.phonePassword),
+              onTap: enabled
+                  ? () => onModeChanged(LoginMode.phonePassword)
+                  : null,
             ),
           ),
         ],
@@ -474,7 +537,7 @@ class _ModeButton extends StatelessWidget {
   final String label;
   final IconData icon;
   final bool isSelected;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -521,22 +584,23 @@ class _ModeButton extends StatelessWidget {
   }
 }
 
-class _GoogleSignInButton extends ConsumerWidget {
-  const _GoogleSignInButton({required this.isLoading});
+class _GoogleSignInButton extends StatelessWidget {
+  const _GoogleSignInButton({required this.isLoading, required this.onPressed});
 
   final bool isLoading;
+  final VoidCallback onPressed;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return OutlinedButton.icon(
-      onPressed: isLoading ? null : () => _signInWithGoogle(context, ref),
+      onPressed: isLoading ? null : onPressed,
       icon: Image.asset(
         'assets/images/brand/google_logo.png',
         width: 20,
         height: 20,
-        errorBuilder: (_, __, ___) => const Icon(Icons.g_mobiledata, size: 20),
+        errorBuilder: (_, _, _) => const Icon(Icons.g_mobiledata, size: 20),
       ),
       label: Text(
         isLoading ? 'Connecting to Google...' : 'Continue with Google',
@@ -554,38 +618,5 @@ class _GoogleSignInButton extends ConsumerWidget {
         side: BorderSide(color: theme.colorScheme.outline, width: 1),
       ),
     );
-  }
-
-  Future<void> _signInWithGoogle(BuildContext context, WidgetRef ref) async {
-    try {
-      final notifier = ref.read(authNotifierProvider.notifier);
-      await notifier.handleAction(const AuthAction.loginWithGoogle());
-      if (context.mounted) {
-        final authState = ref.read(authNotifierProvider);
-        if (authState.isMfaRequired) {
-          final challengeId = (authState as dynamic).challengeId as String?;
-          final methods =
-              (authState as dynamic).availableMethods as List<String>?;
-          context.go(
-            '/mfa/challenge?challengeId=${challengeId ?? ''}&methods=${methods?.join(',') ?? ''}',
-          );
-        } else if (authState.isMfaEnrollmentRequired) {
-          context.go('/mfa/enroll');
-        } else if (authState.isAuthenticated) {
-          context.go('/dashboard');
-        }
-      }
-    } on AppException catch (error) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            error.code == 'INVALID_CREDENTIALS'
-                ? 'No linked Google sign-in was found. If you already use email and password for GetKeja, sign in that way first, then link Google under Account > Password & login. Otherwise, create an account with Google.'
-                : error.message,
-          ),
-        ),
-      );
-    }
   }
 }

@@ -24,6 +24,7 @@ function mapActivity(row: Record<string, unknown>): SchedulingActivity {
     homeMaintenanceJobId: (row.homeMaintenanceJobId as string) ?? null,
     cleaningJobId: (row.cleaningJobId as string) ?? null,
     installationJobId: (row.installationJobId as string) ?? null,
+    finishingJobId: (row.finishingJobId as string) ?? null,
     startAt: row.startAt as string,
     endAt: row.endAt as string,
     timeZone: row.timeZone as string,
@@ -45,7 +46,7 @@ function mapActivity(row: Record<string, unknown>): SchedulingActivity {
 const ACTIVITY_SELECT = `
   SELECT id, domain, resource_id AS "resourceId", moving_job_id AS "movingJobId",
          garbage_job_id AS "garbageJobId", garbage_occurrence_id AS "garbageOccurrenceId",
-         laundry_order_id AS "laundryOrderId", home_maintenance_job_id AS "homeMaintenanceJobId", cleaning_job_id AS "cleaningJobId", installation_job_id AS "installationJobId", start_at AS "startAt", end_at AS "endAt",
+         laundry_order_id AS "laundryOrderId", home_maintenance_job_id AS "homeMaintenanceJobId", cleaning_job_id AS "cleaningJobId", installation_job_id AS "installationJobId", finishing_job_id AS "finishingJobId", start_at AS "startAt", end_at AS "endAt",
          time_zone AS "timeZone", all_day AS "allDay", status::text AS status,
          location_id AS "locationId", address, customer_user_id AS "customerUserId",
          provider_profile_id AS "providerProfileId", provider_organisation_id AS "providerOrganisationId",
@@ -67,6 +68,7 @@ export async function findActivityByResource(domain: SchedulingDomain, resourceI
     home_maintenance: 'home_maintenance_job_id',
     cleaning: 'cleaning_job_id',
     installation: 'installation_job_id',
+    finishing: 'finishing_job_id',
   };
   const r = await pool.query(`${ACTIVITY_SELECT} WHERE ${col[domain]} = $1`, [resourceId]);
   return r.rows[0] ? mapActivity(r.rows[0]) : null;
@@ -82,6 +84,7 @@ export interface InsertActivityRow {
   homeMaintenanceJobId: string | null;
   cleaningJobId: string | null;
   installationJobId: string | null;
+  finishingJobId: string | null;
   startAt: string;
   endAt: string;
   timeZone: string;
@@ -100,13 +103,13 @@ export interface InsertActivityRow {
 export async function insertActivity(client: PoolClient, row: InsertActivityRow): Promise<{ id: string }> {
   const r = await client.query<{ id: string }>(
     `INSERT INTO scheduling_activities
-       (domain, resource_id, moving_job_id, garbage_job_id, garbage_occurrence_id, laundry_order_id, home_maintenance_job_id, cleaning_job_id, installation_job_id,
+       (domain, resource_id, moving_job_id, garbage_job_id, garbage_occurrence_id, laundry_order_id, home_maintenance_job_id, cleaning_job_id, installation_job_id, finishing_job_id,
         start_at, end_at, time_zone, all_day, status, location_id, address, customer_user_id,
         provider_profile_id, provider_organisation_id, assigned_staff_user_id, capacity_key, created_by)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14::scheduling_status,$15,$16,$17,$18,$19,$20,$21,$22)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15::scheduling_status,$16,$17,$18,$19,$20,$21,$22,$23)
      RETURNING id`,
     [
-      row.domain, row.resourceId, row.movingJobId, row.garbageJobId, row.garbageOccurrenceId, row.laundryOrderId, row.homeMaintenanceJobId, row.cleaningJobId, row.installationJobId,
+      row.domain, row.resourceId, row.movingJobId, row.garbageJobId, row.garbageOccurrenceId, row.laundryOrderId, row.homeMaintenanceJobId, row.cleaningJobId, row.installationJobId, row.finishingJobId,
       row.startAt, row.endAt, row.timeZone, row.allDay, row.status, row.locationId, row.address,
       row.customerUserId, row.providerProfileId, row.providerOrganisationId, row.assignedStaffUserId,
       row.capacityKey, row.createdBy,

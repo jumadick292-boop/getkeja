@@ -7,43 +7,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../constants/app_constants.dart';
+import '../config/api_config.dart';
 import '../errors/app_exceptions.dart';
 import '../storage/secure_storage.dart';
 
-class ApiConfig {
-  static const String baseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: '',
-  );
-
-  static String get effectiveBaseUrl {
-    if (baseUrl.isNotEmpty) return baseUrl;
-
-    switch (defaultTargetPlatform) {
-      case TargetPlatform.android:
-        return 'http://10.0.2.2:4000';
-      case TargetPlatform.iOS:
-        return 'http://127.0.0.1:4000';
-      default:
-        return 'http://localhost:4000';
-    }
-  }
-
-  static String get authBaseUrl => '$effectiveBaseUrl/api/v1/auth';
-
-  static bool get isReleaseMode => kReleaseMode;
-
-  static void validateReleaseConfig() {
-    if (isReleaseMode) {
-      final uri = Uri.parse(effectiveBaseUrl);
-      if (uri.scheme != 'https') {
-        throw StateError(
-          'Set API_BASE_URL to an HTTPS endpoint for release builds.',
-        );
-      }
-    }
-  }
-}
+export '../config/api_config.dart' show ApiConfig;
 
 class AuthInterceptor extends Interceptor {
   AuthInterceptor(this._tokenStorage);
@@ -319,7 +287,7 @@ class ApiClient {
 
   String _resolvePath(String path) {
     if (path.startsWith('/api/v1/profile/')) {
-      return Uri.parse(ApiConfig.effectiveBaseUrl).resolve(path).toString();
+      return Uri.parse(ApiConfig.baseUrl).resolve(path).toString();
     }
     return path;
   }

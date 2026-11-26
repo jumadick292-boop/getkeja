@@ -148,7 +148,7 @@ abstract final class AppTypography {
     fontFamily: fontFamily,
     fontSize: 16,
     fontWeight: FontWeight.w400,
-    letterSpacing: 0.5,
+    letterSpacing: 0.1,
     height: 1.5,
   );
 
@@ -156,7 +156,7 @@ abstract final class AppTypography {
     fontFamily: fontFamily,
     fontSize: 14,
     fontWeight: FontWeight.w400,
-    letterSpacing: 0.25,
+    letterSpacing: 0.1,
     height: 1.43,
   );
 
@@ -181,7 +181,7 @@ abstract final class AppTypography {
     fontFamily: fontFamily,
     fontSize: 12,
     fontWeight: FontWeight.w600,
-    letterSpacing: 0.5,
+    letterSpacing: 0.2,
     height: 1.33,
   );
 
@@ -189,7 +189,7 @@ abstract final class AppTypography {
     fontFamily: fontFamily,
     fontSize: 11,
     fontWeight: FontWeight.w600,
-    letterSpacing: 0.5,
+    letterSpacing: 0.2,
     height: 1.45,
   );
 }
@@ -203,7 +203,9 @@ abstract final class AppSpacing {
   static const double xxl = 48.0;
 
   static const EdgeInsets screenPadding = EdgeInsets.symmetric(horizontal: 24.0);
+  static const EdgeInsets compactScreenPadding = EdgeInsets.symmetric(horizontal: 16.0);
   static const EdgeInsets cardPadding = EdgeInsets.all(20.0);
+  static const EdgeInsets compactCardPadding = EdgeInsets.all(16.0);
   static const EdgeInsets buttonPadding = EdgeInsets.symmetric(horizontal: 24.0, vertical: 14.0);
   static const EdgeInsets inputPadding = EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0);
 }

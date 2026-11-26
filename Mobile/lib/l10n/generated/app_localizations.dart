@@ -1331,13 +1331,13 @@ abstract class AppLocalizations {
   /// No description provided for @compareClear.
   ///
   /// In en, this message translates to:
-  /// **'Compare Clear'**
+  /// **'Clear all'**
   String get compareClear;
 
   /// No description provided for @compareClearConfirm.
   ///
   /// In en, this message translates to:
-  /// **'Compare Clear Confirm'**
+  /// **'Are you sure you want to clear all compared properties?'**
   String get compareClearConfirm;
 
   /// No description provided for @compareCounty.
@@ -1523,7 +1523,7 @@ abstract class AppLocalizations {
   /// No description provided for @couldNotRunSearch.
   ///
   /// In en, this message translates to:
-  /// **'Could Not Run Search'**
+  /// **'Could not run the search. Please try again.'**
   String get couldNotRunSearch;
 
   /// No description provided for @couldNotUpdateAlerts.
@@ -1553,7 +1553,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteSearch.
   ///
   /// In en, this message translates to:
-  /// **'Delete Search'**
+  /// **'Delete'**
   String get deleteSearch;
 
   /// No description provided for @deposit.
@@ -1853,7 +1853,7 @@ abstract class AppLocalizations {
   /// No description provided for @noInvoices.
   ///
   /// In en, this message translates to:
-  /// **'No Invoices'**
+  /// **'No invoices yet'**
   String get noInvoices;
 
   /// No description provided for @noNotifications.
@@ -2017,6 +2017,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No installation jobs yet'**
   String get installationOperationsEmpty;
+
+  /// No description provided for @finishingOperations.
+  ///
+  /// In en, this message translates to:
+  /// **'Finishing & building services'**
+  String get finishingOperations;
+
+  /// No description provided for @finishingOperationsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No finishing jobs yet'**
+  String get finishingOperationsEmpty;
+
+  /// No description provided for @materials.
+  ///
+  /// In en, this message translates to:
+  /// **'Materials & finishes'**
+  String get materials;
+
+  /// No description provided for @workPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Work plan'**
+  String get workPlan;
+
+  /// No description provided for @qualityInspection.
+  ///
+  /// In en, this message translates to:
+  /// **'Quality inspection'**
+  String get qualityInspection;
+
+  /// No description provided for @addMaterials.
+  ///
+  /// In en, this message translates to:
+  /// **'Add materials'**
+  String get addMaterials;
+
+  /// No description provided for @inspectionName.
+  ///
+  /// In en, this message translates to:
+  /// **'Inspection name'**
+  String get inspectionName;
+
+  /// No description provided for @finishOrSpec.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish / specification'**
+  String get finishOrSpec;
+
+  /// No description provided for @startInspection.
+  ///
+  /// In en, this message translates to:
+  /// **'Start inspection'**
+  String get startInspection;
 
   /// No description provided for @installationPlan.
   ///
@@ -2729,7 +2783,7 @@ abstract class AppLocalizations {
   /// No description provided for @runNow.
   ///
   /// In en, this message translates to:
-  /// **'Run Now'**
+  /// **'Run now'**
   String get runNow;
 
   /// No description provided for @save.
@@ -3053,13 +3107,13 @@ abstract class AppLocalizations {
   /// No description provided for @turnOffAlerts.
   ///
   /// In en, this message translates to:
-  /// **'Turn Off Alerts'**
+  /// **'Turn off'**
   String get turnOffAlerts;
 
   /// No description provided for @turnOnAlerts.
   ///
   /// In en, this message translates to:
-  /// **'Turn On Alerts'**
+  /// **'Turn on'**
   String get turnOnAlerts;
 
   /// No description provided for @unfurnished.
@@ -3187,6 +3241,696 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} homes found'**
   String homesFoundCount(int count);
+
+  /// No description provided for @accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get accepted;
+
+  /// No description provided for @acknowledge.
+  ///
+  /// In en, this message translates to:
+  /// **'Acknowledge'**
+  String get acknowledge;
+
+  /// No description provided for @activeJobs.
+  ///
+  /// In en, this message translates to:
+  /// **'Active jobs'**
+  String get activeJobs;
+
+  /// No description provided for @adminComplaintQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin complaint queue'**
+  String get adminComplaintQueue;
+
+  /// No description provided for @assignedJobs.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned jobs'**
+  String get assignedJobs;
+
+  /// No description provided for @averageRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Average rating'**
+  String get averageRating;
+
+  /// No description provided for @awaitingConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting confirmation'**
+  String get awaitingConfirmation;
+
+  /// No description provided for @byDomain.
+  ///
+  /// In en, this message translates to:
+  /// **'By service'**
+  String get byDomain;
+
+  /// No description provided for @cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get cancelled;
+
+  /// No description provided for @complaintDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaint details'**
+  String get complaintDetail;
+
+  /// No description provided for @complaints.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaints'**
+  String get complaints;
+
+  /// No description provided for @completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completed;
+
+  /// No description provided for @completedJobs.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed jobs'**
+  String get completedJobs;
+
+  /// No description provided for @conversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation'**
+  String get conversation;
+
+  /// No description provided for @correctiveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Corrective action'**
+  String get correctiveAction;
+
+  /// No description provided for @correctiveActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Corrective actions'**
+  String get correctiveActions;
+
+  /// No description provided for @feedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback'**
+  String get feedback;
+
+  /// No description provided for @internalNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Internal notes'**
+  String get internalNotes;
+
+  /// No description provided for @jobsCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Jobs created'**
+  String get jobsCreated;
+
+  /// No description provided for @myComplaints.
+  ///
+  /// In en, this message translates to:
+  /// **'My complaints'**
+  String get myComplaints;
+
+  /// No description provided for @myReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'My reviews'**
+  String get myReviews;
+
+  /// No description provided for @newEligibleRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'New eligible requests'**
+  String get newEligibleRequests;
+
+  /// No description provided for @noComplaints.
+  ///
+  /// In en, this message translates to:
+  /// **'No complaints'**
+  String get noComplaints;
+
+  /// No description provided for @noData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get noData;
+
+  /// No description provided for @noReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews yet'**
+  String get noReviews;
+
+  /// No description provided for @openComplaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Open complaint'**
+  String get openComplaint;
+
+  /// No description provided for @operationalReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Operational report'**
+  String get operationalReport;
+
+  /// No description provided for @organizationView.
+  ///
+  /// In en, this message translates to:
+  /// **'Organization view'**
+  String get organizationView;
+
+  /// No description provided for @overdueOrInterrupted.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue or interrupted'**
+  String get overdueOrInterrupted;
+
+  /// No description provided for @overview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get overview;
+
+  /// No description provided for @pendingQuotations.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending quotations'**
+  String get pendingQuotations;
+
+  /// No description provided for @proposeResolution.
+  ///
+  /// In en, this message translates to:
+  /// **'Propose resolution'**
+  String get proposeResolution;
+
+  /// No description provided for @providerDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider dashboard'**
+  String get providerDashboard;
+
+  /// No description provided for @providerResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider response'**
+  String get providerResponse;
+
+  /// No description provided for @quickLinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick links'**
+  String get quickLinks;
+
+  /// No description provided for @quotations.
+  ///
+  /// In en, this message translates to:
+  /// **'Quotations'**
+  String get quotations;
+
+  /// No description provided for @recordCorrective.
+  ///
+  /// In en, this message translates to:
+  /// **'Record corrective action'**
+  String get recordCorrective;
+
+  /// No description provided for @reports.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get reports;
+
+  /// No description provided for @resolve.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve'**
+  String get resolve;
+
+  /// No description provided for @respondToReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Respond to review'**
+  String get respondToReview;
+
+  /// No description provided for @reviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get reviews;
+
+  /// No description provided for @scheduledToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled today'**
+  String get scheduledToday;
+
+  /// No description provided for @send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get send;
+
+  /// No description provided for @serviceDomain.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get serviceDomain;
+
+  /// No description provided for @servicePerformance.
+  ///
+  /// In en, this message translates to:
+  /// **'Service performance'**
+  String get servicePerformance;
+
+  /// No description provided for @staffWorkload.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff workload'**
+  String get staffWorkload;
+
+  /// No description provided for @submit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get submit;
+
+  /// No description provided for @submitReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit review'**
+  String get submitReview;
+
+  /// No description provided for @unauthorized.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not authorized to view this.'**
+  String get unauthorized;
+
+  /// No description provided for @unresolvedComplaints.
+  ///
+  /// In en, this message translates to:
+  /// **'Unresolved complaints'**
+  String get unresolvedComplaints;
+
+  /// No description provided for @providerSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider setup'**
+  String get providerSetup;
+
+  /// No description provided for @onboarding.
+  ///
+  /// In en, this message translates to:
+  /// **'Onboarding'**
+  String get onboarding;
+
+  /// No description provided for @organizations.
+  ///
+  /// In en, this message translates to:
+  /// **'Organizations'**
+  String get organizations;
+
+  /// No description provided for @services.
+  ///
+  /// In en, this message translates to:
+  /// **'Service catalogue'**
+  String get services;
+
+  /// No description provided for @locations.
+  ///
+  /// In en, this message translates to:
+  /// **'Locations'**
+  String get locations;
+
+  /// No description provided for @serviceAreas.
+  ///
+  /// In en, this message translates to:
+  /// **'Service areas'**
+  String get serviceAreas;
+
+  /// No description provided for @availability.
+  ///
+  /// In en, this message translates to:
+  /// **'Availability'**
+  String get availability;
+
+  /// No description provided for @marketplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Marketplace'**
+  String get marketplace;
+
+  /// No description provided for @operations.
+  ///
+  /// In en, this message translates to:
+  /// **'Operations'**
+  String get operations;
+
+  /// No description provided for @moving.
+  ///
+  /// In en, this message translates to:
+  /// **'Moving'**
+  String get moving;
+
+  /// No description provided for @laundry.
+  ///
+  /// In en, this message translates to:
+  /// **'Laundry'**
+  String get laundry;
+
+  /// No description provided for @cleaning.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleaning'**
+  String get cleaning;
+
+  /// No description provided for @installation.
+  ///
+  /// In en, this message translates to:
+  /// **'Installation'**
+  String get installation;
+
+  /// No description provided for @finishing.
+  ///
+  /// In en, this message translates to:
+  /// **'Finishing'**
+  String get finishing;
+
+  /// No description provided for @providerRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider requests'**
+  String get providerRequests;
+
+  /// No description provided for @billing.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing'**
+  String get billing;
+
+  /// No description provided for @billingDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing dashboard'**
+  String get billingDashboard;
+
+  /// No description provided for @billingSchedules.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing schedules'**
+  String get billingSchedules;
+
+  /// No description provided for @createBillingSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Create billing schedule'**
+  String get createBillingSchedule;
+
+  /// No description provided for @billingScheduleDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing schedule detail'**
+  String get billingScheduleDetail;
+
+  /// No description provided for @rentTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent terms'**
+  String get rentTerms;
+
+  /// No description provided for @invoiceHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice history'**
+  String get invoiceHistory;
+
+  /// No description provided for @rentAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent amount'**
+  String get rentAmount;
+
+  /// No description provided for @billingFrequency.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing frequency'**
+  String get billingFrequency;
+
+  /// No description provided for @billingDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing day'**
+  String get billingDay;
+
+  /// No description provided for @firstBillingDate.
+  ///
+  /// In en, this message translates to:
+  /// **'First billing date'**
+  String get firstBillingDate;
+
+  /// No description provided for @dueDayOfMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Due day of month'**
+  String get dueDayOfMonth;
+
+  /// No description provided for @gracePeriodDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Grace period days'**
+  String get gracePeriodDays;
+
+  /// No description provided for @activateSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate schedule'**
+  String get activateSchedule;
+
+  /// No description provided for @suspendSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspend schedule'**
+  String get suspendSchedule;
+
+  /// No description provided for @resumeSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume schedule'**
+  String get resumeSchedule;
+
+  /// No description provided for @cancelSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel schedule'**
+  String get cancelSchedule;
+
+  /// No description provided for @previewInvoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview invoice'**
+  String get previewInvoice;
+
+  /// No description provided for @changeRent.
+  ///
+  /// In en, this message translates to:
+  /// **'Change rent'**
+  String get changeRent;
+
+  /// No description provided for @monthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get monthly;
+
+  /// No description provided for @quarterly.
+  ///
+  /// In en, this message translates to:
+  /// **'Quarterly'**
+  String get quarterly;
+
+  /// No description provided for @annually.
+  ///
+  /// In en, this message translates to:
+  /// **'Annually'**
+  String get annually;
+
+  /// No description provided for @amountDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount due'**
+  String get amountDue;
+
+  /// No description provided for @billingPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing period'**
+  String get billingPeriod;
+
+  /// No description provided for @noSchedules.
+  ///
+  /// In en, this message translates to:
+  /// **'No billing schedules yet'**
+  String get noSchedules;
+
+  /// No description provided for @proratedAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Prorated amount'**
+  String get proratedAmount;
+
+  /// No description provided for @fullPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Full period'**
+  String get fullPeriod;
+
+  /// No description provided for @partialPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Partial period'**
+  String get partialPeriod;
+
+  /// No description provided for @voidInvoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Void invoice'**
+  String get voidInvoice;
+
+  /// No description provided for @voidReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason for voiding'**
+  String get voidReason;
+
+  /// No description provided for @scheduleActivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing schedule activated'**
+  String get scheduleActivated;
+
+  /// No description provided for @scheduleSuspended.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing schedule suspended'**
+  String get scheduleSuspended;
+
+  /// No description provided for @scheduleCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing schedule cancelled'**
+  String get scheduleCancelled;
+
+  /// No description provided for @rentUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent updated'**
+  String get rentUpdated;
+
+  /// No description provided for @confirmCancelSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this billing schedule? Future invoices will stop.'**
+  String get confirmCancelSchedule;
+
+  /// No description provided for @confirmVoidInvoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Void this invoice? This cannot be undone.'**
+  String get confirmVoidInvoice;
+
+  /// No description provided for @scheduleStatusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get scheduleStatusActive;
+
+  /// No description provided for @scheduleStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get scheduleStatusPending;
+
+  /// No description provided for @scheduleStatusSuspended.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspended'**
+  String get scheduleStatusSuspended;
+
+  /// No description provided for @scheduleStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get scheduleStatusCancelled;
+
+  /// No description provided for @invoiceStatusPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get invoiceStatusPaid;
+
+  /// No description provided for @invoiceStatusIssued.
+  ///
+  /// In en, this message translates to:
+  /// **'Issued'**
+  String get invoiceStatusIssued;
+
+  /// No description provided for @invoiceStatusOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get invoiceStatusOverdue;
+
+  /// No description provided for @invoiceStatusPartiallyPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Partially paid'**
+  String get invoiceStatusPartiallyPaid;
+
+  /// No description provided for @invoiceStatusVoid.
+  ///
+  /// In en, this message translates to:
+  /// **'Voided'**
+  String get invoiceStatusVoid;
+
+  /// No description provided for @upcomingInvoices.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming invoices'**
+  String get upcomingInvoices;
+
+  /// No description provided for @outstandingAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Outstanding amount'**
+  String get outstandingAmount;
+
+  /// No description provided for @tenancy.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenancy'**
+  String get tenancy;
+
+  /// No description provided for @tenant.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenant'**
+  String get tenant;
+
+  /// No description provided for @confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirm;
 }
 
 class _AppLocalizationsDelegate

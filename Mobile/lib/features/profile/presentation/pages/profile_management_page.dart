@@ -169,11 +169,11 @@ class _PersonalProfileEditorPageState
     return Scaffold(
       appBar: AppBar(title: const Text('Personal profile')),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const AppListSkeleton(rows: 4)
           : Form(
               key: _formKey,
               child: ListView(
-                padding: AppSpacing.screenPadding,
+                padding: AppSpacing.compactScreenPadding,
                 children: [
                   if (_error != null)
                     AppNotice(
@@ -346,9 +346,9 @@ class _ProfileManagementPageState extends ConsumerState<ProfileManagementPage> {
       body: RefreshIndicator(
         onRefresh: _loadProfiles,
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const AppListSkeleton(rows: 3)
             : ListView(
-                padding: AppSpacing.screenPadding,
+                padding: AppSpacing.compactScreenPadding,
                 children: [
                   Text(
                     'Use one account for the profiles that apply to you. A profile does not grant property access or a platform role.',
@@ -364,7 +364,7 @@ class _ProfileManagementPageState extends ConsumerState<ProfileManagementPage> {
                   if (_profiles.isEmpty && _error == null)
                     AppCard(
                       child: Padding(
-                        padding: AppSpacing.cardPadding,
+                        padding: AppSpacing.compactCardPadding,
                         child: Column(
                           children: [
                             const Icon(Icons.badge_outlined, size: 40),
@@ -883,6 +883,42 @@ class _ProfileEditorPageState extends ConsumerState<ProfileEditorPage> {
     if (saved == true && mounted) await _loadDetails();
   }
 
+  Future<void> _deleteLocation() async {
+    final locationId = _location?['id']?.toString();
+    if (locationId == null) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear saved location?'),
+        content: const Text(
+          'This removes the saved location from this profile. It does not affect property locations or active site visits.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Clear location'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      await ref
+          .read(apiClientProvider)
+          .delete<Map<String, dynamic>>(
+            '/api/v1/profile/locations/$locationId',
+          );
+      if (mounted) await _loadDetails();
+    } catch (error) {
+      if (mounted)
+        setState(() => _error = 'Unable to clear saved location: $error');
+    }
+  }
+
   Future<void> _submit() async {
     final profileId = _profileId;
     if (profileId == null) return;
@@ -963,11 +999,11 @@ class _ProfileEditorPageState extends ConsumerState<ProfileEditorPage> {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const AppListSkeleton(rows: 5)
           : Form(
               key: _formKey,
               child: ListView(
-                padding: AppSpacing.screenPadding,
+                padding: AppSpacing.compactScreenPadding,
                 children: [
                   if (_error != null)
                     AppNotice(
@@ -978,7 +1014,7 @@ class _ProfileEditorPageState extends ConsumerState<ProfileEditorPage> {
                   if (_completion != null) ...[
                     AppCard(
                       child: Padding(
-                        padding: AppSpacing.cardPadding,
+                        padding: AppSpacing.compactCardPadding,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1178,7 +1214,7 @@ class _ProfileEditorPageState extends ConsumerState<ProfileEditorPage> {
                         trailing: Text(record['newStatus']?.toString() ?? ''),
                       ),
                   ],
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   PrimaryButton(
                     label: 'Save draft',
                     isLoading: _isSaving,
@@ -1192,7 +1228,7 @@ class _ProfileEditorPageState extends ConsumerState<ProfileEditorPage> {
                       onPressed: !canSubmit || _isSaving ? null : _submit,
                     ),
                   ],
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
@@ -1325,10 +1361,21 @@ class _ProfileEditorPageState extends ConsumerState<ProfileEditorPage> {
                 ? 'Location is optional'
                 : '$latitude, $longitude',
           ),
-          trailing: IconButton(
-            tooltip: 'Choose location',
-            icon: const Icon(Icons.edit_location_alt_outlined),
-            onPressed: _chooseLocation,
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                tooltip: 'Choose location',
+                icon: const Icon(Icons.edit_location_alt_outlined),
+                onPressed: _chooseLocation,
+              ),
+              if (location != null)
+                IconButton(
+                  tooltip: 'Clear saved location',
+                  icon: const Icon(Icons.location_off_outlined),
+                  onPressed: _deleteLocation,
+                ),
+            ],
           ),
           onTap: _chooseLocation,
         ),

@@ -199,7 +199,8 @@ export interface LoginResult {
   refreshToken?: string;
   sessionId?: string;
   expiresIn?: number;
-  authenticationStatus: 'complete' | 'mfa_required' | 'mfa_enrollment_required';
+  authenticationStatus: 'complete' | 'mfa_required' | 'mfa_enrollment_required' | 'verification_required';
+  verificationChannel?: 'email' | 'sms';
   challengeId?: string;
   availableMethods?: string[];
   enrollmentToken?: string;

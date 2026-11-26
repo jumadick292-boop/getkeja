@@ -174,6 +174,14 @@ export async function listLocations(req: Request, res: Response, next: NextFunct
   }
 }
 
+export async function deleteLocation(req: Request, res: Response, next: NextFunction) {
+  try {
+    return sendResult(res, await svc.locations.delete(currentUser(req).id, param(req, 'locationId')));
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function searchPlaces(req: Request, res: Response, next: NextFunction) {
   try {
     res.json({ success: true, data: await places.autocomplete(String(req.query.input)) });
@@ -270,7 +278,8 @@ export async function addServiceArea(req: Request, res: Response, next: NextFunc
 
 export async function listServiceAreas(req: Request, res: Response, next: NextFunction) {
   try {
-    return sendResult(res, await svc.serviceAreas.list(param(req, 'profileId'), currentUser(req).id));
+    const profileId = (req.query.profileId as string | undefined) ?? param(req, 'profileId');
+    return sendResult(res, await svc.serviceAreas.list(profileId, currentUser(req).id));
   } catch (error) {
     next(error);
   }

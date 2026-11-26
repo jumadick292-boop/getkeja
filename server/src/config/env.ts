@@ -28,6 +28,7 @@ export const envSchema = z.object({
   CLOUDINARY_API_KEY: z.string().min(1).optional(),
   CLOUDINARY_API_SECRET: z.string().min(1).optional(),
   GOOGLE_MAPS_SERVER_API_KEY: z.string().min(1).optional(),
+  GOOGLE_ROUTES_API_KEY: z.string().min(1).optional(),
   SENDGRID_API_KEY: z.string().optional(),
   MAILGUN_API_KEY: z.string().optional(),
   MAILGUN_DOMAIN: z.string().optional(),
@@ -48,6 +49,27 @@ export const envSchema = z.object({
   VONAGE_API_KEY: z.string().optional(),
   VONAGE_API_SECRET: z.string().optional(),
   VONAGE_FROM_NUMBER: z.string().optional(),
+
+  // M-Pesa (Safaricom Daraja) — tenant rent payments via STK Push
+  MPESA_ENV: z.enum(['sandbox', 'production']).optional(),
+  MPESA_CONSUMER_KEY: z.string().optional(),
+  MPESA_CONSUMER_SECRET: z.string().optional(),
+  MPESA_PASSKEY: z.string().optional(),
+  MPESA_SHORTCODE: z.string().optional(),
+  MPESA_CALLBACK_URL: z.string().url().optional(),
+  MPESA_CALLBACK_PATH: z.string().optional(),
+  MPESA_ACCOUNT_REFERENCE: z.string().optional(),
+  MPESA_TRANSACTION_DESC: z.string().optional(),
+  MPESA_BASE_URL: z.string().url().optional(),
+
+  // Pesapal — alternative payment gateway for tenant rent payments
+  PESAPAL_ENV: z.enum(['sandbox', 'production']).optional(),
+  PESAPAL_CONSUMER_KEY: z.string().optional(),
+  PESAPAL_CONSUMER_SECRET: z.string().optional(),
+  PESAPAL_CALLBACK_PATH: z.string().optional(),
+  PESAPAL_IPN_PATH: z.string().optional(),
+  PESAPAL_NOTIFICATION_ID: z.string().optional(),
+  PESAPAL_BASE_URL: z.string().url().optional(),
 
   // Google OAuth configuration
   GOOGLE_CLIENT_ID: z.string().optional(),

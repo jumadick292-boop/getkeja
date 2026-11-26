@@ -3,15 +3,27 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/api/api_client.dart';
+import '../../../authentication/presentation/state/auth_state.dart';
+
+String? profilePhotoUrlFromResponse(Object? response) {
+  if (response is! Map) return null;
+  final data = response['data'];
+  if (data is! Map) return null;
+  final url = (data['profilePhotoUrl'] ?? data['profile_photo_url'])
+      ?.toString()
+      .trim();
+  return url != null && url.startsWith('https://') ? url : null;
+}
 
 final profilePhotoUrlProvider = FutureProvider<String?>((ref) async {
+  final userId = ref.watch(
+    authNotifierProvider.select((state) => state.user?.id),
+  );
+  if (userId == null) return null;
   final response = await ref
       .watch(apiClientProvider)
       .get<Map<String, dynamic>>('/api/v1/profile/profile/personal');
-  final data = response.data?['data'];
-  if (data is! Map) return null;
-  final url = data['profilePhotoUrl']?.toString().trim();
-  return url != null && url.startsWith('https://') ? url : null;
+  return profilePhotoUrlFromResponse(response.data);
 });
 
 class ProfilePhotoAvatar extends ConsumerStatefulWidget {

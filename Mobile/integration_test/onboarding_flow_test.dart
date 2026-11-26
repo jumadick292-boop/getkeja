@@ -66,10 +66,10 @@ void main() {
   testWidgets('USB device can reach the configured backend health endpoint', (
     tester,
   ) async {
-    const baseUrl = String.fromEnvironment(
-      'API_BASE_URL',
-      defaultValue: 'http://10.0.2.2:4000',
-    );
+    const baseUrl = String.fromEnvironment('API_BASE_URL');
+    if (baseUrl.isEmpty) {
+      fail('Run with --dart-define=API_BASE_URL=<backend-url>.');
+    }
     final client = HttpClient();
     addTearDown(client.close);
 

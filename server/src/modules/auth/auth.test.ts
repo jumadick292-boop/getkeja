@@ -556,7 +556,7 @@ describe('Login', () => {
       expect(response.body.success).toBe(false);
     });
 
-    it('should reject login for unverified email', async () => {
+    it('routes a correct password for an unverified email to verification', async () => {
       await request(app)
         .post('/api/auth/register/email')
         .send({
@@ -572,12 +572,17 @@ describe('Login', () => {
         .post('/api/auth/login')
         .send({ email: TEST_EMAIL, password: TEST_PASSWORD });
 
-      expect(response.status).toBe(401);
-      expect(response.body).toEqual({
-        success: false,
-        message: 'Invalid credentials.',
-        code: 'INVALID_CREDENTIALS',
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toEqual({
+        authenticationStatus: 'verification_required',
+        verificationChannel: 'email',
+        user: expect.objectContaining({
+          email: TEST_EMAIL,
+          emailVerified: false,
+        }),
       });
+      expect(response.headers['set-cookie']).toBeUndefined();
     });
   });
 

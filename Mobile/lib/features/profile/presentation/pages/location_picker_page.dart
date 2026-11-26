@@ -110,6 +110,7 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
         throw StateError('Location permission was denied.');
       }
       if (permission == LocationPermission.deniedForever) {
+        await Geolocator.openAppSettings();
         throw StateError(
           'Enable location permission for GetKeja in device settings.',
         );
@@ -329,6 +330,9 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
                             Marker(
                               markerId: const MarkerId('confirmed-location'),
                               position: selected,
+                              draggable: true,
+                              onDragEnd: (position) =>
+                                  _select(position, 'manual_map_pin'),
                             ),
                           },
                     myLocationButtonEnabled: false,
@@ -432,6 +436,12 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
                 'Selected: ${selected.latitude.toStringAsFixed(6)}, ${selected.longitude.toStringAsFixed(6)}',
                 textAlign: TextAlign.center,
               ),
+              if (_accuracy != null && _source == 'device_gps')
+                Text(
+                  'GPS accuracy ±${_accuracy!.toStringAsFixed(0)} m. Move the pin if this point is approximate.',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
             ],
             const SizedBox(height: 20),
             FilledButton(

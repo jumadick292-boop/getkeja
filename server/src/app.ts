@@ -22,8 +22,14 @@ import { createLaundryRouter } from './modules/laundry/laundry.routes.js';
 import { createHomeMaintenanceRouter } from './modules/home-maintenance/home-maintenance.routes.js';
 import { createCleaningOperationsRouter } from './modules/cleaning-operations/cleaning-operations.routes.js';
 import { createInstallationOperationsRouter } from './modules/installation-operations/installation-operations.routes.js';
+import { createFinishingOperationsRouter } from './modules/finishing-operations/finishing-operations.routes.js';
+import { createProviderDashboardRouter } from './modules/provider-dashboard/provider-dashboard.routes.js';
+import { createProviderReportingRouter } from './modules/provider-reporting/provider-reporting.routes.js';
+import { createReviewsRouter } from './modules/reviews/reviews.routes.js';
+import { createComplaintsRouter } from './modules/complaints/complaints.routes.js';
 import { createSchedulingRouter } from './modules/scheduling/scheduling.routes.js';
 import { createPaymentsRouter } from './modules/payments/payments.routes.js';
+import { createBillingRouter } from './modules/rms/billing/billing.routes.js';
 
 export interface CreateAppOptions {
   logger?: Logger;
@@ -88,6 +94,11 @@ export function createApp({
   app.use('/api/v1/messaging', createMessagingRouter());
   app.use('/api/v1/rental-applications', createRentalApplicationRouter());
   app.use('/api/v1/tenant', createTenantRouter());
+  // Unified provider dashboard/reports are mounted before the legacy provider
+  // router so the more specific /provider/dashboard and /provider/reports
+  // namespaces resolve to the new handlers.
+  app.use('/api/v1/provider/dashboard', createProviderDashboardRouter());
+  app.use('/api/v1/provider/reports', createProviderReportingRouter());
   app.use('/api/v1/provider', createProviderRouter());
   app.use('/api/v1/marketplace', createMarketplaceRouter());
   app.use('/api/v1/moving', createMovingRouter());
@@ -96,8 +107,12 @@ export function createApp({
   app.use('/api/v1/home-maintenance', createHomeMaintenanceRouter());
   app.use('/api/v1/cleaning-operations', createCleaningOperationsRouter());
   app.use('/api/v1/installation-operations', createInstallationOperationsRouter());
+  app.use('/api/v1/finishing-operations', createFinishingOperationsRouter());
+  app.use('/api/v1/reviews', createReviewsRouter());
+  app.use('/api/v1/complaints', createComplaintsRouter());
   app.use('/api/v1/scheduling', createSchedulingRouter());
   app.use('/api/v1/payments', createPaymentsRouter());
+  app.use('/api/v1/rms/billing', createBillingRouter());
 
   app.get('/health', (_req, res) => {
     res.status(200).json({ status: 'ok' });

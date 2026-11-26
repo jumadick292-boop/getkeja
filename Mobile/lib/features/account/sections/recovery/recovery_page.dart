@@ -207,9 +207,9 @@ class _RecoveryPageState extends ConsumerState<RecoveryPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Recovery codes')),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const AppListSkeleton(rows: 3)
           : SingleChildScrollView(
-              padding: AppSpacing.screenPadding,
+              padding: AppSpacing.compactScreenPadding,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -228,7 +228,7 @@ class _RecoveryPageState extends ConsumerState<RecoveryPage> {
 
                   // Header
                   AppCard(
-                    padding: AppSpacing.cardPadding,
+                    padding: AppSpacing.compactCardPadding,
                     child: Row(
                       children: [
                         Container(
@@ -271,11 +271,11 @@ class _RecoveryPageState extends ConsumerState<RecoveryPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   // Info
                   AppCard(
-                    padding: AppSpacing.cardPadding,
+                    padding: AppSpacing.compactCardPadding,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -313,7 +313,7 @@ class _RecoveryPageState extends ConsumerState<RecoveryPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   // Actions
                   if (_hasRecoveryCodes) ...[
@@ -326,7 +326,7 @@ class _RecoveryPageState extends ConsumerState<RecoveryPage> {
                     ),
                     const SizedBox(height: 16),
                     AppCard(
-                      padding: AppSpacing.cardPadding,
+                      padding: AppSpacing.compactCardPadding,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -389,7 +389,7 @@ class _RecoveryPageState extends ConsumerState<RecoveryPage> {
                     ),
                     const SizedBox(height: 16),
                     AppCard(
-                      padding: AppSpacing.cardPadding,
+                      padding: AppSpacing.compactCardPadding,
                       child: Column(
                         children: [
                           Icon(
@@ -413,7 +413,7 @@ class _RecoveryPageState extends ConsumerState<RecoveryPage> {
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 16),
                           PrimaryButton(
                             label: 'Add recovery codes',
                             icon: const Icon(Icons.add_rounded),
@@ -425,7 +425,7 @@ class _RecoveryPageState extends ConsumerState<RecoveryPage> {
                       ),
                     ),
                   ],
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),

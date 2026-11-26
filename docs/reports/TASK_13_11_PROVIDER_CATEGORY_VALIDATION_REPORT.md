@@ -61,18 +61,18 @@ approvals+evidence+customer confirmation.
 | 43 | landscaping | gardening | Gardening | A |
 | 44 | landscaping | landscaping_general | Landscaping | A |
 | 45 | carpentry | carpentry | Carpentry | A |
-| 46 | painting | painting | Painting | C |
-| 47 | painting | painting_decoration | Painting & Decoration | C |
-| 48 | roofing | roofing | Roofing | C |
-| 49 | flooring | flooring | Flooring | C |
-| 50 | tiling | tiling | Tiling | C |
+| 46 | painting | painting | Painting | A |
+| 47 | painting | painting_decoration | Painting & Decoration | A |
+| 48 | roofing | roofing | Roofing | A |
+| 49 | flooring | flooring | Flooring | A |
+| 50 | tiling | tiling | Tiling | A |
 | 51 | appliances | appliance_repair | Appliance repair | A |
 | 52 | general | handyman | Handyman | A |
 | 53 | networking | internet_installation | Internet Installation & Connectivity | A |
 | 54 | networking | wifi_installation | Wi-Fi Installation & Configuration | A |
 | 55 | solar | solar_installation | Solar Installation & Maintenance | A |
 
-Totals: **A = 48** (14 domains, incl. Home Maintenance 13.12 + Cleaning 13.13 + Installation 13.14), **B = 0**, **C = 7** (4 domains, Finishing group 13.15), **D = 0**.
+Totals: **A = 53** (18 domains — all domains; incl. Home Maintenance 13.12 + Cleaning 13.13 + Installation 13.14 + Finishing 13.15), **B = 0**, **C = 0**, **D = 0**.
 
 ## 3. Evidence summary
 - **DB:** only moving/garbage/laundry have operational tables; all 18 have

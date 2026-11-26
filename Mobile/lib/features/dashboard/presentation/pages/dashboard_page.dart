@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 
 import '../../../../app/theme/design_system.dart';
-import '../../../../app/preferences/app_preferences.dart';
 import '../../../profile/presentation/widgets/profile_photo_avatar.dart';
 import '../../../authentication/presentation/state/auth_state.dart';
 
@@ -89,89 +88,81 @@ class _HomeTab extends StatelessWidget {
           const SizedBox(height: 24),
           const _SectionTitle(title: 'What do you need?'),
           const SizedBox(height: 12),
-          Row(
+          GridView.count(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.3,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             children: [
-              Expanded(
-                child: _ServiceTile(
-                  label: 'Properties',
-                  icon: Icons.home_outlined,
-                  onTap: () => _notify(context, 'Properties'),
-                ),
+              _ServiceTile(
+                label: 'Properties',
+                icon: Icons.home_outlined,
+                onTap: () => context.push('/house-seeker'),
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _ServiceTile(
-                  label: 'Laundries',
-                  icon: Icons.local_laundry_service_outlined,
-                  onTap: () => _notify(context, 'Laundries'),
-                ),
+              _ServiceTile(
+                label: 'Laundries',
+                icon: Icons.local_laundry_service_outlined,
+                onTap: () => context.push('/laundry/orders'),
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _ServiceTile(
-                  label: 'Movers',
-                  icon: Icons.local_shipping_outlined,
-                  onTap: () => _notify(context, 'Movers'),
-                ),
+              _ServiceTile(
+                label: 'Movers',
+                icon: Icons.local_shipping_outlined,
+                onTap: () => context.push('/moving/jobs'),
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _ServiceTile(
-                  label: 'Garbage',
-                  icon: Icons.delete_outline_rounded,
-                  onTap: () => _notify(context, 'Garbage'),
-                ),
+              _ServiceTile(
+                label: 'Garbage',
+                icon: Icons.delete_outline_rounded,
+                onTap: () => context.push('/garbage/jobs'),
               ),
             ],
           ),
           const SizedBox(height: 24),
           _SectionTitle(
-            title: 'Featured homes',
-            action: 'See all',
-            onAction: () => _notify(context, 'The full listing'),
+            title: 'Find available homes',
+            action: 'Search',
+            onAction: () => context.push('/house-seeker'),
           ),
           const SizedBox(height: 12),
-          SizedBox(
-            height: 214,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              children: [
-                _PropertyCard(
-                  title: '2 bedroom apartment',
-                  location: 'Kilimani',
-                  price: 45000,
-                  imageUrl: null,
-                  onTap: () => _notify(context, 'This listing'),
-                ),
-                const SizedBox(width: 12),
-                _PropertyCard(
-                  title: 'Cosy bedsitter',
-                  location: 'Kasarani',
-                  price: 12500,
-                  imageUrl: null,
-                  onTap: () => _notify(context, 'This listing'),
-                ),
-                const SizedBox(width: 12),
-                _PropertyCard(
-                  title: '3 bedroom townhouse',
-                  location: 'Ruiru',
-                  price: 65000,
-                  imageUrl: null,
-                  onTap: () => _notify(context, 'This listing'),
-                ),
-              ],
-            ),
+          OutlinedButton.icon(
+            onPressed: () => context.push('/house-seeker'),
+            icon: const Icon(Icons.search_outlined),
+            label: const Text('Discover, search & save rental homes'),
+          ),
+          const SizedBox(height: 20),
+          _SectionTitle(title: 'Site visit safety'),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: () => context.push('/location-sharing'),
+            icon: const Icon(Icons.location_searching),
+            label: const Text('Manage temporary location sharing'),
+          ),
+          const SizedBox(height: 24),
+          const _SectionTitle(title: 'For landlords'),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: () => context.push('/landlord'),
+            icon: const Icon(Icons.business_center_outlined),
+            label: const Text('Manage your properties'),
+          ),
+          const SizedBox(height: 24),
+          const _SectionTitle(title: 'For providers'),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: () => context.push('/provider/onboarding'),
+            icon: const Icon(Icons.assignment_turned_in_outlined),
+            label: const Text('Provider onboarding & setup'),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: () => context.push('/provider/dashboard'),
+            icon: const Icon(Icons.dashboard_outlined),
+            label: const Text('Open provider dashboard'),
           ),
         ],
       ),
     );
-  }
-
-  void _notify(BuildContext context, String feature) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text('$feature is coming soon')));
   }
 }
 
@@ -198,7 +189,7 @@ class _HomeHeader extends StatelessWidget {
             'assets/images/brand/wordmark.png',
             fit: BoxFit.contain,
             semanticLabel: 'Get Keja logo',
-            errorBuilder: (_, __, ___) => Center(
+            errorBuilder: (_, _, _) => Center(
               child: Text(
                 'GetKeja',
                 style: AppTypography.titleLarge.copyWith(
@@ -285,7 +276,9 @@ class _HeroCard extends StatelessWidget {
           const SizedBox(height: 18),
           SearchBar(
             hintText: 'Search suburb, estate or price',
-            onSubmitted: (query) => _notify(context, 'Search'),
+            onSubmitted: (query) => context.push(
+              '/properties/nearby?q=${Uri.encodeQueryComponent(query)}',
+            ),
             leading: const Icon(Icons.search_rounded, color: AppColors.brand),
             constraints: const BoxConstraints(minHeight: 52),
             elevation: const WidgetStatePropertyAll<double?>(0),
@@ -311,12 +304,6 @@ class _HeroCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  void _notify(BuildContext context, String feature) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text('$feature is coming soon')));
   }
 }
 
@@ -377,7 +364,7 @@ class _ServiceTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: theme.colorScheme.outline),
@@ -399,173 +386,15 @@ class _ServiceTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(
+                  context,
+                ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _PropertyCard extends StatelessWidget {
-  const _PropertyCard({
-    required this.title,
-    required this.location,
-    required this.price,
-    this.imageUrl,
-    required this.onTap,
-  });
-
-  final String title;
-  final String location;
-  final num price;
-  final String? imageUrl;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
-    final colors = theme.colorScheme;
-
-    return SizedBox(
-      width: 212,
-      child: Material(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(18),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(18),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: colors.outline),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 96,
-                  width: double.infinity,
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: imageUrl != null
-                            ? Image.network(imageUrl!, fit: BoxFit.cover)
-                            : Container(
-                                color: colors.surfaceContainerHighest,
-                                child: Icon(
-                                  Icons.home_outlined,
-                                  color: colors.onSurfaceVariant,
-                                  size: 32,
-                                ),
-                              ),
-                      ),
-                      Positioned(
-                        top: 10,
-                        left: 10,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: colors.surface,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.verified_rounded,
-                                size: 12,
-                                color: AppColors.brand,
-                              ),
-                              const SizedBox(width: 3),
-                              Text(
-                                'Verified',
-                                style: textTheme.labelSmall?.copyWith(
-                                  color: colors.onSurface,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 3),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.place_outlined,
-                            size: 13,
-                            color: colors.onSurfaceVariant,
-                          ),
-                          const SizedBox(width: 2),
-                          Text(
-                            location,
-                            style: textTheme.bodySmall?.copyWith(
-                              color: colors.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              AppFormatters.currency(price, decimalDigits: 0),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                color: colors.onSurface,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            '/month',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: colors.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),
@@ -630,18 +459,17 @@ class _ExploreTab extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Coming soon',
-                      style: textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
                       'Browse neighbourhoods, compare rents and save the homes you like.',
                       textAlign: TextAlign.center,
                       style: textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
+                    ),
+                    const SizedBox(height: 16),
+                    FilledButton.icon(
+                      onPressed: () => context.push('/house-seeker/search'),
+                      icon: const Icon(Icons.search),
+                      label: const Text('Browse homes'),
                     ),
                   ],
                 ),
@@ -711,18 +539,17 @@ class _SiteVisitsTab extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Coming soon',
-                      style: textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
                       'Book viewings with landlords and keep track of every visit.',
                       textAlign: TextAlign.center,
                       style: textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
+                    ),
+                    const SizedBox(height: 16),
+                    FilledButton.icon(
+                      onPressed: () => context.push('/house-seeker/visits'),
+                      icon: const Icon(Icons.event_available),
+                      label: const Text('View site visits'),
                     ),
                   ],
                 ),

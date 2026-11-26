@@ -7,7 +7,16 @@ import { closeRedis, configureRedisLogger, connectRedis, getRedisClient } from '
 import { initializePushProvider } from './modules/auth/providers/push.js';
 import { startOutboxWorker, stopOutboxWorker } from './modules/auth/notification.worker.js';
 import { startAccountPurgeWorker, stopAccountPurgeWorker } from './modules/auth/account-purge.worker.js';
+import { startSearchAlertWorker, stopSearchAlertWorker } from './modules/house-seeker/search-alert.worker.js';
+import { startSiteVisitReminderWorker, stopSiteVisitReminderWorker } from './modules/site-visits/site-visit-reminder.worker.js';
+import { startMpesaReconciliationWorker, stopMpesaReconciliationWorker } from './modules/payments/mpesa-reconciliation.worker.js';
 import { verifyCloudinaryConnection } from './modules/profile/cloudinary.service.js';
+import { startLocationSharingCleanup, stopLocationSharingCleanup } from './modules/location/location-sharing.jobs.js';
+import { startProviderAvailabilityWorker, stopProviderAvailabilityWorker } from './modules/provider/provider-availability.worker.js';
+import { startGarbageRecurringWorker, stopGarbageRecurringWorker } from './modules/garbage/garbage-recurring.worker.js';
+import { startLaundryOverdueWorker, stopLaundryOverdueWorker } from './modules/laundry/laundry-overdue.worker.js';
+import { startSchedulingWorker, stopSchedulingWorker } from './modules/scheduling/scheduling-reminders.worker.js';
+import { startRecurringBillingWorker, stopRecurringBillingWorker } from './modules/rms/billing/billing.worker.js';
 
 let env: Env;
 try {
@@ -17,10 +26,31 @@ try {
   process.exit(1);
 }
 
+const REDACT_PATHS = {
+  paths: [
+    'req.headers.authorization',
+    'req.headers.cookie',
+    'req.body.password',
+    'req.body.newPassword',
+    'req.body.otp',
+    'req.body.code',
+    'req.body.token',
+    'req.query.token',
+    'password',
+    'newPassword',
+    'otp',
+    'token',
+    'accessToken',
+    'refreshToken',
+    'accessInstructions',
+  ],
+  censor: '[REDACTED]',
+};
+
 const logger =
   env.NODE_ENV === 'development'
     ? pino(
-        { level: env.LOG_LEVEL },
+        { level: env.LOG_LEVEL, redact: REDACT_PATHS },
         (await import('pino-pretty')).default({
           colorize: true,
           translateTime: 'SYS:standard',
@@ -63,7 +93,7 @@ const logger =
           },
         }),
       )
-    : pino({ level: env.LOG_LEVEL });
+    : pino({ level: env.LOG_LEVEL, redact: REDACT_PATHS });
 let shuttingDown = false;
 
 async function start(): Promise<void> {
@@ -123,6 +153,15 @@ async function start(): Promise<void> {
       await startOutboxWorker();
     }
     await startAccountPurgeWorker();
+    await startSearchAlertWorker();
+    await startSiteVisitReminderWorker();
+    await startMpesaReconciliationWorker();
+    startLocationSharingCleanup();
+    await startProviderAvailabilityWorker();
+    await startGarbageRecurringWorker();
+    await startLaundryOverdueWorker();
+    await startSchedulingWorker();
+    await startRecurringBillingWorker();
 
     process.once('SIGTERM', () => shutdown(server, 'SIGTERM'));
     process.once('SIGINT', () => shutdown(server, 'SIGINT'));
@@ -151,6 +190,15 @@ function shutdown(server: Server, signal: NodeJS.Signals): void {
     }
     await stopOutboxWorker();
     await stopAccountPurgeWorker();
+    await stopSearchAlertWorker();
+    await stopSiteVisitReminderWorker();
+    await stopMpesaReconciliationWorker();
+    stopLocationSharingCleanup();
+    await stopProviderAvailabilityWorker();
+    await stopGarbageRecurringWorker();
+    await stopLaundryOverdueWorker();
+    await stopSchedulingWorker();
+    await stopRecurringBillingWorker();
     await closeDatabase();
     await closeRedis();
     process.exit(error ? 1 : 0);

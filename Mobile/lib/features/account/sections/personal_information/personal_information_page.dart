@@ -357,9 +357,9 @@ class _PersonalInformationPageState
     return Scaffold(
       appBar: AppBar(title: const Text('Personal information')),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const AppListSkeleton(rows: 4)
           : SingleChildScrollView(
-              padding: AppSpacing.screenPadding,
+              padding: AppSpacing.compactScreenPadding,
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -388,7 +388,7 @@ class _PersonalInformationPageState
                     ),
                     const SizedBox(height: 16),
                     AppCard(
-                      padding: AppSpacing.cardPadding,
+                      padding: AppSpacing.compactCardPadding,
                       child: Column(
                         children: [
                           AppTextField(
@@ -423,7 +423,7 @@ class _PersonalInformationPageState
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
 
                     // Email section
                     Text(
@@ -435,7 +435,7 @@ class _PersonalInformationPageState
                     ),
                     const SizedBox(height: 8),
                     AppCard(
-                      padding: AppSpacing.cardPadding,
+                      padding: AppSpacing.compactCardPadding,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -527,7 +527,7 @@ class _PersonalInformationPageState
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
 
                     // Phone section
                     Text(
@@ -539,7 +539,7 @@ class _PersonalInformationPageState
                     ),
                     const SizedBox(height: 8),
                     AppCard(
-                      padding: AppSpacing.cardPadding,
+                      padding: AppSpacing.compactCardPadding,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -631,7 +631,7 @@ class _PersonalInformationPageState
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
 
                     // Save button
                     PrimaryButton(
@@ -639,7 +639,7 @@ class _PersonalInformationPageState
                       isLoading: _isSaving,
                       onPressed: _saveProfile,
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),

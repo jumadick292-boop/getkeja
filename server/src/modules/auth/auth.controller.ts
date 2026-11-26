@@ -4,6 +4,7 @@ import * as authService from './auth.login.service.js';
 import * as authRegService from './auth.service.js';
 import type { AuthUser, RegistrationResult, LoginResult, MfaHandoffResult } from './auth.types.js';
 import { loadEnv } from '../../config/env.js';
+import { invalidateUserPermissionCache } from './authorization.service.js';
 
 const REFRESH_COOKIE = 'getkeja_refresh';
 
@@ -156,6 +157,9 @@ export async function logout(req: Request, res: Response, next: NextFunction): P
         if (jwtPayload) {
           const { logoutCurrentSession } = await import('./session.service.js');
           await logoutCurrentSession(jwtPayload.sid, jwtPayload.sub);
+          // Invalidate cached permissions on logout so stale authorization
+          // state cannot be used after the session ends.
+          await invalidateUserPermissionCache(jwtPayload.sub);
         }
       } catch {
         // Ignore verification errors, just clear cookies
@@ -557,6 +561,22 @@ async function handleLoginResult(
       authenticationStatus: 'mfa_enrollment_required',
       enrollmentToken: result.enrollmentToken,
     }, 'MFA enrollment is required.');
+  } else if ('authenticationStatus' in result && result.authenticationStatus === 'verification_required') {
+    sendSuccessResponse(res, {
+      authenticationStatus: 'verification_required',
+      verificationChannel: result.verificationChannel ?? 'email',
+      user: {
+        id: result.user.id,
+        email: result.user.email,
+        firstName: result.user.firstName,
+        lastName: result.user.lastName,
+        roles: result.user.roles,
+        emailVerified: result.user.emailVerified,
+        phoneVerified: result.user.phoneVerified,
+      },
+    }, result.verificationChannel === 'sms'
+      ? 'Verify your phone number to continue.'
+      : 'Verify your email address to continue.');
   } else if (next) {
     next(new HttpError('Authentication handoff is unavailable', 500));
   }

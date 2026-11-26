@@ -927,6 +927,42 @@ export async function getLocations(userId: string, profileId?: string) {
   return result.rows;
 }
 
+export async function deleteLocation(userId: string, locationId: string) {
+  return transaction(async (client) => {
+    const result = await client.query(
+      `DELETE FROM saved_locations sl
+        WHERE sl.id = $1
+          AND (
+            sl.user_id = $2
+            OR EXISTS (
+              SELECT 1 FROM specialized_profiles sp
+               WHERE sp.id = sl.specialized_profile_id
+                 AND (
+                   sp.user_id = $2
+                   OR EXISTS (
+                     SELECT 1 FROM organisation_members om
+                      WHERE om.organisation_id = sp.organisation_id
+                        AND om.user_id = $2 AND om.status = 'active'
+                        AND om.role IN ('owner', 'admin')
+                   )
+                 )
+            )
+          )
+        RETURNING sl.id, sl.specialized_profile_id`,
+      [locationId, userId],
+    );
+    const deleted = result.rows[0];
+    if (!deleted) return false;
+    await client.query(
+      `INSERT INTO authorization_audit
+        (user_id, decision, permission_id, resource_type, resource_id, metadata)
+       VALUES ($1,'allow','profile.location.delete','saved_location',$2,$3)`,
+      [userId, deleted.id, JSON.stringify({ specializedProfileId: deleted.specialized_profile_id })],
+    );
+    return true;
+  });
+}
+
 export async function addServiceArea(userId: string, data: ServiceAreaInput) {
   return transaction(async (client) => {
     const profile = await manageableProfile(client, data.profileId, userId);

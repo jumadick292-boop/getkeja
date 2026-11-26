@@ -187,9 +187,9 @@ class _LoginMethodsPageState extends ConsumerState<LoginMethodsPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Password & login')),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const AppListSkeleton(rows: 4)
           : SingleChildScrollView(
-              padding: AppSpacing.screenPadding,
+              padding: AppSpacing.compactScreenPadding,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -216,7 +216,7 @@ class _LoginMethodsPageState extends ConsumerState<LoginMethodsPage> {
                   ),
                   const SizedBox(height: 16),
                   AppCard(
-                    padding: AppSpacing.cardPadding,
+                    padding: AppSpacing.compactCardPadding,
                     child: Column(
                       children: [
                         _buildLoginMethodRow(
@@ -265,7 +265,7 @@ class _LoginMethodsPageState extends ConsumerState<LoginMethodsPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   // Password change section
                   Text(
@@ -286,7 +286,7 @@ class _LoginMethodsPageState extends ConsumerState<LoginMethodsPage> {
                   ),
                   const SizedBox(height: 16),
                   AppCard(
-                    padding: AppSpacing.cardPadding,
+                    padding: AppSpacing.compactCardPadding,
                     child: Form(
                       key: _formKey,
                       child: Column(
@@ -382,7 +382,7 @@ class _LoginMethodsPageState extends ConsumerState<LoginMethodsPage> {
                               return null;
                             },
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 16),
                           PrimaryButton(
                             label: _hasPassword
                                 ? 'Change password'
@@ -394,7 +394,7 @@ class _LoginMethodsPageState extends ConsumerState<LoginMethodsPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
 
                   // MFA section
                   Text(
@@ -413,7 +413,7 @@ class _LoginMethodsPageState extends ConsumerState<LoginMethodsPage> {
                   ),
                   const SizedBox(height: 16),
                   AppCard(
-                    padding: AppSpacing.cardPadding,
+                    padding: AppSpacing.compactCardPadding,
                     child: Row(
                       children: [
                         Container(
@@ -458,7 +458,7 @@ class _LoginMethodsPageState extends ConsumerState<LoginMethodsPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),

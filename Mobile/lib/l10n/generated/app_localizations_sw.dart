@@ -395,7 +395,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get movers => 'Wahamishaji';
 
   @override
-  String get garbage => 'Ukusanyaji taka';
+  String get garbage => 'Taka';
 
   @override
   String get featuredHomes => 'Featured homes';
@@ -633,10 +633,11 @@ class AppLocalizationsSw extends AppLocalizations {
   String get compareBeds => '2 beds';
 
   @override
-  String get compareClear => 'Compare Clear';
+  String get compareClear => 'Safisha zote';
 
   @override
-  String get compareClearConfirm => 'Clear all';
+  String get compareClearConfirm =>
+      'Una uhakika unataka kufuta mali zote zinazolinganishwa?';
 
   @override
   String get compareCounty => 'County';
@@ -729,7 +730,8 @@ class AppLocalizationsSw extends AppLocalizations {
   String get couldNotLoadSavedSearches => 'Could Not Load Saved Searches';
 
   @override
-  String get couldNotRunSearch => 'Could not run the search. Please try again.';
+  String get couldNotRunSearch =>
+      'Imeshindwa kuendesha utafutaji. Tafadhali jaribu tena.';
 
   @override
   String get couldNotUpdateAlerts => 'Could Not Update Alerts';
@@ -744,7 +746,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get deleteSavedSearch => 'Delete Saved Search';
 
   @override
-  String get deleteSearch => 'To Delete';
+  String get deleteSearch => 'Futa';
 
   @override
   String get deposit => 'Deposit';
@@ -891,10 +893,10 @@ class AppLocalizationsSw extends AppLocalizations {
   String get newest => 'Newest';
 
   @override
-  String get noHomesMatch => 'No homes match your search';
+  String get noHomesMatch => 'Hakuna nyumba zinayomotokana na tafuta yako';
 
   @override
-  String get noInvoices => 'No Invoices';
+  String get noInvoices => 'Hakuna ankara bado';
 
   @override
   String get noNotifications => 'No Notifications';
@@ -976,6 +978,33 @@ class AppLocalizationsSw extends AppLocalizations {
 
   @override
   String get installationOperationsEmpty => 'Hakuna kazi za usakinishaji bado';
+
+  @override
+  String get finishingOperations => 'Huduma za umaliziaji na ujenzi';
+
+  @override
+  String get finishingOperationsEmpty => 'Hakuna kazi za umaliziaji bado';
+
+  @override
+  String get materials => 'Vifaa na kumalizia';
+
+  @override
+  String get workPlan => 'Mpango wa kazi';
+
+  @override
+  String get qualityInspection => 'Ukaguzi wa ubora';
+
+  @override
+  String get addMaterials => 'Ongeza vifaa';
+
+  @override
+  String get inspectionName => 'Jina la ukaguzi';
+
+  @override
+  String get finishOrSpec => 'Kumalizia / maelezo';
+
+  @override
+  String get startInspection => 'Anza ukaguzi';
 
   @override
   String get installationPlan => 'Mpango wa usakinishaji';
@@ -1333,7 +1362,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get retryPayment => 'Retry Payment';
 
   @override
-  String get runNow => 'Run Now';
+  String get runNow => 'Endesha sasa';
 
   @override
   String get save => 'Save';
@@ -1496,10 +1525,10 @@ class AppLocalizationsSw extends AppLocalizations {
   String get tryWideningFilters => 'Try Widening Filters';
 
   @override
-  String get turnOffAlerts => 'Turn off';
+  String get turnOffAlerts => 'Zima';
 
   @override
-  String get turnOnAlerts => 'Turn On Alerts';
+  String get turnOnAlerts => 'Washa';
 
   @override
   String get unfurnished => 'Unfurnished';
@@ -1573,4 +1602,350 @@ class AppLocalizationsSw extends AppLocalizations {
   String homesFoundCount(int count) {
     return '$count homes found';
   }
+
+  @override
+  String get accepted => 'Imekubaliwa';
+
+  @override
+  String get acknowledge => 'Tambua';
+
+  @override
+  String get activeJobs => 'Kazi zinazoendelea';
+
+  @override
+  String get adminComplaintQueue => 'Foleni ya malalamiko ya msimamizi';
+
+  @override
+  String get assignedJobs => 'Kazi zilizopangwa';
+
+  @override
+  String get averageRating => 'Wastani wa ukadiriaji';
+
+  @override
+  String get awaitingConfirmation => 'Zinasubiri uthibitisho';
+
+  @override
+  String get byDomain => 'Kwa huduma';
+
+  @override
+  String get cancelled => 'Zilizoghairiwa';
+
+  @override
+  String get complaintDetail => 'Maelezo ya lalamiko';
+
+  @override
+  String get complaints => 'Malalamiko';
+
+  @override
+  String get completed => 'Zilizokamilika';
+
+  @override
+  String get completedJobs => 'Kazi zilizokamilika';
+
+  @override
+  String get conversation => 'Mazungumzo';
+
+  @override
+  String get correctiveAction => 'Hatua ya kurekebisha';
+
+  @override
+  String get correctiveActions => 'Hatua za kurekebisha';
+
+  @override
+  String get feedback => 'Maoni';
+
+  @override
+  String get internalNotes => 'Maelezo ya ndani';
+
+  @override
+  String get jobsCreated => 'Kazi zilizoundwa';
+
+  @override
+  String get myComplaints => 'Malalamiko yangu';
+
+  @override
+  String get myReviews => 'Ukadiriaji wangu';
+
+  @override
+  String get newEligibleRequests => 'Maombi mapya yanayostahili';
+
+  @override
+  String get noComplaints => 'Hakuna malalamiko';
+
+  @override
+  String get noData => 'Hakuna data';
+
+  @override
+  String get noReviews => 'Hakuna ukadiriaji bado';
+
+  @override
+  String get openComplaint => 'Fungua lalamiko';
+
+  @override
+  String get operationalReport => 'Ripoti ya uendeshaji';
+
+  @override
+  String get organizationView => 'Mtazamo wa shirika';
+
+  @override
+  String get overdueOrInterrupted => 'Zimechelewa au zimekatizwa';
+
+  @override
+  String get overview => 'Muhtasari';
+
+  @override
+  String get pendingQuotations => 'Nukuu zinazosubiri';
+
+  @override
+  String get proposeResolution => 'Pendekeza suluhisho';
+
+  @override
+  String get providerDashboard => 'Dashibodi ya mtoa huduma';
+
+  @override
+  String get providerResponse => 'Jibu la mtoa huduma';
+
+  @override
+  String get quickLinks => 'Viungo vya haraka';
+
+  @override
+  String get quotations => 'Nukuu';
+
+  @override
+  String get recordCorrective => 'Rekodi hatua ya kurekebisha';
+
+  @override
+  String get reports => 'Ripoti';
+
+  @override
+  String get resolve => 'Rekebisha';
+
+  @override
+  String get respondToReview => 'Jibu ukadiriaji';
+
+  @override
+  String get reviews => 'Ukadiriaji';
+
+  @override
+  String get scheduledToday => 'Zilizopangwa leo';
+
+  @override
+  String get send => 'Tuma';
+
+  @override
+  String get serviceDomain => 'Huduma';
+
+  @override
+  String get servicePerformance => 'Utendaji wa huduma';
+
+  @override
+  String get staffWorkload => 'Mzigo wa kazi wa wafanyakazi';
+
+  @override
+  String get submit => 'Wasilisha';
+
+  @override
+  String get submitReview => 'Wasilisha ukadiriaji';
+
+  @override
+  String get unauthorized => 'Huna ruhusa ya kutazama hili.';
+
+  @override
+  String get unresolvedComplaints => 'Malalamiko ambayo hayajatatuliwa';
+
+  @override
+  String get providerSetup => 'Usanidi wa mtoa huduma';
+
+  @override
+  String get onboarding => 'Usajili';
+
+  @override
+  String get organizations => 'Mashirika';
+
+  @override
+  String get services => 'Katalogi ya huduma';
+
+  @override
+  String get locations => 'Maeneo';
+
+  @override
+  String get serviceAreas => 'Maeneo ya huduma';
+
+  @override
+  String get availability => 'Upatikanaji';
+
+  @override
+  String get marketplace => 'Soko';
+
+  @override
+  String get operations => 'Shughuli';
+
+  @override
+  String get moving => 'Uhamishaji';
+
+  @override
+  String get laundry => 'Kufua na kusafisha';
+
+  @override
+  String get cleaning => 'Usafi';
+
+  @override
+  String get installation => 'Usakinishaji';
+
+  @override
+  String get finishing => 'Umaliziaji';
+
+  @override
+  String get providerRequests => 'Maombi ya mtoa huduma';
+
+  @override
+  String get billing => 'Malipo';
+
+  @override
+  String get billingDashboard => 'Dashibodi ya malipo';
+
+  @override
+  String get billingSchedules => 'Ratiba za malipo';
+
+  @override
+  String get createBillingSchedule => 'Unda ratiba ya malipo';
+
+  @override
+  String get billingScheduleDetail => 'Maelezo ya ratiba ya malipo';
+
+  @override
+  String get rentTerms => 'Masharti ya kodi';
+
+  @override
+  String get invoiceHistory => 'Historia ya ankara';
+
+  @override
+  String get rentAmount => 'Kiasi cha kodi';
+
+  @override
+  String get billingFrequency => 'Mara za malipo';
+
+  @override
+  String get billingDay => 'Siku ya malipo';
+
+  @override
+  String get firstBillingDate => 'Tarehe ya kwanza ya malipo';
+
+  @override
+  String get dueDayOfMonth => 'Siku ya mwisho ya malipo';
+
+  @override
+  String get gracePeriodDays => 'Siku za msamaha';
+
+  @override
+  String get activateSchedule => 'Washa ratiba';
+
+  @override
+  String get suspendSchedule => 'Simamisha ratiba';
+
+  @override
+  String get resumeSchedule => 'Endeleza ratiba';
+
+  @override
+  String get cancelSchedule => 'Ghairi ratiba';
+
+  @override
+  String get previewInvoice => 'Hakiki ankara';
+
+  @override
+  String get changeRent => 'Badilisha kodi';
+
+  @override
+  String get monthly => 'Kila mwezi';
+
+  @override
+  String get quarterly => 'Kila robo';
+
+  @override
+  String get annually => 'Kila mwaka';
+
+  @override
+  String get amountDue => 'Kiasi kinachodaiwa';
+
+  @override
+  String get billingPeriod => 'Kipindi cha malipo';
+
+  @override
+  String get noSchedules => 'Hakuna ratiba za malipo bado';
+
+  @override
+  String get proratedAmount => 'Kiasi kilichopunguzwa';
+
+  @override
+  String get fullPeriod => 'Kipindi kamili';
+
+  @override
+  String get partialPeriod => 'Kipindi sehemu';
+
+  @override
+  String get voidInvoice => 'Ghairi ankara';
+
+  @override
+  String get voidReason => 'Sababu ya kughairi';
+
+  @override
+  String get scheduleActivated => 'Ratiba ya malipo imewashwa';
+
+  @override
+  String get scheduleSuspended => 'Ratiba ya malipo imesimamishwa';
+
+  @override
+  String get scheduleCancelled => 'Ratiba ya malipo imeghairiwa';
+
+  @override
+  String get rentUpdated => 'Kodi imesasishwa';
+
+  @override
+  String get confirmCancelSchedule =>
+      'Ghairi ratiba hii ya malipo? Ankara za baadaye zitasimama.';
+
+  @override
+  String get confirmVoidInvoice => 'Ghairi ankara hii? Haiwezi kutenduliwa.';
+
+  @override
+  String get scheduleStatusActive => 'Hai';
+
+  @override
+  String get scheduleStatusPending => 'Inasubiri';
+
+  @override
+  String get scheduleStatusSuspended => 'Imesimamishwa';
+
+  @override
+  String get scheduleStatusCancelled => 'Imeghairiwa';
+
+  @override
+  String get invoiceStatusPaid => 'Imelipwa';
+
+  @override
+  String get invoiceStatusIssued => 'Imetolewa';
+
+  @override
+  String get invoiceStatusOverdue => 'Imechelewa';
+
+  @override
+  String get invoiceStatusPartiallyPaid => 'Imelipwa sehemu';
+
+  @override
+  String get invoiceStatusVoid => 'Imeghairiwa';
+
+  @override
+  String get upcomingInvoices => 'Ankara zijazo';
+
+  @override
+  String get outstandingAmount => 'Kiasi kilichobaki';
+
+  @override
+  String get tenancy => 'Mkataba';
+
+  @override
+  String get tenant => 'Mpangaji';
+
+  @override
+  String get confirm => 'Thibitisha';
 }

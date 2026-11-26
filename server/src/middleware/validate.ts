@@ -4,7 +4,7 @@ import { HttpError } from '../shared/errors.js';
 
 export function validateBody<T>(schema: ZodType<T>): RequestHandler {
   return (req: Request, _res: Response, next: NextFunction) => {
-    const parsed = schema.safeParse(req.body);
+    const parsed = schema.safeParse(req.body ?? {});
     if (!parsed.success) {
       const message = parsed.error.issues
         .map((issue) => `${issue.path.join('.') || 'body'}: ${issue.message}`)
@@ -27,7 +27,12 @@ export function validateQuery<T>(schema: ZodType<T>): RequestHandler {
       next(new HttpError(message, 400));
       return;
     }
-    req.query = parsed.data as any;
+    Object.defineProperty(req, 'query', {
+      value: parsed.data,
+      writable: true,
+      configurable: true,
+      enumerable: true,
+    });
     next();
   };
 }
@@ -42,14 +47,19 @@ export function validateParams<T>(schema: ZodType<T>): RequestHandler {
       next(new HttpError(message, 400));
       return;
     }
-    req.params = parsed.data as any;
+    Object.defineProperty(req, 'params', {
+      value: parsed.data,
+      writable: true,
+      configurable: true,
+      enumerable: true,
+    });
     next();
   };
 }
 
 export function validate<T>(schema: ZodType<T>, source: 'body' | 'query' | 'params' = 'body'): RequestHandler {
   return (req: Request, _res: Response, next: NextFunction) => {
-    const data = source === 'body' ? req.body : source === 'query' ? req.query : req.params;
+    const data = source === 'body' ? (req.body ?? {}) : source === 'query' ? req.query : req.params;
     const parsed = schema.safeParse(data);
     if (!parsed.success) {
       const message = parsed.error.issues
@@ -59,8 +69,21 @@ export function validate<T>(schema: ZodType<T>, source: 'body' | 'query' | 'para
       return;
     }
     if (source === 'body') req.body = parsed.data;
-    else if (source === 'query') req.query = parsed.data as any;
-    else req.params = parsed.data as any;
+    else if (source === 'query') {
+      Object.defineProperty(req, 'query', {
+        value: parsed.data,
+        writable: true,
+        configurable: true,
+        enumerable: true,
+      });
+    } else {
+      Object.defineProperty(req, 'params', {
+        value: parsed.data,
+        writable: true,
+        configurable: true,
+        enumerable: true,
+      });
+    }
     next();
   };
 }

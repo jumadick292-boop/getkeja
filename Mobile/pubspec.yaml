@@ -79,3 +79,11 @@ flutter:
     - family: Inter
       fonts:
         - asset: assets/fonts/Inter-Variable.ttf
+
+# Test scripts. The API client requires a compile-time API_BASE_URL
+# (Dart environment) because ApiConfig reads it via String.fromEnvironment.
+# CI and local runs must supply it; the value below is a local dev URL,
+# never a production URL.
+scripts:
+  test: "flutter test --dart-define=API_BASE_URL=http://127.0.0.1:4000"
+  "test:coverage": "flutter test --coverage --dart-define=API_BASE_URL=http://127.0.0.1:4000"

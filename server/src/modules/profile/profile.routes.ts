@@ -21,6 +21,7 @@ import {
   providerExtensionIdParamsSchema,
   providerExtensionSchema,
   saveLocationSchema,
+  savedLocationIdParamsSchema,
   serviceAreaSchema,
   serviceAreaIdParamsSchema,
   serviceAreasProfileParamsSchema,
@@ -94,6 +95,7 @@ router.get(
 
 router.post('/locations', validate(saveLocationSchema), controller.saveLocation);
 router.get('/locations', validate(profileIdQuerySchema, 'query'), controller.listLocations);
+router.delete('/locations/:locationId', validate(savedLocationIdParamsSchema, 'params'), controller.deleteLocation);
 router.get('/places/autocomplete', placesRateLimiter, validate(placeSearchQuerySchema, 'query'), controller.searchPlaces);
 router.get('/places/:placeId', placesRateLimiter, validate(placeIdParamsSchema, 'params'), controller.getPlace);
 

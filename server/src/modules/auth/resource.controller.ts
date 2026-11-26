@@ -4,6 +4,7 @@ import { NotFoundError, ForbiddenError } from '../../shared/errors.js';
 import * as repo from './auth.repository.js';
 import * as authz from './authorization.service.js';
 import * as signedUrlService from './document-signed-url.service.js';
+import * as lifecycle from '../site-visits/site-visit-lifecycle.js';
 import { validate } from '../../middleware/validate.js';
 import { randomUUID } from 'crypto';
 
@@ -430,27 +431,46 @@ export async function accessDocumentViaSignedUrl(req: Request, res: Response) {
 }
 
 export async function createSiteVisit(req: AuthenticatedRequest, res: Response) {
-  await assertPropertyAccess(req, req.body.propertyId);
-  if (req.body.unitId) {
-    await assertUnitAccess(req, req.body.unitId);
-  }
+  // Landlord-side creation of a visit on behalf of a prospective renter.
+  // Availability, conflicts, transitions and notifications are handled by the
+  // site visit lifecycle module.
   const userId = assertAuth(req);
   const data = req.body;
-  const visit = await repo.createSiteVisit({
+  await assertPropertyAccess(req, data.propertyId);
+  if (data.unitId) {
+    await assertUnitAccess(req, data.unitId);
+  }
+
+  const visit = await lifecycle.createVisitWithCheck({
+    userId,
     propertyId: data.propertyId,
+    listingId: data.listingId ?? null,
     unitId: data.unitId ?? null,
-    userId: userId, // The current user is the visitor
+    scheduledAt: data.scheduledAt,
+    durationMinutes: data.durationMinutes ?? 30,
+    visitorNotes: data.visitorNotes ?? null,
+    phone: data.visitorPhone,
     visitorName: data.visitorName,
     visitorEmail: data.visitorEmail ?? null,
-    visitorPhone: data.visitorPhone,
-    scheduledAt: new Date(data.scheduledAt),
-    durationMinutes: data.durationMinutes ?? 30,
-    hostedByUserId: data.hostedByUserId ?? null,
-    hostedByOrganisationId: data.hostedByOrganisationId ?? null,
-    visitorNotes: data.visitorNotes ?? null,
-    createdBy: userId,
   });
-  res.status(201).json(visit);
+
+  // Host assignment for landlord-created visits.
+  const hostedBy = data.hostedByUserId ?? userId;
+  if (hostedBy && hostedBy !== userId) {
+    await repo.updateSiteVisit(visit.id, { hostedByUserId: hostedBy }, userId);
+  }
+
+  res.status(201).json(serializeVisit({ ...visit, hostedByUserId: hostedBy }));
+}
+
+function serializeVisit(visit: Record<string, unknown>): Record<string, unknown> {
+  const iso = (value: unknown) => (value instanceof Date ? value.toISOString() : value);
+  return {
+    ...visit,
+    scheduledAt: iso(visit.scheduledAt),
+    createdAt: iso(visit.createdAt),
+    updatedAt: iso(visit.updatedAt),
+  };
 }
 
 export async function getSiteVisit(req: AuthenticatedRequest, res: Response) {
@@ -461,12 +481,37 @@ export async function getSiteVisit(req: AuthenticatedRequest, res: Response) {
 }
 
 export async function updateSiteVisit(req: AuthenticatedRequest, res: Response) {
-  await assertSiteVisitAccess(req, getParam(req, 'visitId'));
-  const data = req.body;
   const userId = assertAuth(req);
-  const visit = await repo.updateSiteVisit(getParam(req, 'visitId'), data, userId);
+  const visitId = getParam(req, 'visitId');
+  const data = req.body;
+  await assertSiteVisitAccess(req, visitId);
+
+  // Status changes are not permitted on the generic endpoint; use the
+  // landlord transition endpoints so availability, history and notifications
+  // are always applied.
+  if (data.status !== undefined) {
+    throw new ForbiddenError('Use the site visit transition endpoints to change visit status');
+  }
+
+  const visit = await repo.updateSiteVisit(
+    visitId,
+    {
+      unitId: data.unitId,
+      visitorName: data.visitorName,
+      visitorEmail: data.visitorEmail,
+      visitorPhone: data.visitorPhone,
+      scheduledAt: data.scheduledAt ? new Date(data.scheduledAt) : undefined,
+      durationMinutes: data.durationMinutes,
+      hostedByUserId: data.hostedByUserId,
+      hostedByOrganisationId: data.hostedByOrganisationId,
+      visitorNotes: data.visitorNotes,
+      hostNotes: data.hostNotes,
+      outcome: data.outcome,
+    },
+    userId,
+  );
   if (!visit) throw new NotFoundError('Site visit');
-  res.json(visit);
+  res.json(serializeVisit(visit as unknown as Record<string, unknown>));
 }
 
 export async function deleteSiteVisit(req: AuthenticatedRequest, res: Response) {

@@ -9,6 +9,7 @@ import '../../../../core/widgets/design_widgets.dart';
 import '../../../../core/errors/app_exceptions.dart';
 import '../../../../core/validators/validators.dart';
 import '../../../authentication/presentation/state/auth_state.dart';
+import '../../../authentication/presentation/state/auth_navigation.dart';
 
 class EmailVerificationPage extends ConsumerStatefulWidget {
   const EmailVerificationPage({
@@ -72,7 +73,12 @@ class _EmailVerificationPageState extends ConsumerState<EmailVerificationPage> {
       if (!mounted) return;
 
       final authState = ref.read(authNotifierProvider);
-      _handleAuthNavigation(authState);
+      navigateForAuthState(
+        context,
+        authState,
+        email: widget.email,
+        verificationDeliveryFailed: widget.deliveryFailed,
+      );
     } on AppException catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -113,20 +119,6 @@ class _EmailVerificationPageState extends ConsumerState<EmailVerificationPage> {
       ).showSnackBar(SnackBar(content: Text(error.message)));
     } finally {
       if (mounted) setState(() => _isResending = false);
-    }
-  }
-
-  void _handleAuthNavigation(AuthState authState) {
-    if (authState.isAuthenticated) {
-      context.go('/dashboard');
-    } else if (authState.isMfaEnrollmentRequired) {
-      context.go('/mfa/enroll');
-    } else if (authState.isMfaRequired) {
-      final challengeId = (authState as dynamic).challengeId as String?;
-      final methods = (authState as dynamic).availableMethods as List<String>?;
-      context.go(
-        '/mfa/challenge?challengeId=${challengeId ?? ''}&methods=${methods?.join(',') ?? ''}',
-      );
     }
   }
 
@@ -181,9 +173,8 @@ class _EmailVerificationPageState extends ConsumerState<EmailVerificationPage> {
                 // Title
                 Text(
                   'Verify your email',
-                  style: AppTypography.headlineMedium.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
+                  style: AppTypography.titleLarge.copyWith(
+                    fontWeight: FontWeight.w700,
                     color: theme.colorScheme.onSurface,
                   ),
                 ),
@@ -278,7 +269,10 @@ class _EmailVerificationPageState extends ConsumerState<EmailVerificationPage> {
                 // Change email option
                 Center(
                   child: TextButton(
-                    onPressed: () => context.go('/sign-in'),
+                    onPressed: () => context.go(
+                      '/sign-in',
+                      extra: {'email': _emailController.text.trim()},
+                    ),
                     child: Text(
                       'Wrong email? Sign in with a different account',
                       style: AppTypography.bodyMedium.copyWith(

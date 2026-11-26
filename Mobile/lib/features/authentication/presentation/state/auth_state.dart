@@ -1149,8 +1149,6 @@ extension AuthStateX on AuthState {
 
   AuthUser? get user => switch (this) {
     _Authenticated(user: final u) => u,
-    _MfaRequired(user: final u) => u,
-    _MfaEnrollmentRequired(user: final u) => u,
     _VerificationRequired(user: final u) => u,
     _ => null,
   };

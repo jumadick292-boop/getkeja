@@ -334,9 +334,9 @@ class _PrivacyDataPageState extends ConsumerState<PrivacyDataPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Privacy & data')),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const AppListSkeleton(rows: 4)
           : SingleChildScrollView(
-              padding: AppSpacing.screenPadding,
+              padding: AppSpacing.compactScreenPadding,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -370,7 +370,7 @@ class _PrivacyDataPageState extends ConsumerState<PrivacyDataPage> {
                   ),
                   const SizedBox(height: 16),
                   AppCard(
-                    padding: AppSpacing.cardPadding,
+                    padding: AppSpacing.compactCardPadding,
                     child: Row(
                       children: [
                         Container(
@@ -425,7 +425,7 @@ class _PrivacyDataPageState extends ConsumerState<PrivacyDataPage> {
                   ),
                   const SizedBox(height: 12),
                   AppCard(
-                    padding: AppSpacing.cardPadding,
+                    padding: AppSpacing.compactCardPadding,
                     child: Row(
                       children: [
                         Container(
@@ -482,7 +482,7 @@ class _PrivacyDataPageState extends ConsumerState<PrivacyDataPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   // Privacy settings section
                   Text(
@@ -501,7 +501,7 @@ class _PrivacyDataPageState extends ConsumerState<PrivacyDataPage> {
                   ),
                   const SizedBox(height: 16),
                   AppCard(
-                    padding: AppSpacing.cardPadding,
+                    padding: AppSpacing.compactCardPadding,
                     child: Column(
                       children: [
                         _buildPrivacySwitch(
@@ -546,7 +546,7 @@ class _PrivacyDataPageState extends ConsumerState<PrivacyDataPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   // Legal links
                   Text(
@@ -558,7 +558,7 @@ class _PrivacyDataPageState extends ConsumerState<PrivacyDataPage> {
                   ),
                   const SizedBox(height: 16),
                   AppCard(
-                    padding: AppSpacing.cardPadding,
+                    padding: AppSpacing.compactCardPadding,
                     child: Column(
                       children: [
                         _buildLegalLink(
@@ -593,7 +593,7 @@ class _PrivacyDataPageState extends ConsumerState<PrivacyDataPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),

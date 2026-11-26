@@ -10,6 +10,7 @@ import '../../../../core/widgets/design_widgets.dart'
 import '../../../../core/errors/app_exceptions.dart';
 import '../../../../core/validators/validators.dart';
 import '../../../authentication/presentation/state/auth_state.dart';
+import '../../../authentication/presentation/state/auth_navigation.dart';
 
 class PhoneVerificationPage extends ConsumerStatefulWidget {
   const PhoneVerificationPage({this.phone, this.otpLogin = false, super.key});
@@ -28,6 +29,7 @@ class _PhoneVerificationPageState extends ConsumerState<PhoneVerificationPage> {
   final _phoneController = TextEditingController();
   int _resendCountdown = 0;
   bool _isResending = false;
+  bool _isVerifying = false;
 
   @override
   void initState() {
@@ -59,8 +61,10 @@ class _PhoneVerificationPageState extends ConsumerState<PhoneVerificationPage> {
   }
 
   Future<void> _verify() async {
+    if (_isVerifying || ref.read(authNotifierProvider).isLoading) return;
     if (!_formKey.currentState!.validate()) return;
 
+    setState(() => _isVerifying = true);
     final notifier = ref.read(authNotifierProvider.notifier);
     try {
       final phone = _phoneController.text.trim();
@@ -78,17 +82,28 @@ class _PhoneVerificationPageState extends ConsumerState<PhoneVerificationPage> {
       if (!mounted) return;
 
       final authState = ref.read(authNotifierProvider);
-      _handleAuthNavigation(authState);
+      navigateForAuthState(
+        context,
+        authState,
+        phone: _phoneController.text.trim(),
+      );
     } on AppException catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(error.message)));
+    } finally {
+      if (mounted) setState(() => _isVerifying = false);
     }
   }
 
   Future<void> _resendCode() async {
-    if (_isResending || _resendCountdown > 0) return;
+    if (_isResending ||
+        _isVerifying ||
+        _resendCountdown > 0 ||
+        ref.read(authNotifierProvider).isLoading) {
+      return;
+    }
 
     setState(() => _isResending = true);
 
@@ -118,20 +133,6 @@ class _PhoneVerificationPageState extends ConsumerState<PhoneVerificationPage> {
     }
   }
 
-  void _handleAuthNavigation(AuthState authState) {
-    if (authState.isAuthenticated) {
-      context.go('/dashboard');
-    } else if (authState.isMfaEnrollmentRequired) {
-      context.go('/mfa/enroll');
-    } else if (authState.isMfaRequired) {
-      final challengeId = (authState as dynamic).challengeId as String?;
-      final methods = (authState as dynamic).availableMethods as List<String>?;
-      context.go(
-        '/mfa/challenge?challengeId=${challengeId ?? ''}&methods=${methods?.join(',') ?? ''}',
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -139,7 +140,8 @@ class _PhoneVerificationPageState extends ConsumerState<PhoneVerificationPage> {
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: AppSpacing.screenPadding,
           child: Form(
             key: _formKey,
@@ -174,9 +176,8 @@ class _PhoneVerificationPageState extends ConsumerState<PhoneVerificationPage> {
                 // Title
                 Text(
                   'Verify your phone',
-                  style: AppTypography.headlineMedium.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
+                  style: AppTypography.titleLarge.copyWith(
+                    fontWeight: FontWeight.w700,
                     color: theme.colorScheme.onSurface,
                   ),
                 ),
@@ -222,8 +223,8 @@ class _PhoneVerificationPageState extends ConsumerState<PhoneVerificationPage> {
                 // Verify button
                 PrimaryButton(
                   label: widget.otpLogin ? 'Sign in' : 'Verify phone',
-                  isLoading: authState.isLoading,
-                  onPressed: _verify,
+                  isLoading: authState.isLoading || _isVerifying,
+                  onPressed: _isVerifying ? null : _verify,
                 ),
 
                 const SizedBox(height: 16),
@@ -231,7 +232,8 @@ class _PhoneVerificationPageState extends ConsumerState<PhoneVerificationPage> {
                 // Resend code with countdown
                 Center(
                   child: TextButton(
-                    onPressed: (_isResending || _resendCountdown > 0)
+                    onPressed:
+                        (_isResending || _isVerifying || _resendCountdown > 0)
                         ? null
                         : _resendCode,
                     child: _isResending
@@ -277,7 +279,10 @@ class _PhoneVerificationPageState extends ConsumerState<PhoneVerificationPage> {
                 // Change phone option
                 Center(
                   child: TextButton(
-                    onPressed: () => context.go('/sign-in'),
+                    onPressed: () => context.go(
+                      '/sign-in',
+                      extra: {'phone': _phoneController.text.trim()},
+                    ),
                     child: Text(
                       'Wrong number? Sign in with a different account',
                       style: AppTypography.bodyMedium.copyWith(
@@ -286,8 +291,6 @@ class _PhoneVerificationPageState extends ConsumerState<PhoneVerificationPage> {
                     ),
                   ),
                 ),
-
-                const Spacer(),
 
                 // Help text
                 Text(

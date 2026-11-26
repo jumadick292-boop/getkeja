@@ -66,24 +66,22 @@ Flutter, the rest fall back to backend `name`.
   that blocks reliable operation.
 
 ### Result
-- **Level A — Full operational module (48 categories / 14 domains):** moving (10),
-  garbage (10), laundry (11), Home Maintenance & Repairs (Task 13.12: plumbing (2),
-  electrical (2), hvac (1), appliances (1), general (1), carpentry (1)),
+- **Level A — Full operational module (55 categories / 18 domains — all domains):**
+  moving (10), garbage (10), laundry (13), Home Maintenance & Repairs (Task 13.12:
+  plumbing (2), electrical (2), hvac (1), appliances (1), general (1), carpentry (1)),
   Cleaning & Property Care (Task 13.13: cleaning (3), pest_control (1),
-  landscaping (2)), plus Installation & Technical Services (Task 13.14: networking
-  (2: wifi_installation, internet_installation), solar (1: solar_installation)) — a
-  shared installation ops module (assessments, plans, equipment, testing &
-  commissioning, amendments, scheduling, staff, evidence, customer confirmation).
-- **Level B (0 categories):** the only true operational workflows are the three
-  domain-specific modules + the shared home-maintenance, cleaning and installation
-  modules, which do not match the remaining domains (finishing). The shared
-  `advanceJob` is provider-driven completion without scheduling or customer
-  confirmation, so it does not satisfy the full customer DoD; no category is
-  classified B on that basis. (Recommended shared engines that *would* create B
-  categories are in the report §11.)
-- **Level C — Marketplace only (7 categories / 4 domains):** roofing (1),
-  flooring (1), tiling (1), painting (2: painting, painting_decoration — Finishing
-  group, Task 13.15). (networking/solar moved to A in Task 13.14.)
+  landscaping (2)), Installation & Technical Services (Task 13.14: networking
+  (2: wifi_installation, internet_installation), solar (1: solar_installation)),
+  plus Finishing & Building Services (Task 13.15: roofing (1), flooring (1),
+  tiling (1), painting (2: painting, painting_decoration)) — a shared finishing
+  ops module (inspections/measurements, work plans, materials/finishes, quality
+  inspections, amendments, scheduling, staff, evidence, customer confirmation).
+- **Level B (0 categories):** all operational domains now have a dedicated shared
+  module; the generic `advanceJob` remains only a fallback and is not used to
+  classify any category B.
+- **Level C — Marketplace only (0 categories):** none remaining. (finishing moved
+  to A in Task 13.15; networking/solar in 13.14; cleaning in 13.13; home
+  maintenance in 13.12.)
 - **Level D (0 categories):** no category is broken at the catalogue/request level.
   Cross-cutting UX gaps (home navigation stubs, scheduling detail nav limited to
   A domains, provider-side contact buttons, l10n coverage) are launch risks, not

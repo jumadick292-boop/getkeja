@@ -69,6 +69,10 @@ const markReadSchema = z.object({
   notificationIds: z.array(z.string().uuid()).min(1),
 });
 
+const notificationIdParamSchema = z.object({
+  id: z.string().uuid(),
+});
+
 const createTemplateSchema = z.object({
   templateKey: z.string().min(1),
   eventType: z.string().min(1),
@@ -86,10 +90,11 @@ router.post('/outbox', validate(createNotificationSchema), notificationControlle
 
 router.get('/', notificationController.getNotifications.bind(notificationController));
 router.get('/unread-count', notificationController.getUnreadCount.bind(notificationController));
+router.get('/:id', validate(notificationIdParamSchema, 'params'), notificationController.getNotificationById.bind(notificationController));
 
 router.post('/mark-read', validate(markReadSchema), notificationController.markAsRead.bind(notificationController));
 router.post('/mark-all-read', notificationController.markAllAsRead.bind(notificationController));
-router.delete('/:id', notificationController.deleteNotification.bind(notificationController));
+router.delete('/:id', validate(notificationIdParamSchema, 'params'), notificationController.deleteNotification.bind(notificationController));
 
 router.get('/preferences', notificationController.getPreferences.bind(notificationController));
 router.patch('/preferences', validate(updatePreferencesSchema), notificationController.updatePreferences.bind(notificationController));

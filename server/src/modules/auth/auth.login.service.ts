@@ -286,7 +286,7 @@ export async function loginWithEmail(
   await delayRepeatedLoginFailures(normalizedEmail, 'email');
   const loginIdentity = await authRepository.findLoginIdentity('email', normalizedEmail);
   const passwordValid = await verifyPassword(loginIdentity?.passwordHash, password);
-  if (!loginIdentity || !loginIdentity.verifiedAt || !passwordValid) {
+  if (!loginIdentity || !passwordValid) {
     await incrementLoginFailure(normalizedEmail, 'email');
     throw new UnauthorizedError('Invalid credentials');
   }
@@ -296,6 +296,21 @@ export async function loginWithEmail(
     await incrementLoginFailure(normalizedEmail, 'email');
     throw new UnauthorizedError('Invalid credentials');
   }
+  if (!loginIdentity.verifiedAt) {
+    const eligibleForVerification =
+      (user.accountStatus === 'pending_verification' || user.accountStatus === 'active') &&
+      user.deletedAt === null &&
+      !user.isDeactivated &&
+      !user.isSuspended &&
+      !user.isLocked;
+    if (!eligibleForVerification) {
+      await incrementLoginFailure(normalizedEmail, 'email');
+      throw new UnauthorizedError('Invalid credentials');
+    }
+    await resetLoginFailure(normalizedEmail, 'email');
+    return { user, authenticationStatus: 'verification_required', verificationChannel: 'email' };
+  }
+
   await checkAccountState(user);
   await resetLoginFailure(normalizedEmail, 'email');
   return finishPrimaryAuthentication(user);
@@ -319,7 +334,7 @@ export async function loginWithPhone(
   await delayRepeatedLoginFailures(normalizedPhone, 'phone');
   const loginIdentity = await authRepository.findLoginIdentity('phone', normalizedPhone);
   const passwordValid = await verifyPassword(loginIdentity?.passwordHash, password);
-  if (!loginIdentity || !loginIdentity.verifiedAt || !passwordValid) {
+  if (!loginIdentity || !passwordValid) {
     await incrementLoginFailure(normalizedPhone, 'phone');
     throw new UnauthorizedError('Invalid credentials');
   }
@@ -328,6 +343,20 @@ export async function loginWithPhone(
   if (!user) {
     await incrementLoginFailure(normalizedPhone, 'phone');
     throw new UnauthorizedError('Invalid credentials');
+  }
+  if (!loginIdentity.verifiedAt) {
+    const eligibleForVerification =
+      (user.accountStatus === 'pending_verification' || user.accountStatus === 'active') &&
+      user.deletedAt === null &&
+      !user.isDeactivated &&
+      !user.isSuspended &&
+      !user.isLocked;
+    if (!eligibleForVerification) {
+      await incrementLoginFailure(normalizedPhone, 'phone');
+      throw new UnauthorizedError('Invalid credentials');
+    }
+    await resetLoginFailure(normalizedPhone, 'phone');
+    return { user, authenticationStatus: 'verification_required', verificationChannel: 'sms' };
   }
   await checkAccountState(user);
   await resetLoginFailure(normalizedPhone, 'phone');

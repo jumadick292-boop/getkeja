@@ -238,6 +238,7 @@ remain separate.
 | GET | `/profiles/{id}/verification-records` | Read user-visible verification history (private review documents/notes are excluded) |
 | GET/POST | `/profiles/{id}/verification-documents` | List or upload a private verification document for an owned profile |
 | GET/POST | `/locations` | List/save the caller's private locations |
+| DELETE | `/locations/{locationId}` | Clear a location owned by the caller or a manageable organization profile |
 | GET | `/places/autocomplete?input=...` | Search place suggestions through the server-side Google Places key |
 | GET | `/places/{placeId}` | Retrieve confirmed coordinates and address components for a selected place |
 | GET/POST/PATCH/DELETE | `/service-areas/{profileId}` and `/service-areas/{areaId}` | List/create/update/delete service areas for an owned provider profile |
@@ -316,6 +317,38 @@ is absent or Google is unreachable, and the picker retains manual pin,
 coordinate, and text entry. Selected place coordinates and available country,
 county, city, neighborhood, address, and place ID are saved as confirmed
 location metadata.
+
+### Nearby properties, directions, and location sharing
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/api/v1/listings/nearby` | Search published, coordinate-backed listings by center/radius, map bounds, or locality text |
+| POST | `/api/v1/listings/directions` | Calculate a route through the server-side Routes API key |
+| GET | `/api/v1/location-sharing/eligible-visits` | List site visits with another registered user where purpose-bound sharing is allowed |
+| POST | `/api/v1/location-sharing/sessions` | Start explicit sharing with the other participant in a scheduled or confirmed site visit |
+| PATCH | `/api/v1/location-sharing/sessions/{sessionId}/location` | Publish the latest foreground location, throttled to at most once every 15 seconds |
+| GET | `/api/v1/location-sharing/sessions` | List the caller's sessions without returning location coordinates |
+| GET | `/api/v1/location-sharing/shared-with-me` | List active location shares addressed to the caller |
+| GET | `/api/v1/location-sharing/sessions/{sessionId}/location` | Read a current coordinate only as the selected recipient |
+| POST | `/api/v1/location-sharing/sessions/{sessionId}/stop` | Revoke a session and erase its current coordinate immediately |
+| GET | `/api/v1/location-sharing/providers?latitude=...&longitude=...` | Find approved moving, laundry, and waste providers whose active radius areas cover a point |
+
+Nearby results include published property data and approximate coordinates rounded
+to three decimal places; they do not return the street address. Only published
+properties with vacant units are included. Search supports rent and bedroom
+filters. Searches use a coordinate bounding filter and Haversine distance,
+supported by B-tree indexes;
+PostGIS is not required. Route calculations require `GOOGLE_ROUTES_API_KEY`, a
+server-only key restricted to Routes API. Until configured, the route endpoint
+returns a configuration error and the mobile app offers external navigation.
+
+Sharing is limited to the other registered person on a scheduled or confirmed
+site visit. Sessions expire after 15, 30, 60, or at most 480 minutes. The backend
+keeps only the latest coordinate, throttles updates, authorizes every read,
+audits start/stop without coordinates, clears expired coordinates, and removes
+expired session metadata after 90 days. The Flutter client starts GPS only after
+the user chooses a session, stops when the screen closes or the app backgrounds,
+and does not request background permission.
 
 Cloudinary is used only for public profile photos and logos. Verification
 documents are stored in a private S3 bucket, with file metadata and SHA-256

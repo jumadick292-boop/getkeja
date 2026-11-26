@@ -4078,38 +4078,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /api/v1/provider/dashboard:
-    get:
-      summary: Provider dashboard counts (provider-scoped)
-      tags:
-      - Provider
-      security:
-      - bearerAuth: []
-      parameters:
-      - in: query
-        name: organizationId
-        required: false
-        schema:
-          type: string
-          format: uuid
-      responses:
-        '200':
-          description: Provider-scoped dashboard counts
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    $ref: '#/components/schemas/ProviderDashboard'
-        '403':
-          description: Not an approved provider
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
   /api/v1/provider/requests:
     get:
       summary: Provider request inbox (eligible + assigned)
@@ -6636,6 +6604,493 @@ paths:
         schema: { type: string, format: uuid }
       responses:
         '200': { description: Awaiting confirmation }
+  /api/v1/finishing-operations/jobs:
+    get:
+      summary: List the customer's finishing jobs
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Jobs }
+  /api/v1/finishing-operations/jobs/{jobId}:
+    get:
+      summary: Customer finishing job detail (internal notes stripped)
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - in: path
+        name: jobId
+        required: true
+        schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Job detail }
+        '403': { description: Not the owner }
+  /api/v1/finishing-operations/jobs/{jobId}/cancel:
+    post:
+      summary: Customer cancels the finishing job
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - in: path
+        name: jobId
+        required: true
+        schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Cancelled }
+  /api/v1/finishing-operations/jobs/{jobId}/exceptions:
+    post:
+      summary: Customer reports a job exception
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - in: path
+        name: jobId
+        required: true
+        schema: { type: string, format: uuid }
+      responses:
+        '201': { description: Reported }
+  /api/v1/finishing-operations/jobs/{jobId}/confirm-completion:
+    post:
+      summary: Customer confirms (or disputes) completion
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - in: path
+        name: jobId
+        required: true
+        schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Confirmed }
+  /api/v1/finishing-operations/jobs/{jobId}/amendments/{amendmentId}/decide:
+    post:
+      summary: Customer approves/rejects an amendment
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - in: path
+        name: jobId
+        required: true
+        schema: { type: string, format: uuid }
+      - in: path
+        name: amendmentId
+        required: true
+        schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Decided }
+  /api/v1/finishing-operations/jobs/{jobId}/materials/{materialId}/decide:
+    post:
+      summary: Customer approves/rejects proposed materials
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - in: path
+        name: jobId
+        required: true
+        schema: { type: string, format: uuid }
+      - in: path
+        name: materialId
+        required: true
+        schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Decided }
+  /api/v1/finishing-operations/provider/jobs:
+    get:
+      summary: List eligible provider finishing jobs
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Jobs }
+    post:
+      summary: Create a job from an accepted quotation (idempotent)
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '201': { description: Job created or existing returned }
+        '403': { description: Not your quotation }
+  /api/v1/finishing-operations/provider/jobs/{jobId}:
+    get:
+      summary: Provider finishing job detail
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - in: path
+        name: jobId
+        required: true
+        schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Job detail }
+  /api/v1/finishing-operations/provider/jobs/{jobId}/fail:
+    post:
+      summary: Mark the finishing job failed
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - in: path
+        name: jobId
+        required: true
+        schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Failed }
+  /api/v1/finishing-operations/provider/jobs/{jobId}/cancel:
+    post:
+      summary: Provider cancels the finishing job
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - in: path
+        name: jobId
+        required: true
+        schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Cancelled }
+  /api/v1/finishing-operations/provider/jobs/{jobId}/progress:
+    post:
+      summary: Advance the finishing job stage
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - in: path
+        name: jobId
+        required: true
+        schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Advanced }
+        '409': { description: Invalid transition }
+  /api/v1/finishing-operations/provider/jobs/{jobId}/assessments:
+    post:
+      summary: Record a site inspection / measurement (internal notes isolated)
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - in: path
+        name: jobId
+        required: true
+        schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Recorded }
+  /api/v1/finishing-operations/provider/jobs/{jobId}/plans:
+    post:
+      summary: Create a work plan / checklist
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - in: path
+        name: jobId
+        required: true
+        schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Created }
+  /api/v1/finishing-operations/provider/jobs/{jobId}/materials:
+    post:
+      summary: Record materials / finishes (job-level)
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - in: path
+        name: jobId
+        required: true
+        schema: { type: string, format: uuid }
+      responses:
+        '201': { description: Added }
+  /api/v1/finishing-operations/provider/jobs/{jobId}/materials/{materialId}/decide:
+    post:
+      summary: Provider decision on material approval
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - in: path
+        name: jobId
+        required: true
+        schema: { type: string, format: uuid }
+      - in: path
+        name: materialId
+        required: true
+        schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Decided }
+  /api/v1/finishing-operations/provider/jobs/{jobId}/inspections:
+    post:
+      summary: Record a quality inspection result
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - in: path
+        name: jobId
+        required: true
+        schema: { type: string, format: uuid }
+      responses:
+        '201': { description: Recorded }
+  /api/v1/finishing-operations/provider/jobs/{jobId}/attachments:
+    post:
+      summary: Upload before/survey/progress/inspection/handover evidence
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - in: path
+        name: jobId
+        required: true
+        schema: { type: string, format: uuid }
+      responses:
+        '201': { description: Uploaded }
+  /api/v1/finishing-operations/provider/jobs/{jobId}/staff:
+    post:
+      summary: Assign authorized staff
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - in: path
+        name: jobId
+        required: true
+        schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Assigned }
+  /api/v1/finishing-operations/provider/jobs/{jobId}/staff/{staffUserId}:
+    delete:
+      summary: Revoke staff access
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - in: path
+        name: jobId
+        required: true
+        schema: { type: string, format: uuid }
+      - in: path
+        name: staffUserId
+        required: true
+        schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Revoked }
+  /api/v1/finishing-operations/provider/jobs/{jobId}/amendments:
+    post:
+      summary: Propose a scope/price amendment
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - in: path
+        name: jobId
+        required: true
+        schema: { type: string, format: uuid }
+      responses:
+        '201': { description: Proposed }
+  /api/v1/finishing-operations/provider/jobs/{jobId}/completion:
+    post:
+      summary: Provider submits work for customer confirmation
+      tags: [Finishing Operations]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - in: path
+        name: jobId
+        required: true
+        schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Awaiting confirmation }
+  /api/v1/provider/dashboard:
+    get:
+      summary: Unified provider dashboard (context-scoped metrics)
+      tags: [Provider Dashboard]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - { in: query, name: domain, schema: { type: string } }
+      - { in: query, name: categoryId, schema: { type: string } }
+      - { in: query, name: status, schema: { type: string } }
+      - { in: query, name: from, schema: { type: string } }
+      - { in: query, name: to, schema: { type: string } }
+      responses:
+        '200': { description: Dashboard }
+  /api/v1/provider/dashboard/staff-workload:
+    get:
+      summary: Staff workload (owner/admin only)
+      tags: [Provider Dashboard]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Workload }
+        '403': { description: Not authorized }
+  /api/v1/provider/reports/operational:
+    get:
+      summary: Operational report (date/domain/category filtered)
+      tags: [Provider Reports]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Report rows }
+  /api/v1/provider/reports/service-performance:
+    get:
+      summary: Service performance by domain/category
+      tags: [Provider Reports]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Performance }
+  /api/v1/provider/reports/customer-experience:
+    get:
+      summary: Customer experience (ratings + complaints)
+      tags: [Provider Reports]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Experience }
+  /api/v1/reviews/resources/{domain}/{resourceId}:
+    post:
+      summary: Submit a verified review for a completed job
+      tags: [Reviews]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - { in: path, name: domain, required: true, schema: { type: string } }
+      - { in: path, name: resourceId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '201': { description: Created }
+        '409': { description: Ineligible or duplicate }
+  /api/v1/reviews/mine:
+    get:
+      summary: Customer's own reviews
+      tags: [Reviews]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Reviews }
+  /api/v1/reviews/provider:
+    get:
+      summary: Provider reviews about own jobs
+      tags: [Reviews]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Reviews }
+  /api/v1/reviews/{reviewId}:
+    get:
+      summary: Review detail
+      tags: [Reviews]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - { in: path, name: reviewId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Review }
+  /api/v1/reviews/{reviewId}/respond:
+    post:
+      summary: Provider responds to a review
+      tags: [Reviews]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - { in: path, name: reviewId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Responded }
+  /api/v1/reviews/{reviewId}/report:
+    post:
+      summary: Report a review
+      tags: [Reviews]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - { in: path, name: reviewId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Reported }
+  /api/v1/reviews/{reviewId}/moderate:
+    post:
+      summary: Moderate a review (platform admin)
+      tags: [Reviews]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - { in: path, name: reviewId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Moderated }
+        '403': { description: Not authorized }
+  /api/v1/reviews/profiles/{providerProfileId}/rating:
+    get:
+      summary: Published rating summary for a provider
+      tags: [Reviews]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - { in: path, name: providerProfileId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Rating summary }
+  /api/v1/complaints/reasons:
+    get:
+      summary: Complaint reason catalogue
+      tags: [Complaints]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Reasons }
+  /api/v1/complaints/resources/{domain}/{resourceId}:
+    post:
+      summary: Open a complaint against an eligible job
+      tags: [Complaints]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - { in: path, name: domain, required: true, schema: { type: string } }
+      - { in: path, name: resourceId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '201': { description: Created }
+  /api/v1/complaints/mine:
+    get:
+      summary: Customer's complaints
+      tags: [Complaints]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Complaints }
+  /api/v1/complaints/provider:
+    get:
+      summary: Provider complaint inbox
+      tags: [Complaints]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Complaints }
+  /api/v1/complaints/admin/queue:
+    get:
+      summary: Admin complaint queue
+      tags: [Complaints]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Queue }
+        '403': { description: Not authorized }
+  /api/v1/complaints/{complaintId}:
+    get:
+      summary: Complaint detail (internal notes admin-only)
+      tags: [Complaints]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - { in: path, name: complaintId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Complaint }
+  /api/v1/complaints/{complaintId}/messages:
+    post:
+      summary: Post a message on a complaint
+      tags: [Complaints]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - { in: path, name: complaintId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '201': { description: Posted }
+  /api/v1/complaints/{complaintId}/corrective-actions:
+    post:
+      summary: Record a provider corrective action
+      tags: [Complaints]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - { in: path, name: complaintId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '201': { description: Recorded }
+  /api/v1/complaints/{complaintId}/status:
+    post:
+      summary: Transition complaint status
+      tags: [Complaints]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - { in: path, name: complaintId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Transitioned }
+        '409': { description: Invalid transition }
+  /api/v1/complaints/{complaintId}/internal-notes:
+    post:
+      summary: Add private admin internal note
+      tags: [Complaints]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - { in: path, name: complaintId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '201': { description: Added }
+        '403': { description: Not authorized }
+  /api/v1/complaints/{complaintId}/assign:
+    post:
+      summary: Assign complaint to an admin
+      tags: [Complaints]
+      security: [{ bearerAuth: [] }]
+      parameters:
+      - { in: path, name: complaintId, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Assigned }
 components:
   securitySchemes:
     bearerAuth:
@@ -6643,6 +7098,57 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        data: { type: object, additionalProperties: true }
+    PaymentInitiateResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        data:
+          type: object
+          properties:
+            transactionId: { type: string }
+            status: { type: string }
+            checkoutUrl: { type: string }
+    ReconciliationResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        data: { type: object, additionalProperties: true }
+    UnmatchedPaymentListResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        data:
+          type: array
+          items: { type: object, additionalProperties: true }
+    ResolveUnmatchedPaymentRequest:
+      type: object
+      required: [paymentId]
+      properties:
+        paymentId: { type: string }
+        tenancyId: { type: string }
+        note: { type: string }
+    RecordReversalRequest:
+      type: object
+      required: [paymentId, amount, reason]
+      properties:
+        paymentId: { type: string }
+        amount: { type: number }
+        reason: { type: string }
+    ReversalResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        data: { type: object, additionalProperties: true }
+    LandlordDashboardResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        data: { type: object, additionalProperties: true }
     Error:
       type: object
       properties:

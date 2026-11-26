@@ -40,6 +40,9 @@ import '../../features/cleaning_operations/presentation/pages/provider_cleaning_
 import '../../features/installation_operations/presentation/pages/customer_installation_jobs_page.dart';
 import '../../features/installation_operations/presentation/pages/customer_installation_job_detail_page.dart';
 import '../../features/installation_operations/presentation/pages/provider_installation_jobs_page.dart';
+import '../../features/finishing_operations/presentation/pages/customer_finishing_jobs_page.dart';
+import '../../features/finishing_operations/presentation/pages/customer_finishing_job_detail_page.dart';
+import '../../features/finishing_operations/presentation/pages/provider_finishing_jobs_page.dart';
 import '../../features/tenancies/presentation/pages/tenancies_page.dart';
 import '../../features/tenancies/presentation/pages/tenancy_detail_page.dart';
 import '../../features/garbage/presentation/pages/garbage_page.dart';
@@ -52,7 +55,15 @@ import '../../features/payments/presentation/pages/payments_page.dart';
 import '../../features/payments/presentation/pages/receipts_page.dart';
 import '../../features/payments/presentation/pages/statement_page.dart';
 import '../../features/movers/presentation/pages/moving_page.dart';
-import '../../features/provider/presentation/pages/provider_dashboard_page.dart';
+import '../../features/provider_platform/presentation/pages/provider_dashboard_page.dart' as unified;
+import '../../features/provider_platform/presentation/pages/provider_reports_page.dart';
+import '../../features/provider_platform/presentation/pages/provider_reviews_page.dart';
+import '../../features/provider_platform/presentation/pages/customer_reviews_page.dart';
+import '../../features/provider_platform/presentation/pages/customer_complaints_page.dart';
+import '../../features/provider_platform/presentation/pages/provider_complaints_page.dart';
+import '../../features/provider_platform/presentation/pages/admin_complaints_page.dart';
+import '../../features/provider_platform/presentation/pages/complaint_detail_page.dart';
+import '../../features/provider_platform/presentation/pages/staff_workload_page.dart';
 import '../../features/provider/presentation/pages/provider_onboarding_page.dart';
 import '../../features/provider/presentation/pages/provider_organizations_page.dart';
 import '../../features/provider/presentation/pages/provider_services_page.dart';
@@ -100,6 +111,11 @@ import '../../features/property_management/presentation/pages/landlord_dashboard
 import '../../features/property_management/presentation/pages/landlord_proposals_page.dart';
 import '../../features/property_management/presentation/pages/landlord_site_visit_detail_page.dart';
 import '../../features/property_management/presentation/pages/landlord_site_visits_page.dart';
+import '../../features/billing/presentation/pages/landlord_billing_dashboard_page.dart';
+import '../../features/billing/presentation/pages/billing_schedules_page.dart';
+import '../../features/billing/presentation/pages/create_billing_schedule_page.dart';
+import '../../features/billing/presentation/pages/billing_schedule_detail_page.dart';
+import '../../features/billing/presentation/pages/landlord_invoices_page.dart';
 import '../../features/property_management/presentation/pages/listings_page.dart';
 import '../../features/property_management/presentation/pages/properties_page.dart';
 import '../../features/property_management/presentation/pages/property_detail_page.dart';
@@ -440,6 +456,46 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/installation-operations/provider/jobs/:jobId',
         name: 'provider-installation-operations-job-detail',
         builder: (context, state) => ProviderInstallationJobDetailPage(
+          jobId: state.pathParameters['jobId']!,
+        ),
+        redirect: (context, state) {
+          if (!ref.read(authNotifierProvider).isAuthenticated) return '/sign-in';
+          return null;
+        },
+      ),
+      GoRoute(
+        path: '/finishing-operations/jobs',
+        name: 'finishing-operations-jobs',
+        builder: (context, state) => const CustomerFinishingJobsPage(),
+        redirect: (context, state) {
+          if (!ref.read(authNotifierProvider).isAuthenticated) return '/sign-in';
+          return null;
+        },
+      ),
+      GoRoute(
+        path: '/finishing-operations/jobs/:jobId',
+        name: 'finishing-operations-job-detail',
+        builder: (context, state) => CustomerFinishingJobDetailPage(
+          jobId: state.pathParameters['jobId']!,
+        ),
+        redirect: (context, state) {
+          if (!ref.read(authNotifierProvider).isAuthenticated) return '/sign-in';
+          return null;
+        },
+      ),
+      GoRoute(
+        path: '/finishing-operations/provider/jobs',
+        name: 'provider-finishing-operations-jobs',
+        builder: (context, state) => const ProviderFinishingJobsPage(),
+        redirect: (context, state) {
+          if (!ref.read(authNotifierProvider).isAuthenticated) return '/sign-in';
+          return null;
+        },
+      ),
+      GoRoute(
+        path: '/finishing-operations/provider/jobs/:jobId',
+        name: 'provider-finishing-operations-job-detail',
+        builder: (context, state) => ProviderFinishingJobDetailPage(
           jobId: state.pathParameters['jobId']!,
         ),
         redirect: (context, state) {
@@ -852,6 +908,69 @@ final routerProvider = Provider<GoRouter>((ref) {
           return null;
         },
       ),
+      // Recurring billing routes (Task 14.1)
+      GoRoute(
+        path: '/landlord/billing',
+        name: 'landlord-billing',
+        builder: (context, state) => const LandlordBillingDashboardPage(),
+        redirect: (context, state) {
+          final authState = ref.read(authNotifierProvider);
+          if (!authState.isAuthenticated) {
+            return '/sign-in';
+          }
+          return null;
+        },
+      ),
+      GoRoute(
+        path: '/landlord/billing/schedules',
+        name: 'landlord-billing-schedules',
+        builder: (context, state) => const BillingSchedulesPage(),
+        redirect: (context, state) {
+          final authState = ref.read(authNotifierProvider);
+          if (!authState.isAuthenticated) {
+            return '/sign-in';
+          }
+          return null;
+        },
+      ),
+      GoRoute(
+        path: '/landlord/billing/schedules/new',
+        name: 'landlord-billing-schedule-create',
+        builder: (context, state) => const CreateBillingSchedulePage(),
+        redirect: (context, state) {
+          final authState = ref.read(authNotifierProvider);
+          if (!authState.isAuthenticated) {
+            return '/sign-in';
+          }
+          return null;
+        },
+      ),
+      GoRoute(
+        path: '/landlord/billing/schedules/:scheduleId',
+        name: 'landlord-billing-schedule-detail',
+        builder: (context, state) => BillingScheduleDetailPage(
+          scheduleId: state.pathParameters['scheduleId']!,
+        ),
+        redirect: (context, state) {
+          final authState = ref.read(authNotifierProvider);
+          if (!authState.isAuthenticated) {
+            return '/sign-in';
+          }
+          return null;
+        },
+      ),
+      GoRoute(
+        path: '/landlord/billing/invoices',
+        name: 'landlord-billing-invoices',
+        builder: (context, state) => const LandlordInvoicesPage(),
+        redirect: (context, state) {
+          final authState = ref.read(authNotifierProvider);
+          if (!authState.isAuthenticated) {
+            return '/sign-in';
+          }
+          return null;
+        },
+      ),
       // House seeker routes
       GoRoute(
         path: '/house-seeker',
@@ -1143,12 +1262,87 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/provider/dashboard',
         name: 'provider-dashboard',
-        builder: (context, state) => const ProviderDashboardPage(),
+        builder: (context, state) => const unified.ProviderDashboardPage(),
         redirect: (context, state) {
           final authState = ref.read(authNotifierProvider);
           if (!authState.isAuthenticated) {
             return '/sign-in';
           }
+          return null;
+        },
+      ),
+      GoRoute(
+        path: '/provider/reports',
+        name: 'provider-reports',
+        builder: (context, state) => const ProviderReportsPage(),
+        redirect: (context, state) {
+          if (!ref.read(authNotifierProvider).isAuthenticated) return '/sign-in';
+          return null;
+        },
+      ),
+      GoRoute(
+        path: '/provider/reviews',
+        name: 'provider-reviews',
+        builder: (context, state) => const ProviderReviewsPage(),
+        redirect: (context, state) {
+          if (!ref.read(authNotifierProvider).isAuthenticated) return '/sign-in';
+          return null;
+        },
+      ),
+      GoRoute(
+        path: '/provider/complaints',
+        name: 'provider-complaints',
+        builder: (context, state) => const ProviderComplaintsPage(),
+        redirect: (context, state) {
+          if (!ref.read(authNotifierProvider).isAuthenticated) return '/sign-in';
+          return null;
+        },
+      ),
+      GoRoute(
+        path: '/provider/staff-workload',
+        name: 'provider-staff-workload',
+        builder: (context, state) => const StaffWorkloadPage(),
+        redirect: (context, state) {
+          if (!ref.read(authNotifierProvider).isAuthenticated) return '/sign-in';
+          return null;
+        },
+      ),
+      GoRoute(
+        path: '/reviews/mine',
+        name: 'my-reviews',
+        builder: (context, state) => CustomerReviewsPage(
+          domain: state.uri.queryParameters['domain'],
+          resourceId: state.uri.queryParameters['resourceId'],
+        ),
+        redirect: (context, state) {
+          if (!ref.read(authNotifierProvider).isAuthenticated) return '/sign-in';
+          return null;
+        },
+      ),
+      GoRoute(
+        path: '/complaints/mine',
+        name: 'my-complaints',
+        builder: (context, state) => const CustomerComplaintsPage(),
+        redirect: (context, state) {
+          if (!ref.read(authNotifierProvider).isAuthenticated) return '/sign-in';
+          return null;
+        },
+      ),
+      GoRoute(
+        path: '/complaints/admin',
+        name: 'admin-complaints',
+        builder: (context, state) => const AdminComplaintsPage(),
+        redirect: (context, state) {
+          if (!ref.read(authNotifierProvider).isAuthenticated) return '/sign-in';
+          return null;
+        },
+      ),
+      GoRoute(
+        path: '/complaints/:complaintId',
+        name: 'complaint-detail',
+        builder: (context, state) => ComplaintDetailPage(complaintId: state.pathParameters['complaintId']!),
+        redirect: (context, state) {
+          if (!ref.read(authNotifierProvider).isAuthenticated) return '/sign-in';
           return null;
         },
       ),

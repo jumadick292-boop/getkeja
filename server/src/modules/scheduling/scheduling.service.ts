@@ -44,6 +44,7 @@ const TERMINAL: Record<SchedulingDomain, string[]> = {
   home_maintenance: ['completed', 'cancelled', 'failed'],
   cleaning: ['completed', 'cancelled', 'failed'],
   installation: ['completed', 'cancelled', 'failed'],
+  finishing: ['completed', 'cancelled', 'failed'],
 };
 
 // Domain adapter: load the operational resource and validate scheduling
@@ -110,6 +111,14 @@ async function loadResource(domain: SchedulingDomain, resourceId: string): Promi
       const x = r.rows[0];
       return { customerUserId: x.customerUserId, providerProfileId: x.providerProfileId, status: x.status, startAt: x.startDate, endAt: null, address: x.address ?? null };
     }
+    case 'finishing': {
+      const r = await pool.query(
+        `SELECT customer_user_id AS "customerUserId", provider_profile_id AS "providerProfileId", status::text AS status,
+                created_at AS "startDate", service_address AS "address" FROM finishing_jobs WHERE id = $1`, [resourceId]);
+      if (!r.rows[0]) throw new NotFoundError('Finishing job not found');
+      const x = r.rows[0];
+      return { customerUserId: x.customerUserId, providerProfileId: x.providerProfileId, status: x.status, startAt: x.startDate, endAt: null, address: x.address ?? null };
+    }
     default:
       throw new ValidationError('Unsupported domain');
   }
@@ -165,6 +174,7 @@ export async function createSchedule(userId: string, input: CreateScheduleInput,
         homeMaintenanceJobId: input.domain === 'home_maintenance' ? input.resourceId : null,
         cleaningJobId: input.domain === 'cleaning' ? input.resourceId : null,
         installationJobId: input.domain === 'installation' ? input.resourceId : null,
+        finishingJobId: input.domain === 'finishing' ? input.resourceId : null,
         startAt: input.startAt,
         endAt: input.endAt,
         timeZone: input.timeZone,

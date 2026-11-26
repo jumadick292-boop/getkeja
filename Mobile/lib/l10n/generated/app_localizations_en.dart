@@ -634,10 +634,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get compareBeds => 'beds';
 
   @override
-  String get compareClear => 'Compare Clear';
+  String get compareClear => 'Clear all';
 
   @override
-  String get compareClearConfirm => 'Compare Clear Confirm';
+  String get compareClearConfirm =>
+      'Are you sure you want to clear all compared properties?';
 
   @override
   String get compareCounty => 'County';
@@ -731,7 +732,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get couldNotLoadSavedSearches => 'Could Not Load Saved Searches';
 
   @override
-  String get couldNotRunSearch => 'Could Not Run Search';
+  String get couldNotRunSearch => 'Could not run the search. Please try again.';
 
   @override
   String get couldNotUpdateAlerts => 'Could Not Update Alerts';
@@ -746,7 +747,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteSavedSearch => 'Delete Saved Search';
 
   @override
-  String get deleteSearch => 'Delete Search';
+  String get deleteSearch => 'Delete';
 
   @override
   String get deposit => 'Deposit';
@@ -896,7 +897,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noHomesMatch => 'No homes match your search';
 
   @override
-  String get noInvoices => 'No Invoices';
+  String get noInvoices => 'No invoices yet';
 
   @override
   String get noNotifications => 'No Notifications';
@@ -978,6 +979,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get installationOperationsEmpty => 'No installation jobs yet';
+
+  @override
+  String get finishingOperations => 'Finishing & building services';
+
+  @override
+  String get finishingOperationsEmpty => 'No finishing jobs yet';
+
+  @override
+  String get materials => 'Materials & finishes';
+
+  @override
+  String get workPlan => 'Work plan';
+
+  @override
+  String get qualityInspection => 'Quality inspection';
+
+  @override
+  String get addMaterials => 'Add materials';
+
+  @override
+  String get inspectionName => 'Inspection name';
+
+  @override
+  String get finishOrSpec => 'Finish / specification';
+
+  @override
+  String get startInspection => 'Start inspection';
 
   @override
   String get installationPlan => 'Installation plan';
@@ -1335,7 +1363,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get retryPayment => 'Retry Payment';
 
   @override
-  String get runNow => 'Run Now';
+  String get runNow => 'Run now';
 
   @override
   String get save => 'Save';
@@ -1498,10 +1526,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tryWideningFilters => 'Try Widening Filters';
 
   @override
-  String get turnOffAlerts => 'Turn Off Alerts';
+  String get turnOffAlerts => 'Turn off';
 
   @override
-  String get turnOnAlerts => 'Turn On Alerts';
+  String get turnOnAlerts => 'Turn on';
 
   @override
   String get unfurnished => 'Unfurnished';
@@ -1575,4 +1603,350 @@ class AppLocalizationsEn extends AppLocalizations {
   String homesFoundCount(int count) {
     return '$count homes found';
   }
+
+  @override
+  String get accepted => 'Accepted';
+
+  @override
+  String get acknowledge => 'Acknowledge';
+
+  @override
+  String get activeJobs => 'Active jobs';
+
+  @override
+  String get adminComplaintQueue => 'Admin complaint queue';
+
+  @override
+  String get assignedJobs => 'Assigned jobs';
+
+  @override
+  String get averageRating => 'Average rating';
+
+  @override
+  String get awaitingConfirmation => 'Awaiting confirmation';
+
+  @override
+  String get byDomain => 'By service';
+
+  @override
+  String get cancelled => 'Cancelled';
+
+  @override
+  String get complaintDetail => 'Complaint details';
+
+  @override
+  String get complaints => 'Complaints';
+
+  @override
+  String get completed => 'Completed';
+
+  @override
+  String get completedJobs => 'Completed jobs';
+
+  @override
+  String get conversation => 'Conversation';
+
+  @override
+  String get correctiveAction => 'Corrective action';
+
+  @override
+  String get correctiveActions => 'Corrective actions';
+
+  @override
+  String get feedback => 'Feedback';
+
+  @override
+  String get internalNotes => 'Internal notes';
+
+  @override
+  String get jobsCreated => 'Jobs created';
+
+  @override
+  String get myComplaints => 'My complaints';
+
+  @override
+  String get myReviews => 'My reviews';
+
+  @override
+  String get newEligibleRequests => 'New eligible requests';
+
+  @override
+  String get noComplaints => 'No complaints';
+
+  @override
+  String get noData => 'No data';
+
+  @override
+  String get noReviews => 'No reviews yet';
+
+  @override
+  String get openComplaint => 'Open complaint';
+
+  @override
+  String get operationalReport => 'Operational report';
+
+  @override
+  String get organizationView => 'Organization view';
+
+  @override
+  String get overdueOrInterrupted => 'Overdue or interrupted';
+
+  @override
+  String get overview => 'Overview';
+
+  @override
+  String get pendingQuotations => 'Pending quotations';
+
+  @override
+  String get proposeResolution => 'Propose resolution';
+
+  @override
+  String get providerDashboard => 'Provider dashboard';
+
+  @override
+  String get providerResponse => 'Provider response';
+
+  @override
+  String get quickLinks => 'Quick links';
+
+  @override
+  String get quotations => 'Quotations';
+
+  @override
+  String get recordCorrective => 'Record corrective action';
+
+  @override
+  String get reports => 'Reports';
+
+  @override
+  String get resolve => 'Resolve';
+
+  @override
+  String get respondToReview => 'Respond to review';
+
+  @override
+  String get reviews => 'Reviews';
+
+  @override
+  String get scheduledToday => 'Scheduled today';
+
+  @override
+  String get send => 'Send';
+
+  @override
+  String get serviceDomain => 'Service';
+
+  @override
+  String get servicePerformance => 'Service performance';
+
+  @override
+  String get staffWorkload => 'Staff workload';
+
+  @override
+  String get submit => 'Submit';
+
+  @override
+  String get submitReview => 'Submit review';
+
+  @override
+  String get unauthorized => 'You are not authorized to view this.';
+
+  @override
+  String get unresolvedComplaints => 'Unresolved complaints';
+
+  @override
+  String get providerSetup => 'Provider setup';
+
+  @override
+  String get onboarding => 'Onboarding';
+
+  @override
+  String get organizations => 'Organizations';
+
+  @override
+  String get services => 'Service catalogue';
+
+  @override
+  String get locations => 'Locations';
+
+  @override
+  String get serviceAreas => 'Service areas';
+
+  @override
+  String get availability => 'Availability';
+
+  @override
+  String get marketplace => 'Marketplace';
+
+  @override
+  String get operations => 'Operations';
+
+  @override
+  String get moving => 'Moving';
+
+  @override
+  String get laundry => 'Laundry';
+
+  @override
+  String get cleaning => 'Cleaning';
+
+  @override
+  String get installation => 'Installation';
+
+  @override
+  String get finishing => 'Finishing';
+
+  @override
+  String get providerRequests => 'Provider requests';
+
+  @override
+  String get billing => 'Billing';
+
+  @override
+  String get billingDashboard => 'Billing dashboard';
+
+  @override
+  String get billingSchedules => 'Billing schedules';
+
+  @override
+  String get createBillingSchedule => 'Create billing schedule';
+
+  @override
+  String get billingScheduleDetail => 'Billing schedule detail';
+
+  @override
+  String get rentTerms => 'Rent terms';
+
+  @override
+  String get invoiceHistory => 'Invoice history';
+
+  @override
+  String get rentAmount => 'Rent amount';
+
+  @override
+  String get billingFrequency => 'Billing frequency';
+
+  @override
+  String get billingDay => 'Billing day';
+
+  @override
+  String get firstBillingDate => 'First billing date';
+
+  @override
+  String get dueDayOfMonth => 'Due day of month';
+
+  @override
+  String get gracePeriodDays => 'Grace period days';
+
+  @override
+  String get activateSchedule => 'Activate schedule';
+
+  @override
+  String get suspendSchedule => 'Suspend schedule';
+
+  @override
+  String get resumeSchedule => 'Resume schedule';
+
+  @override
+  String get cancelSchedule => 'Cancel schedule';
+
+  @override
+  String get previewInvoice => 'Preview invoice';
+
+  @override
+  String get changeRent => 'Change rent';
+
+  @override
+  String get monthly => 'Monthly';
+
+  @override
+  String get quarterly => 'Quarterly';
+
+  @override
+  String get annually => 'Annually';
+
+  @override
+  String get amountDue => 'Amount due';
+
+  @override
+  String get billingPeriod => 'Billing period';
+
+  @override
+  String get noSchedules => 'No billing schedules yet';
+
+  @override
+  String get proratedAmount => 'Prorated amount';
+
+  @override
+  String get fullPeriod => 'Full period';
+
+  @override
+  String get partialPeriod => 'Partial period';
+
+  @override
+  String get voidInvoice => 'Void invoice';
+
+  @override
+  String get voidReason => 'Reason for voiding';
+
+  @override
+  String get scheduleActivated => 'Billing schedule activated';
+
+  @override
+  String get scheduleSuspended => 'Billing schedule suspended';
+
+  @override
+  String get scheduleCancelled => 'Billing schedule cancelled';
+
+  @override
+  String get rentUpdated => 'Rent updated';
+
+  @override
+  String get confirmCancelSchedule =>
+      'Cancel this billing schedule? Future invoices will stop.';
+
+  @override
+  String get confirmVoidInvoice => 'Void this invoice? This cannot be undone.';
+
+  @override
+  String get scheduleStatusActive => 'Active';
+
+  @override
+  String get scheduleStatusPending => 'Pending';
+
+  @override
+  String get scheduleStatusSuspended => 'Suspended';
+
+  @override
+  String get scheduleStatusCancelled => 'Cancelled';
+
+  @override
+  String get invoiceStatusPaid => 'Paid';
+
+  @override
+  String get invoiceStatusIssued => 'Issued';
+
+  @override
+  String get invoiceStatusOverdue => 'Overdue';
+
+  @override
+  String get invoiceStatusPartiallyPaid => 'Partially paid';
+
+  @override
+  String get invoiceStatusVoid => 'Voided';
+
+  @override
+  String get upcomingInvoices => 'Upcoming invoices';
+
+  @override
+  String get outstandingAmount => 'Outstanding amount';
+
+  @override
+  String get tenancy => 'Tenancy';
+
+  @override
+  String get tenant => 'Tenant';
+
+  @override
+  String get confirm => 'Confirm';
 }

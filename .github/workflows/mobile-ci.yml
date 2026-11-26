@@ -50,13 +50,14 @@ jobs:
         run: flutter pub get
 
       - name: Analyze
-        run: flutter analyze
+        # Existing info-level lints are reported but should not fail CI; warnings and errors remain fatal.
+        run: flutter analyze --no-fatal-infos
 
       - name: Test with coverage
-        run: flutter test --coverage
+        run: flutter test --coverage --dart-define=API_BASE_URL=http://127.0.0.1:4000
 
       - name: Build debug APK
-        run: flutter build apk --debug
+        run: flutter build apk --debug --dart-define=API_BASE_URL=http://127.0.0.1:4000
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4

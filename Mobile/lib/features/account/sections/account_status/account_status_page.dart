@@ -262,9 +262,9 @@ class _AccountStatusPageState extends ConsumerState<AccountStatusPage> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const AppListSkeleton(rows: 5)
           : SingleChildScrollView(
-              padding: AppSpacing.screenPadding,
+              padding: AppSpacing.compactScreenPadding,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -277,7 +277,7 @@ class _AccountStatusPageState extends ConsumerState<AccountStatusPage> {
 
                   // Account status header
                   _buildStatusHeader(context),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   // Verification status
                   _buildSectionTitle(
@@ -287,7 +287,7 @@ class _AccountStatusPageState extends ConsumerState<AccountStatusPage> {
                   ),
                   const SizedBox(height: 16),
                   AppCard(
-                    padding: AppSpacing.cardPadding,
+                    padding: AppSpacing.compactCardPadding,
                     child: Column(
                       children: [
                         _buildVerificationRow(
@@ -317,7 +317,7 @@ class _AccountStatusPageState extends ConsumerState<AccountStatusPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   // Security status
                   _buildSectionTitle(
@@ -327,7 +327,7 @@ class _AccountStatusPageState extends ConsumerState<AccountStatusPage> {
                   ),
                   const SizedBox(height: 16),
                   AppCard(
-                    padding: AppSpacing.cardPadding,
+                    padding: AppSpacing.compactCardPadding,
                     child: Column(
                       children: [
                         _buildSecurityRow(
@@ -363,7 +363,7 @@ class _AccountStatusPageState extends ConsumerState<AccountStatusPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   // Account restrictions (if any)
                   if (_isSuspended || _isLocked || _isDeactivated) ...[
@@ -374,7 +374,7 @@ class _AccountStatusPageState extends ConsumerState<AccountStatusPage> {
                     ),
                     const SizedBox(height: 16),
                     AppCard(
-                      padding: AppSpacing.cardPadding,
+                      padding: AppSpacing.compactCardPadding,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -415,7 +415,7 @@ class _AccountStatusPageState extends ConsumerState<AccountStatusPage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
                   ],
 
                   // Roles & permissions
@@ -426,7 +426,7 @@ class _AccountStatusPageState extends ConsumerState<AccountStatusPage> {
                   ),
                   const SizedBox(height: 16),
                   AppCard(
-                    padding: AppSpacing.cardPadding,
+                    padding: AppSpacing.compactCardPadding,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -473,7 +473,7 @@ class _AccountStatusPageState extends ConsumerState<AccountStatusPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   // Account info
                   _buildSectionTitle(
@@ -483,7 +483,7 @@ class _AccountStatusPageState extends ConsumerState<AccountStatusPage> {
                   ),
                   const SizedBox(height: 16),
                   AppCard(
-                    padding: AppSpacing.cardPadding,
+                    padding: AppSpacing.compactCardPadding,
                     child: Column(
                       children: [
                         _buildInfoRow(
@@ -506,7 +506,7 @@ class _AccountStatusPageState extends ConsumerState<AccountStatusPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
@@ -519,7 +519,7 @@ class _AccountStatusPageState extends ConsumerState<AccountStatusPage> {
     final statusIcon = _getStatusIcon(_accountStatus);
 
     return AppCard(
-      padding: AppSpacing.cardPadding,
+      padding: AppSpacing.compactCardPadding,
       child: Row(
         children: [
           Container(
@@ -545,7 +545,8 @@ class _AccountStatusPageState extends ConsumerState<AccountStatusPage> {
                 const SizedBox(height: 4),
                 Text(
                   _formatAccountStatus(_accountStatus),
-                  style: AppTypography.headlineSmall.copyWith(
+                  style: AppTypography.titleLarge.copyWith(
+                    fontSize: 20,
                     color: statusColor,
                     fontWeight: FontWeight.w700,
                   ),
@@ -796,7 +797,7 @@ class _AccountStatusPageState extends ConsumerState<AccountStatusPage> {
     final theme = Theme.of(context);
 
     return Container(
-      padding: AppSpacing.cardPadding,
+      padding: AppSpacing.compactCardPadding,
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.05),
         borderRadius: AppBorderRadius.largeRadius,

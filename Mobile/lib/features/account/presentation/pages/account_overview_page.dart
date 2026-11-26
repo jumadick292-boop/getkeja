@@ -9,8 +9,8 @@ import '../../../../app/theme/design_system.dart';
 import '../../../../core/api/api_client.dart';
 import '../../../../core/errors/app_exceptions.dart';
 import '../../../../core/widgets/design_widgets.dart';
-import '../../../../shared/models/auth_models.dart';
 import '../../../authentication/presentation/state/auth_state.dart';
+import '../../../profile/presentation/widgets/profile_photo_avatar.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 
 class AccountOverviewPage extends ConsumerWidget {
@@ -116,16 +116,16 @@ class AccountOverviewPage extends ConsumerWidget {
       body: user == null
           ? _buildUnauthenticatedView(context)
           : SingleChildScrollView(
-              padding: AppSpacing.screenPadding,
+              padding: AppSpacing.compactScreenPadding,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildAccountHeader(context, user),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   _buildAccountStatusCard(context, user),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   _buildSectionList(context),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                   _buildAccountActions(context, ref),
                 ],
               ),
@@ -137,7 +137,7 @@ class AccountOverviewPage extends ConsumerWidget {
     final theme = Theme.of(context);
     return Center(
       child: Padding(
-        padding: AppSpacing.screenPadding,
+        padding: AppSpacing.compactScreenPadding,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -146,10 +146,11 @@ class AccountOverviewPage extends ConsumerWidget {
               size: 80,
               color: theme.colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Text(
               'Sign in to manage your account',
-              style: AppTypography.headlineSmall.copyWith(
+              style: AppTypography.titleLarge.copyWith(
+                fontSize: 20,
                 color: theme.colorScheme.onSurface,
               ),
               textAlign: TextAlign.center,
@@ -162,7 +163,7 @@ class AccountOverviewPage extends ConsumerWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             PrimaryButton(
               label: 'Sign in',
               onPressed: () => context.go('/sign-in'),
@@ -179,19 +180,12 @@ class AccountOverviewPage extends ConsumerWidget {
     final hasPhone = user.phone != null && user.phone!.isNotEmpty;
 
     return AppCard(
-      padding: AppSpacing.cardPadding,
+      padding: AppSpacing.compactCardPadding,
       child: Row(
         children: [
-          CircleAvatar(
+          ProfilePhotoAvatar(
             radius: 36,
-            backgroundColor: theme.colorScheme.primaryContainer,
-            child: Text(
-              _getInitials(user.firstName, user.lastName),
-              style: AppTypography.headlineMedium.copyWith(
-                color: theme.colorScheme.onPrimaryContainer,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            initials: _getInitials(user.firstName, user.lastName),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -201,6 +195,7 @@ class AccountOverviewPage extends ConsumerWidget {
                 Text(
                   '${user.firstName} ${user.lastName}',
                   style: AppTypography.titleLarge.copyWith(
+                    fontSize: 20,
                     color: theme.colorScheme.onSurface,
                     fontWeight: FontWeight.w700,
                   ),
@@ -236,10 +231,13 @@ class AccountOverviewPage extends ConsumerWidget {
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
                       const SizedBox(width: 6),
-                      Text(
-                        user.phone!,
-                        style: AppTypography.bodyMedium.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
+                      Expanded(
+                        child: Text(
+                          user.phone!,
+                          style: AppTypography.bodyMedium.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -284,33 +282,34 @@ class AccountOverviewPage extends ConsumerWidget {
     final statusLabel = _formatAccountStatus(user.accountStatus);
 
     return AppCard(
-      padding: AppSpacing.cardPadding,
-      child: Row(
+      padding: AppSpacing.compactCardPadding,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: statusColor.withValues(alpha: 0.1),
-              borderRadius: AppBorderRadius.mediumRadius,
-            ),
-            child: Icon(statusIcon, color: statusColor, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Account status',
-                  style: AppTypography.titleMedium.copyWith(
-                    color: theme.colorScheme.onSurface,
-                    fontWeight: FontWeight.w700,
-                  ),
+          Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.1),
+                  borderRadius: AppBorderRadius.mediumRadius,
                 ),
-                const SizedBox(height: 4),
-                Row(
+                child: Icon(statusIcon, color: statusColor, size: 24),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      'Account status',
+                      style: AppTypography.titleMedium.copyWith(
+                        color: theme.colorScheme.onSurface,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
@@ -328,61 +327,65 @@ class AccountOverviewPage extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    if (user.emailVerified || user.phoneVerified) ...[
-                      const SizedBox(width: 8),
-                      _buildVerificationBadge(
-                        context,
-                        'Email',
-                        user.emailVerified,
-                      ),
-                      const SizedBox(width: 4),
-                      _buildVerificationBadge(
-                        context,
-                        'Phone',
-                        user.phoneVerified,
-                      ),
-                    ],
-                    if (user.mfaEnabled) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.secondary.withValues(
-                            alpha: 0.1,
-                          ),
-                          borderRadius: AppBorderRadius.roundRadius,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.shield_rounded,
-                              size: 12,
-                              color: theme.colorScheme.secondary,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'MFA enabled',
-                              style: AppTypography.labelSmall.copyWith(
-                                color: theme.colorScheme.secondary,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
                   ],
                 ),
-              ],
-            ),
+              ),
+              TextButton(
+                onPressed: () => context.go('/account/status'),
+                child: const Text('Details'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => context.go('/account/status'),
-            child: const Text('Details'),
+          if (user.emailVerified || user.phoneVerified || user.mfaEnabled)
+            const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              if (user.emailVerified || user.phoneVerified) ...[
+                _buildVerificationBadge(
+                  context,
+                  'Email',
+                  user.emailVerified,
+                  verifiedColor: theme.colorScheme.tertiary,
+                ),
+                _buildVerificationBadge(
+                  context,
+                  'Phone',
+                  user.phoneVerified,
+                  verifiedColor: theme.colorScheme.primary,
+                ),
+              ],
+              if (user.mfaEnabled)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.secondary.withValues(alpha: 0.1),
+                    borderRadius: AppBorderRadius.roundRadius,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.shield_rounded,
+                        size: 12,
+                        color: theme.colorScheme.secondary,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'MFA enabled',
+                        style: AppTypography.labelSmall.copyWith(
+                          color: theme.colorScheme.secondary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
           ),
         ],
       ),
@@ -392,14 +395,15 @@ class AccountOverviewPage extends ConsumerWidget {
   Widget _buildVerificationBadge(
     BuildContext context,
     String label,
-    bool verified,
-  ) {
+    bool verified, {
+    required Color verifiedColor,
+  }) {
     final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: verified
-            ? theme.colorScheme.secondary.withValues(alpha: 0.1)
+            ? verifiedColor.withValues(alpha: 0.12)
             : theme.colorScheme.surfaceContainerHighest,
         borderRadius: AppBorderRadius.roundRadius,
       ),
@@ -410,7 +414,7 @@ class AccountOverviewPage extends ConsumerWidget {
             verified ? Icons.check_circle_rounded : Icons.circle_outlined,
             size: 12,
             color: verified
-                ? theme.colorScheme.secondary
+                ? verifiedColor
                 : theme.colorScheme.onSurfaceVariant,
           ),
           const SizedBox(width: 3),
@@ -418,7 +422,7 @@ class AccountOverviewPage extends ConsumerWidget {
             label,
             style: AppTypography.labelSmall.copyWith(
               color: verified
-                  ? theme.colorScheme.secondary
+                  ? verifiedColor
                   : theme.colorScheme.onSurfaceVariant,
               fontWeight: FontWeight.w600,
             ),
@@ -518,108 +522,120 @@ class AccountOverviewPage extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         AppCard(
-          padding: AppSpacing.cardPadding,
-          child: Column(
-            children: [
-              ListTile(
-                leading: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    borderRadius: AppBorderRadius.mediumRadius,
+          padding: AppSpacing.compactCardPadding,
+          child: Material(
+            color: Colors.transparent,
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerHighest,
+                      borderRadius: AppBorderRadius.mediumRadius,
+                    ),
+                    child: Icon(
+                      Icons.pause_circle_outline_rounded,
+                      color: theme.colorScheme.onSurfaceVariant,
+                      size: 20,
+                    ),
                   ),
-                  child: Icon(
-                    Icons.pause_circle_outline_rounded,
-                    color: theme.colorScheme.onSurfaceVariant,
-                    size: 20,
+                  title: Text(
+                    'Pause account',
+                    style: AppTypography.bodyLarge.copyWith(
+                      color: theme.colorScheme.onSurface,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
+                  subtitle: Text(
+                    'Pause access; restore it later using a verified email or phone',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  trailing: const Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 16,
+                  ),
+                  onTap: () => _pauseAccount(context, ref),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
                 ),
-                title: Text(
-                  'Pause account',
-                  style: AppTypography.bodyLarge.copyWith(
-                    color: theme.colorScheme.onSurface,
-                    fontWeight: FontWeight.w500,
+                const Divider(),
+                ListTile(
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.tertiaryContainer,
+                      borderRadius: AppBorderRadius.mediumRadius,
+                    ),
+                    child: Icon(
+                      Icons.download_outlined,
+                      color: theme.colorScheme.onTertiaryContainer,
+                      size: 20,
+                    ),
                   ),
+                  title: Text(
+                    'Download your data',
+                    style: AppTypography.bodyLarge.copyWith(
+                      color: theme.colorScheme.onSurface,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Request a copy of your account data',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  trailing: const Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 16,
+                  ),
+                  onTap: () => context.go('/account/privacy'),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
                 ),
-                subtitle: Text(
-                  'Pause access; restore it later using a verified email or phone',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                const Divider(),
+                ListTile(
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.errorContainer,
+                      borderRadius: AppBorderRadius.mediumRadius,
+                    ),
+                    child: Icon(
+                      Icons.delete_outline_rounded,
+                      color: theme.colorScheme.onErrorContainer,
+                      size: 20,
+                    ),
                   ),
+                  title: Text(
+                    'Delete account',
+                    style: AppTypography.bodyLarge.copyWith(
+                      color: theme.colorScheme.error,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Mark your account for deletion and revoke access',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  trailing: const Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 16,
+                  ),
+                  onTap: () => _showDeleteAccountDialog(context),
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
                 ),
-                trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
-                onTap: () => _pauseAccount(context, ref),
-                contentPadding: EdgeInsets.zero,
-                dense: true,
-              ),
-              const Divider(),
-              ListTile(
-                leading: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.tertiaryContainer,
-                    borderRadius: AppBorderRadius.mediumRadius,
-                  ),
-                  child: Icon(
-                    Icons.download_outlined,
-                    color: theme.colorScheme.onTertiaryContainer,
-                    size: 20,
-                  ),
-                ),
-                title: Text(
-                  'Download your data',
-                  style: AppTypography.bodyLarge.copyWith(
-                    color: theme.colorScheme.onSurface,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                subtitle: Text(
-                  'Request a copy of your account data',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
-                onTap: () => context.go('/account/privacy'),
-                contentPadding: EdgeInsets.zero,
-                dense: true,
-              ),
-              const Divider(),
-              ListTile(
-                leading: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.errorContainer,
-                    borderRadius: AppBorderRadius.mediumRadius,
-                  ),
-                  child: Icon(
-                    Icons.delete_outline_rounded,
-                    color: theme.colorScheme.onErrorContainer,
-                    size: 20,
-                  ),
-                ),
-                title: Text(
-                  'Delete account',
-                  style: AppTypography.bodyLarge.copyWith(
-                    color: theme.colorScheme.error,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                subtitle: Text(
-                  'Mark your account for deletion and revoke access',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
-                onTap: () => _showDeleteAccountDialog(context),
-                contentPadding: EdgeInsets.zero,
-                dense: true,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
@@ -776,7 +792,7 @@ class AccountOverviewPage extends ConsumerWidget {
       builder: (context) => AlertDialog(
         title: Text(
           'Delete account?',
-          style: AppTypography.titleLarge.copyWith(
+          style: AppTypography.titleMedium.copyWith(
             color: Theme.of(context).colorScheme.error,
           ),
         ),

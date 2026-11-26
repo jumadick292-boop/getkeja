@@ -1,5 +1,5 @@
 import { SignJWT, jwtVerify } from 'jose';
-import type { PropertyDocument, DocumentVisibility } from './auth.types.js';
+import type { PropertyDocument } from './auth.types.js';
 import { loadEnv } from '../../config/env.js';
 
 const env = loadEnv();
@@ -63,21 +63,13 @@ export async function canAccessDocumentViaSignedUrl(
   if (document.status !== 'active') return false;
   if (document.expiresAt && new Date(document.expiresAt) < new Date()) return false;
 
-  // Check visibility and permissions
-  switch (document.visibility as DocumentVisibility) {
-    case 'public':
-      return true;
-    case 'participant':
-      // In a real implementation, you'd check if the user is a participant
-      // For now, we trust the signed URL was issued to an authorized user
-      return true;
-    case 'owner':
-    case 'manager':
-      // The signed URL issuance already verified access
-      return true;
-    default:
-      return false;
-  }
+  // Re-authorize at redemption time so that a permission/allow-list change or
+  // revoked assignment made AFTER the URL was issued takes effect immediately
+  // (bounded only by the short token TTL). This closes the stale-URL gap (C-2):
+  // possession of a valid token is not sufficient on its own.
+  const authz = await import('./authorization.service.js');
+  const decision = await authz.canAccessPropertyDocument(payload.userId, document.id);
+  return decision.allowed;
 }
 
 export async function generateDocumentSignedUrl(

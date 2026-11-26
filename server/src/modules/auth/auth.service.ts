@@ -1,4 +1,4 @@
-import { randomBytes, randomInt, createHash, createHmac } from 'node:crypto';
+import { randomBytes, randomInt, randomUUID, createHash, createHmac } from 'node:crypto';
 import * as argon2 from 'argon2';
 import { ConflictError, UnauthorizedError, HttpError, ForbiddenError } from '../../shared/errors.js';
 import * as authRepository from './auth.repository.js';
@@ -141,7 +141,7 @@ async function createUserWithIdentity(
   lastName: string,
   role: string,
 ): Promise<{ userId: string; emailIdentityId?: string; phoneIdentityId?: string }> {
-  const userId = randomBytes(16).toString('hex');
+  const userId = randomUUID();
 
   await client.query(
     `INSERT INTO users (id, email, password_hash, name, first_name, last_name, is_active, email_verified, phone_verified)
@@ -564,7 +564,7 @@ export async function registerWithGoogle(
   try {
     await client.query('BEGIN');
 
-    const userId = randomBytes(16).toString('hex');
+    const userId = randomUUID();
     const firstName = payload.given_name || payload.name?.split(' ')[0] || 'User';
     const lastName = payload.family_name || payload.name?.split(' ').slice(1).join(' ') || '';
 

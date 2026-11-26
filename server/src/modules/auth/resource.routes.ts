@@ -66,6 +66,7 @@ import {
   requireTenancyAccess,
   requireDocumentAccess,
   requireSiteVisitAccess,
+  requireSiteVisitManager,
   requireRentalApplicationAccess,
 } from './authorization.middleware.js';
 
@@ -113,11 +114,15 @@ export function createResourceRouter(): Router {
   router.get('/documents/:documentId/signed', accessDocumentViaSignedUrl);
 
   // Site visits
-  router.post('/site-visits', validate(createSiteVisitSchema), createSiteVisit);
+  // Generic CRUD is restricted to landlord-side property managers. House
+  // Seekers must use /api/v1/house-seeker/site-visits, which enforces
+  // availability, conflict and transition rules. Status changes are not
+  // accepted here at all; they go through the landlord transition endpoints.
+  router.post('/site-visits', requireSiteVisitManager, validate(createSiteVisitSchema), createSiteVisit);
   router.get('/site-visits', validate(siteVisitQuerySchema), listSiteVisits);
   router.get('/site-visits/:visitId', requireSiteVisitAccess('visitId'), getSiteVisit);
-  router.patch('/site-visits/:visitId', requireSiteVisitAccess('visitId'), validate(updateSiteVisitSchema), updateSiteVisit);
-  router.delete('/site-visits/:visitId', requireSiteVisitAccess('visitId'), deleteSiteVisit);
+  router.patch('/site-visits/:visitId', requireSiteVisitManager, requireSiteVisitAccess('visitId'), validate(updateSiteVisitSchema), updateSiteVisit);
+  router.delete('/site-visits/:visitId', requireSiteVisitManager, requireSiteVisitAccess('visitId'), deleteSiteVisit);
 
   // Rental applications
   router.post('/rental-applications', validate(createRentalApplicationSchema), createRentalApplication);

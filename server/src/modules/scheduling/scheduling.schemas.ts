@@ -8,7 +8,7 @@ const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD');
 export const activityIdParamsSchema = z.object({ activityId: uuid });
 export const rescheduleIdParamsSchema = z.object({ activityId: uuid, requestId: uuid });
 
-export const domainEnum = z.enum(['moving', 'garbage', 'garbage_occurrence', 'laundry', 'home_maintenance', 'cleaning', 'installation']);
+export const domainEnum = z.enum(['moving', 'garbage', 'garbage_occurrence', 'laundry', 'home_maintenance', 'cleaning', 'installation', 'finishing']);
 
 // Create/confirm a schedule for an existing operational resource.
 export const createScheduleSchema = z

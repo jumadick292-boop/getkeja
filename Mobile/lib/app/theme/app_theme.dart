@@ -117,7 +117,8 @@ abstract final class AppTheme {
       centerTitle: false,
       elevation: 0,
       scrolledUnderElevation: 0,
-      titleTextStyle: AppTypography.titleLarge.copyWith(
+      titleTextStyle: AppTypography.titleMedium.copyWith(
+        fontSize: 18,
         color: isDark ? AppColors.pageBackground : AppColors.text,
         fontWeight: FontWeight.w700,
       ),

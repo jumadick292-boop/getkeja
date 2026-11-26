@@ -220,12 +220,12 @@ class _SecurityActivityPageState extends ConsumerState<SecurityActivityPage>
         ],
       ),
       body: _isLoading && _securityEvents.isEmpty && _signInEvents.isEmpty
-          ? const Center(child: CircularProgressIndicator())
+          ? const AppListSkeleton(rows: 4)
           : Column(
               children: [
                 if (_errorMessage != null)
                   Padding(
-                    padding: AppSpacing.screenPadding,
+                    padding: AppSpacing.compactScreenPadding,
                     child: AppNotice(
                       message: _errorMessage!,
                       type: NoticeType.error,
@@ -276,7 +276,7 @@ class _SecurityActivityPageState extends ConsumerState<SecurityActivityPage>
     if (events.isEmpty) {
       return Center(
         child: Padding(
-          padding: AppSpacing.screenPadding,
+          padding: AppSpacing.compactScreenPadding,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -303,7 +303,7 @@ class _SecurityActivityPageState extends ConsumerState<SecurityActivityPage>
       onRefresh: () => _loadEvents(refresh: true),
       child: ListView.builder(
         controller: scrollController,
-        padding: AppSpacing.screenPadding,
+        padding: AppSpacing.compactScreenPadding,
         itemCount: events.length + (hasMore ? 1 : 0),
         itemBuilder: (context, index) {
           if (index >= events.length) {
@@ -335,7 +335,7 @@ class _SecurityActivityPageState extends ConsumerState<SecurityActivityPage>
 
     return AppCard(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: AppSpacing.cardPadding,
+      padding: AppSpacing.compactCardPadding,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -144,8 +144,8 @@ class _RestoreAccountPageState extends ConsumerState<RestoreAccountPage> {
               const SizedBox(height: 16),
               Text(
                 'Restore your account',
-                style: AppTypography.headlineMedium.copyWith(
-                  fontWeight: FontWeight.w800,
+                style: AppTypography.titleLarge.copyWith(
+                  fontWeight: FontWeight.w700,
                   color: theme.colorScheme.onSurface,
                 ),
               ),

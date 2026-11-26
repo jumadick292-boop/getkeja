@@ -566,6 +566,48 @@ export const requireSiteVisitAccess = (
 };
 
 /**
+ * Middleware that restricts site-visit management (create/update/delete on the
+ * generic resource router) to users who can manage the target property.
+ * House Seekers must use the house-seeker site visit endpoints instead.
+ */
+export const requireSiteVisitManager: RequestHandler = async (
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const context = await validateTokenAndGetContext(req);
+    if (!context) {
+      throw new UnauthorizedError();
+    }
+
+    const visitId = getParamValue(req, 'visitId');
+    const propertyId = (req.body?.propertyId ?? req.query?.propertyId) as string | undefined;
+
+    if (visitId) {
+      const result = await authz.canManageAnySiteVisit(context.userId, visitId);
+      if (!result.allowed) {
+        throw new ForbiddenError(result.reason);
+      }
+      next();
+      return;
+    }
+
+    if (!propertyId) {
+      throw new ForbiddenError('propertyId is required');
+    }
+
+    const decision = await authz.canAccessProperty(context.userId, propertyId, 'property.manage');
+    if (!decision.allowed) {
+      throw new ForbiddenError(decision.reason);
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * Middleware to require access to a specific rental application
  */
 export const requireRentalApplicationAccess = (

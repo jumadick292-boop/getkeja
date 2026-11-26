@@ -10,8 +10,9 @@ import '../../../../core/widgets/design_widgets.dart';
 import '../../../../core/errors/app_exceptions.dart';
 import '../../../../core/validators/validators.dart';
 import '../../../authentication/presentation/state/auth_state.dart';
+import '../../../authentication/presentation/state/auth_navigation.dart';
 
-enum RegistrationMethod { email, phone, phoneOtp }
+enum RegistrationMethod { choose, email, phone, phoneOtp, google }
 
 const Map<String, Map<String, String>> _accountTypeGroups = {
   'Homes and rentals': {
@@ -35,7 +36,7 @@ const Map<String, Map<String, String>> _accountTypeGroups = {
 
 class RegisterPage extends ConsumerStatefulWidget {
   const RegisterPage({
-    this.registrationMethod = RegistrationMethod.email,
+    this.registrationMethod = RegistrationMethod.choose,
     super.key,
   });
 
@@ -59,6 +60,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   bool _obscureConfirmPassword = true;
   late RegistrationMethod _registrationMethod;
   String? _selectedAccountType;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -78,6 +80,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   }
 
   Future<void> _signUpWithGoogle(WidgetRef ref, String role) async {
+    if (_isSubmitting || ref.read(authNotifierProvider).isLoading) return;
     if (!_termsAccepted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -86,17 +89,20 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       );
       return;
     }
+    setState(() => _isSubmitting = true);
     try {
       await ref
           .read(authNotifierProvider.notifier)
           .handleAction(AuthAction.registerWithGoogle(role: role));
       if (!mounted) return;
-      _handleAuthNavigation(ref.read(authNotifierProvider));
+      _navigate(ref.read(authNotifierProvider));
     } on AppException catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(error.message)));
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
@@ -112,6 +118,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   }
 
   Future<void> _submit() async {
+    if (_isSubmitting || ref.read(authNotifierProvider).isLoading) return;
     if (!_formKey.currentState!.validate()) return;
     if (!_termsAccepted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -122,10 +129,14 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       return;
     }
 
+    setState(() => _isSubmitting = true);
     final notifier = ref.read(authNotifierProvider.notifier);
 
     try {
       switch (_registrationMethod) {
+        case RegistrationMethod.choose:
+        case RegistrationMethod.google:
+          return;
         case RegistrationMethod.email:
           await notifier.handleAction(
             AuthAction.registerEmail(
@@ -163,46 +174,27 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       if (!mounted) return;
 
       final authState = ref.read(authNotifierProvider);
-      _handleAuthNavigation(authState);
+      _navigate(authState);
     } on AppException catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(error.message)));
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
-  void _handleAuthNavigation(AuthState authState) {
-    if (authState.isVerificationRequired) {
-      final verificationType =
-          (authState as dynamic).verificationType as String?;
-      if (verificationType == 'phone') {
-        context.go(
-          '/verify-phone',
-          extra: {'phone': _phoneController.text.trim()},
-        );
-      } else {
-        context.go(
-          '/verify-email',
-          extra: {
-            'email': _emailController.text.trim(),
-            'deliveryFailed': ref
-                .read(authNotifierProvider.notifier)
-                .emailVerificationDeliveryFailed,
-          },
-        );
-      }
-    } else if (authState.isMfaEnrollmentRequired) {
-      context.go('/mfa/enroll');
-    } else if (authState.isMfaRequired) {
-      final challengeId = (authState as dynamic).challengeId as String?;
-      final methods = (authState as dynamic).availableMethods as List<String>?;
-      context.go(
-        '/mfa/challenge?challengeId=${challengeId ?? ''}&methods=${methods?.join(',') ?? ''}',
-      );
-    } else if (authState.isAuthenticated) {
-      context.go('/dashboard');
-    }
+  void _navigate(AuthState authState) {
+    navigateForAuthState(
+      context,
+      authState,
+      email: _emailController.text.trim(),
+      phone: _phoneController.text.trim(),
+      verificationDeliveryFailed: ref
+          .read(authNotifierProvider.notifier)
+          .emailVerificationDeliveryFailed,
+    );
   }
 
   String? _validateConfirmPassword(String? value) {
@@ -236,6 +228,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final authState = ref.watch(authNotifierProvider);
+
+    if (_registrationMethod == RegistrationMethod.choose) {
+      return _buildMethodChooser(context, theme, authState.isLoading);
+    }
 
     return Scaffold(
       body: SafeArea(
@@ -273,84 +269,60 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
                 // Title
                 Text(
-                  'Create account',
-                  style: AppTypography.headlineMedium.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
+                  _registrationMethod == RegistrationMethod.google
+                      ? 'Set up Google sign up'
+                      : 'Create account with ${_registrationMethod == RegistrationMethod.email ? 'email' : 'phone'}',
+                  style: AppTypography.titleLarge.copyWith(
+                    fontWeight: FontWeight.w700,
                     color: theme.colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Sign up to save homes and manage your bookings.',
+                  _registrationMethod == RegistrationMethod.google
+                      ? 'Choose how you will use GetKeja, then continue with Google.'
+                      : 'Sign up to save homes and manage your bookings.',
                   style: AppTypography.bodyLarge.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 32),
 
-                SegmentedButton<RegistrationMethod>(
-                  segments: const [
-                    ButtonSegment(
-                      value: RegistrationMethod.email,
-                      label: Text('Email'),
-                      icon: Icon(Icons.email_outlined),
-                    ),
-                    ButtonSegment(
-                      value: RegistrationMethod.phone,
-                      label: Text('Phone'),
-                      icon: Icon(Icons.phone_outlined),
-                    ),
-                  ],
-                  selected: {
-                    _registrationMethod == RegistrationMethod.phoneOtp
-                        ? RegistrationMethod.phone
-                        : _registrationMethod,
-                  },
-                  onSelectionChanged: authState.isLoading
-                      ? null
-                      : (selection) {
-                          if (selection.isNotEmpty) {
-                            setState(
-                              () => _registrationMethod = selection.first,
-                            );
-                          }
-                        },
-                  expandedInsets: EdgeInsets.zero,
-                ),
                 const SizedBox(height: 24),
 
                 // Name fields
-                Row(
-                  children: [
-                    Expanded(
-                      child: AppTextField(
-                        controller: _firstNameController,
-                        label: 'First name',
-                        textInputAction: TextInputAction.next,
-                        validator: (value) =>
-                            value == null || value.trim().isEmpty
-                            ? 'Enter first name'
-                            : null,
-                        autofillHints: const [AutofillHints.givenName],
+                if (_registrationMethod != RegistrationMethod.google)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: AppTextField(
+                          controller: _firstNameController,
+                          label: 'First name',
+                          textInputAction: TextInputAction.next,
+                          validator: (value) =>
+                              value == null || value.trim().isEmpty
+                              ? 'Enter first name'
+                              : null,
+                          autofillHints: const [AutofillHints.givenName],
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: AppTextField(
-                        controller: _lastNameController,
-                        label: 'Last name',
-                        textInputAction: TextInputAction.next,
-                        validator: (value) =>
-                            value == null || value.trim().isEmpty
-                            ? 'Enter last name'
-                            : null,
-                        autofillHints: const [AutofillHints.familyName],
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: AppTextField(
+                          controller: _lastNameController,
+                          label: 'Last name',
+                          textInputAction: TextInputAction.next,
+                          validator: (value) =>
+                              value == null || value.trim().isEmpty
+                              ? 'Enter last name'
+                              : null,
+                          autofillHints: const [AutofillHints.familyName],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
+                    ],
+                  ),
+                if (_registrationMethod != RegistrationMethod.google)
+                  const SizedBox(height: 16),
 
                 // Email or Phone field based on registration method
                 if (_registrationMethod == RegistrationMethod.email) ...[
@@ -428,7 +400,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 ),
                 const SizedBox(height: 16),
 
-                if (_registrationMethod != RegistrationMethod.phoneOtp) ...[
+                if (_registrationMethod != RegistrationMethod.phoneOtp &&
+                    _registrationMethod != RegistrationMethod.google) ...[
                   AppTextField(
                     controller: _passwordController,
                     label: 'Password',
@@ -469,7 +442,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     autofillHints: const [AutofillHints.newPassword],
                     onSubmitted: (_) => _submit(),
                   ),
-                ] else ...[
+                ] else if (_registrationMethod ==
+                    RegistrationMethod.phoneOtp) ...[
                   Text(
                     'We will text a one-time verification code to this number.',
                     style: theme.textTheme.bodyMedium,
@@ -552,27 +526,19 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   const SizedBox(height: 16),
                 ],
 
-                PrimaryButton(
-                  label:
-                      'Create account with ${_registrationMethod == RegistrationMethod.email ? 'email' : 'phone'}',
-                  isLoading: authState.isLoading,
-                  onPressed: _submit,
-                ),
-
-                const SizedBox(height: 16),
-                Center(
-                  child: Text(
-                    'or',
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                if (_registrationMethod == RegistrationMethod.google)
+                  PrimaryButton(
+                    label: 'Continue with Google',
+                    isLoading: authState.isLoading || _isSubmitting,
+                    onPressed: () => _signUpWithGoogleForSelectedRole(ref),
+                  )
+                else
+                  PrimaryButton(
+                    label:
+                        'Create account with ${_registrationMethod == RegistrationMethod.email ? 'email' : 'phone'}',
+                    isLoading: authState.isLoading || _isSubmitting,
+                    onPressed: _isSubmitting ? null : _submit,
                   ),
-                ),
-                const SizedBox(height: 16),
-                _GoogleSignUpButton(
-                  isLoading: authState.isLoading,
-                  onPressed: () => _signUpWithGoogleForSelectedRole(ref),
-                ),
 
                 const SizedBox(height: 24),
 
@@ -606,40 +572,89 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       ),
     );
   }
-}
 
-class _GoogleSignUpButton extends StatelessWidget {
-  const _GoogleSignUpButton({required this.isLoading, required this.onPressed});
-
-  final bool isLoading;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return OutlinedButton.icon(
-      onPressed: isLoading ? null : onPressed,
-      icon: Image.asset(
-        'assets/images/brand/google_logo.png',
-        width: 20,
-        height: 20,
-        errorBuilder: (_, __, ___) => const Icon(Icons.g_mobiledata, size: 20),
-      ),
-      label: Text(
-        isLoading ? 'Connecting to Google...' : 'Continue with Google',
-      ),
-      style: OutlinedButton.styleFrom(
-        minimumSize: const Size(double.infinity, 52),
-        padding: AppSpacing.buttonPadding,
-        shape: RoundedRectangleBorder(
-          borderRadius: AppBorderRadius.mediumRadius,
+  Widget _buildMethodChooser(
+    BuildContext context,
+    ThemeData theme,
+    bool isLoading,
+  ) {
+    return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: AppSpacing.screenPadding,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  onPressed: () => context.pop(),
+                  icon: const Icon(Icons.arrow_back_rounded),
+                  tooltip: 'Back',
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Create account',
+                style: AppTypography.titleLarge.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Choose how you would like to sign up.',
+                style: AppTypography.bodyLarge.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 28),
+              PrimaryButton(
+                label: 'Continue with email',
+                isLoading: false,
+                onPressed: isLoading
+                    ? null
+                    : () => context.push('/register/email'),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: isLoading
+                    ? null
+                    : () => context.push('/register/phone'),
+                icon: const Icon(Icons.phone_outlined),
+                label: const Text('Continue with phone'),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(52),
+                ),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: isLoading
+                    ? null
+                    : () => context.push('/register/google'),
+                icon: const Icon(Icons.g_mobiledata_rounded, size: 28),
+                label: const Text('Continue with Google'),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(52),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Already have an account? ',
+                    style: AppTypography.bodyMedium,
+                  ),
+                  TextButton(
+                    onPressed: () => context.push('/sign-in'),
+                    child: const Text('Sign in'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-        textStyle: AppTypography.labelLarge.copyWith(
-          fontWeight: FontWeight.w700,
-        ),
-        foregroundColor: theme.colorScheme.onSurface,
-        side: BorderSide(color: theme.colorScheme.outline, width: 1),
       ),
     );
   }
