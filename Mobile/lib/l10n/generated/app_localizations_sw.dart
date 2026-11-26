@@ -57,6 +57,178 @@ class AppLocalizationsSw extends AppLocalizations {
   String get kiswahili => 'Kiswahili';
 
   @override
+  String get categoryWifiInstallation => 'Ufungaji na Usanidi wa Wi-Fi';
+
+  @override
+  String get categoryInternetInstallation =>
+      'Ufungaji na Muunganisho wa Intaneti';
+
+  @override
+  String get categorySolarInstallation => 'Ufungaji na Matengenezo ya Solar';
+
+  @override
+  String get categoryPaintingDecoration => 'Upakaji Rangi na Mapambo';
+
+  @override
+  String get movingJobs => 'Kazi za kuhamisha';
+
+  @override
+  String get providerMovingJobs => 'Kazi zilizopangwa za kuhamisha';
+
+  @override
+  String get movingJobDetails => 'Maelezo ya kazi ya kuhamisha';
+
+  @override
+  String get movingStatus => 'Hali';
+
+  @override
+  String get movingOrigin => 'Chanzo';
+
+  @override
+  String get movingDestination => 'Marudio';
+
+  @override
+  String get movingSchedule => 'Ratiba';
+
+  @override
+  String get movingChecklist => 'Orodha ya maandalizi';
+
+  @override
+  String get movingProgress => 'Maendeleo';
+
+  @override
+  String get movingAcceptedQuotation => 'Nukuu iliyokubaliwa';
+
+  @override
+  String get movingAssessments => 'Tathmini';
+
+  @override
+  String get movingAmendments => 'Marekebisho';
+
+  @override
+  String get movingConfirmCompletion => 'Thibitisha kukamilika';
+
+  @override
+  String get movingReportIncomplete => 'Ripoti kazi isiyokamilika';
+
+  @override
+  String get movingCancelJob => 'Ghairi kazi';
+
+  @override
+  String get movingNoJobs => 'Hakuna kazi za kuhamisha bado';
+
+  @override
+  String get movingRetry => 'Jaribu tena';
+
+  @override
+  String get garbageJobs => 'Mkusanyiko wa taka';
+
+  @override
+  String get providerGarbageJobs => 'Mkusanyiko uliopangiwa';
+
+  @override
+  String get garbageJobDetails => 'Maelezo ya mkusanyiko';
+
+  @override
+  String get garbageSchedule => 'Ratiba';
+
+  @override
+  String get garbageChecklist => 'Orodha ya mkusanyiko';
+
+  @override
+  String get garbageAgreements => 'Mipango ya mara kwa mara';
+
+  @override
+  String get providerGarbageAgreements => 'Mikataba ya mara kwa mara';
+
+  @override
+  String get garbageConfirmCompletion => 'Thibitisha mkusanyiko';
+
+  @override
+  String get garbageReportIssue => 'Ripoti tatizo';
+
+  @override
+  String get garbageCancelJob => 'Ghairi mkusanyiko';
+
+  @override
+  String get garbageNoJobs => 'Hakuna mkusanyiko bado';
+
+  @override
+  String get garbageNoAgreements => 'Hakuna mipango ya mara kwa mara bado';
+
+  @override
+  String get garbageRetry => 'Jaribu tena';
+
+  @override
+  String get garbageAccept => 'Kubali';
+
+  @override
+  String get garbageDecline => 'Kataa';
+
+  @override
+  String get garbageStatus => 'Hali';
+
+  @override
+  String get laundryOrders => 'Oda za dobi';
+
+  @override
+  String get providerLaundryOrders => 'Oda za dobi zilizopangiwa';
+
+  @override
+  String get laundryOrderDetails => 'Maelezo ya oda ya dobi';
+
+  @override
+  String get laundryNoOrders => 'Hakuna oda za dobi bado';
+
+  @override
+  String get laundryRetry => 'Jaribu tena';
+
+  @override
+  String get laundryStatus => 'Hali';
+
+  @override
+  String get laundrySchedule => 'Ratiba';
+
+  @override
+  String get laundryItems => 'Vipengele';
+
+  @override
+  String get laundryConfirmDelivery => 'Thibitisha uwasilishaji';
+
+  @override
+  String get schedulingCalendar => 'Kalenda ya uendeshaji';
+
+  @override
+  String get schedulingAppointments => 'Miadi yangu';
+
+  @override
+  String get schedulingDay => 'Siku';
+
+  @override
+  String get schedulingWeek => 'Wiki';
+
+  @override
+  String get schedulingMonth => 'Mwezi';
+
+  @override
+  String get schedulingRetry => 'Jaribu tena';
+
+  @override
+  String get schedulingNoActivities => 'Hakuna shughuli zilizopangwa';
+
+  @override
+  String get schedulingNoAppointments => 'Hakuna miadi bado';
+
+  @override
+  String get domainMoving => 'Kuhamisha';
+
+  @override
+  String get domainGarbage => 'Taka';
+
+  @override
+  String get domainLaundry => 'Dobi';
+
+  @override
   String get timezone => 'Saa za eneo';
 
   @override
@@ -87,7 +259,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get defaultCurrency => 'Sarafu chaguomsingi';
 
   @override
-  String get notificationChannels => 'Njia za arifa';
+  String get notificationChannels => 'Njia';
 
   @override
   String get pushNotifications => 'Arifa za programu';
@@ -226,7 +398,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get garbage => 'Ukusanyaji taka';
 
   @override
-  String get featuredHomes => 'Nyumba zilizoangaziwa';
+  String get featuredHomes => 'Featured homes';
 
   @override
   String get seeAll => 'Tazama zote';
@@ -321,4 +493,1084 @@ class AppLocalizationsSw extends AppLocalizations {
 
   @override
   String get unknown => 'Haijulikani';
+
+  @override
+  String get aboutThisHome => 'About This Home';
+
+  @override
+  String get accountReference => 'Account Reference';
+
+  @override
+  String get active => 'Active';
+
+  @override
+  String get activeFilters => 'Active Filters';
+
+  @override
+  String get alertDaily => 'Alert Daily';
+
+  @override
+  String get alertFrequency => 'Alert Frequency';
+
+  @override
+  String get alertImmediately => 'Immediately';
+
+  @override
+  String get alertsOff => 'Alerts off';
+
+  @override
+  String get alertsOn => 'Alerts on';
+
+  @override
+  String get alertWeekly => 'Alert Weekly';
+
+  @override
+  String get amenities => 'Amenities';
+
+  @override
+  String get amenitiesAndFeatures => 'Amenities And Features';
+
+  @override
+  String get amountLabel => 'Amount Label';
+
+  @override
+  String get amountOutstanding => 'Amount Outstanding';
+
+  @override
+  String get amountPaid => 'Amount Paid';
+
+  @override
+  String get any => 'Any';
+
+  @override
+  String get applyFiltersSaveSearch => 'Set some search filters first';
+
+  @override
+  String get applyNow => 'Apply Now';
+
+  @override
+  String get availableFrom => 'Available From';
+
+  @override
+  String get bedrooms => 'Bedrooms';
+
+  @override
+  String get businessNumber => 'Business Number';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get categoryApartments => 'Category Apartments';
+
+  @override
+  String get categoryBedsitters => 'Category Bedsitters';
+
+  @override
+  String get categoryCommercial => 'Category Commercial';
+
+  @override
+  String get categoryHouses => 'Category Houses';
+
+  @override
+  String get categoryLand => 'Category Land';
+
+  @override
+  String get categoryStudios => 'Category Studios';
+
+  @override
+  String get categoryTownhouses => 'Category Townhouses';
+
+  @override
+  String get checkingStatus => 'Checking Status';
+
+  @override
+  String get checkoutFailed => 'Checkout Failed';
+
+  @override
+  String get checkoutUrl => 'Checkout Url';
+
+  @override
+  String get checkStatus => 'Check Status';
+
+  @override
+  String get chooseDifferentMethod => 'Choose Different Method';
+
+  @override
+  String get clearFilters => 'Clear Filters';
+
+  @override
+  String get closeGallery => 'Close Gallery';
+
+  @override
+  String get compareAdded => 'Compare Added';
+
+  @override
+  String get compareAllowed => 'Compare Allowed';
+
+  @override
+  String get compareAlreadyAdded => 'Compare Already Added';
+
+  @override
+  String get compareAmenities => 'Amenities';
+
+  @override
+  String get compareAtMax => 'Compare At Max';
+
+  @override
+  String get compareAvailableFrom => 'Compare Available From';
+
+  @override
+  String get compareBathrooms => 'Bathrooms';
+
+  @override
+  String get compareBaths => 'Compare Baths';
+
+  @override
+  String get compareBedrooms => 'Bedrooms';
+
+  @override
+  String get compareBeds => '2 beds';
+
+  @override
+  String get compareClear => 'Compare Clear';
+
+  @override
+  String get compareClearConfirm => 'Clear all';
+
+  @override
+  String get compareCounty => 'County';
+
+  @override
+  String get compareDeposit => 'Compare Deposit';
+
+  @override
+  String get compareDifferencesOnly => 'Compare Differences Only';
+
+  @override
+  String get compareEmptyDescription => 'Compare Empty Description';
+
+  @override
+  String get compareEmptyTitle => 'Hakuna milki yaliyopanganganishwa';
+
+  @override
+  String get compareFurnished => 'Compare Furnished';
+
+  @override
+  String get compareFurnishing => 'Compare Furnishing';
+
+  @override
+  String get compareLocation => 'Location';
+
+  @override
+  String get compareNo => 'No properties compared yet';
+
+  @override
+  String get compareNotAllowed => 'Compare Not Allowed';
+
+  @override
+  String get compareNotDisclosed => 'Compare Not Disclosed';
+
+  @override
+  String get compareOverview => 'Compare Overview';
+
+  @override
+  String get comparePetPolicy => 'Compare Pet Policy';
+
+  @override
+  String get comparePrice => 'Compare Price';
+
+  @override
+  String get comparePriceOnRequest => 'Price';
+
+  @override
+  String get comparePricing => 'Pricing';
+
+  @override
+  String get compareSmoking => 'Compare Smoking';
+
+  @override
+  String get compareSpecifications => 'Compare Specifications';
+
+  @override
+  String get compareTitle => 'Compare Title';
+
+  @override
+  String get compareTown => 'Town';
+
+  @override
+  String get compareUnfurnished => 'Compare Unfurnished';
+
+  @override
+  String get compareViewDetails => 'Compare View Details';
+
+  @override
+  String get compareYes => 'Compare Yes';
+
+  @override
+  String get completePaymentInBrowser => 'Complete Payment In Browser';
+
+  @override
+  String get configured => 'Configured';
+
+  @override
+  String get couldNotDeleteSearch => 'Delete';
+
+  @override
+  String get couldNotLoadNotifications => 'Could Not Load Notifications';
+
+  @override
+  String get couldNotLoadProperty => 'Property not found.';
+
+  @override
+  String get couldNotLoadSavedHomes => 'Could not load saved homes.';
+
+  @override
+  String get couldNotLoadSavedSearches => 'Could Not Load Saved Searches';
+
+  @override
+  String get couldNotRunSearch => 'Could not run the search. Please try again.';
+
+  @override
+  String get couldNotUpdateAlerts => 'Could Not Update Alerts';
+
+  @override
+  String get couldNotUpdateSearch => 'Could Not Update Search';
+
+  @override
+  String get county => 'County';
+
+  @override
+  String get deleteSavedSearch => 'Delete Saved Search';
+
+  @override
+  String get deleteSearch => 'To Delete';
+
+  @override
+  String get deposit => 'Deposit';
+
+  @override
+  String get depositBalance => 'Deposit Balance';
+
+  @override
+  String get deposits => 'Deposits';
+
+  @override
+  String get discoverHomes => 'Gundua nyumba';
+
+  @override
+  String get downloadReceipt => 'Download Receipt';
+
+  @override
+  String get downloadReceipts => 'Download Receipts';
+
+  @override
+  String get dueDate => 'Due Date';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get editSavedSearch => 'Edit Saved Search';
+
+  @override
+  String get enquire => 'Enquire';
+
+  @override
+  String get failedToLoadDashboard => 'Failed To Load Dashboard';
+
+  @override
+  String get failedToLoadInvoice => 'Failed To Load Invoice';
+
+  @override
+  String get failedToLoadInvoices => 'Failed To Load Invoices';
+
+  @override
+  String get failedToLoadPaymentHistory => 'Failed To Load Payment History';
+
+  @override
+  String get failedToLoadProviders => 'Failed To Load Providers';
+
+  @override
+  String get failedToLoadReceipts => 'Failed To Load Receipts';
+
+  @override
+  String get featuredLoadError => 'Featured Load Error';
+
+  @override
+  String get filters => 'Filters';
+
+  @override
+  String get financialStatement => 'Financial Statement';
+
+  @override
+  String get furnished => 'Furnished';
+
+  @override
+  String get furnishing => 'Furnishing';
+
+  @override
+  String get gallery => 'Gallery';
+
+  @override
+  String get howOftenToAlert => 'How Often To Alert';
+
+  @override
+  String get iHavePaid => 'I Have Paid';
+
+  @override
+  String get initiating => 'Initiating';
+
+  @override
+  String get invoiceAlreadyPaid => 'Invoice Already Paid';
+
+  @override
+  String get invoiceDescription => 'Invoice Description';
+
+  @override
+  String get invoiceItems => 'Invoice Items';
+
+  @override
+  String get invoiceItemsSubtitle => 'Invoice Items Subtitle';
+
+  @override
+  String get invoiceNotPayable => 'Invoice Not Payable';
+
+  @override
+  String get invoiceReference => 'Invoice Reference';
+
+  @override
+  String get invoices => 'Invoices';
+
+  @override
+  String get issuedDate => 'Issued Date';
+
+  @override
+  String get keep => 'Keep';
+
+  @override
+  String get listedBy => 'Listed By';
+
+  @override
+  String get listingDetails => 'Listing Details';
+
+  @override
+  String get location => 'Location';
+
+  @override
+  String get locationNotSet => 'Location Not Set';
+
+  @override
+  String get makePayment => 'Make Payment';
+
+  @override
+  String get mapPreviewUnavailable => 'Hakuna muonekano';
+
+  @override
+  String get markAllRead => 'Mark All Read';
+
+  @override
+  String get markAsRead => 'Mark As Read';
+
+  @override
+  String get maxPrice => 'Max Price';
+
+  @override
+  String get message => 'Message';
+
+  @override
+  String get minPrice => 'Min Price';
+
+  @override
+  String get nameThisSearch => 'Old Name';
+
+  @override
+  String get neighbourhood => 'Neighbourhood';
+
+  @override
+  String get newest => 'Newest';
+
+  @override
+  String get noHomesMatch => 'No homes match your search';
+
+  @override
+  String get noInvoices => 'No Invoices';
+
+  @override
+  String get noNotifications => 'No Notifications';
+
+  @override
+  String get noNotificationsDescription => 'No Notifications Description';
+
+  @override
+  String get noPaymentHistory => 'No Payment History';
+
+  @override
+  String get noPaymentMethods => 'No Payment Methods';
+
+  @override
+  String get noReceipts => 'No Receipts';
+
+  @override
+  String get noSavedHomesYet => 'Hakuna nyumba zilizohifadhiwa';
+
+  @override
+  String get noSavedLocationDescription => 'No Saved Location Description';
+
+  @override
+  String get noSavedSearchesYet => 'Hakuna tafuta zilizohifadhiwa';
+
+  @override
+  String get notificationsTitle => 'Notifications Title';
+
+  @override
+  String get notificationPreferences => 'Mapendeleo ya arifa';
+
+  @override
+  String get homeMaintenance => 'Matengenezo ya nyumbani';
+
+  @override
+  String get homeMaintenanceEmpty => 'Hakuna kazi za matengenezo bado';
+
+  @override
+  String get inspectionReport => 'Ripoti ya ukaguzi';
+
+  @override
+  String get safetyConcerns => 'Wasiwasi wa usalama';
+
+  @override
+  String get approve => 'Idhinisha';
+
+  @override
+  String get reject => 'Kataa';
+
+  @override
+  String get confirmCompletion => 'Thibitisha kukamilika';
+
+  @override
+  String get recordInspection => 'Rekodi ukaguzi';
+
+  @override
+  String get startWork => 'Anza kazi';
+
+  @override
+  String get qualityCheck => 'Ukaguzi wa ubora';
+
+  @override
+  String get cleaningOperations => 'Usafi na utunzaji wa mali';
+
+  @override
+  String get cleaningOperationsEmpty => 'Hakuna kazi za usafi bado';
+
+  @override
+  String get assessmentReport => 'Ripoti ya tathmini';
+
+  @override
+  String get recordAssessment => 'Rekodi tathmini';
+
+  @override
+  String get checklist => 'Orodha hakiki';
+
+  @override
+  String get installationOperations => 'Usakinishaji na huduma za kiufundi';
+
+  @override
+  String get installationOperationsEmpty => 'Hakuna kazi za usakinishaji bado';
+
+  @override
+  String get installationPlan => 'Mpango wa usakinishaji';
+
+  @override
+  String get deliverables => 'Bidhaa';
+
+  @override
+  String get equipment => 'Vifaa';
+
+  @override
+  String get testingCommissioning => 'Upimaji na uzinduzi';
+
+  @override
+  String get addPlan => 'Ongeza mpango';
+
+  @override
+  String get summary => 'Muhtasari';
+
+  @override
+  String get addEquipment => 'Ongeza kifaa';
+
+  @override
+  String get description => 'Maelezo';
+
+  @override
+  String get quantity => 'Idadi';
+
+  @override
+  String get serialOrId => 'Nambari / kitambulisho';
+
+  @override
+  String get recordTest => 'Rekodi jaribio';
+
+  @override
+  String get testName => 'Jina la jaribio';
+
+  @override
+  String get outcome => 'Matokeo';
+
+  @override
+  String get uploadEvidence => 'Pakia ushahidi';
+
+  @override
+  String get documentId => 'Kitambulisho cha hati';
+
+  @override
+  String get evidenceKind => 'Aina ya ushahidi';
+
+  @override
+  String get assignStaff => 'Panga wafanyakazi';
+
+  @override
+  String get staffUserId => 'Kitambulisho cha mfanyakazi';
+
+  @override
+  String get label => 'Lebo';
+
+  @override
+  String get staff => 'Wafanyakazi';
+
+  @override
+  String get startTesting => 'Anza upimaji';
+
+  @override
+  String get readyForHandover => 'Tayari kwa makabidhiano';
+
+  @override
+  String get messages => 'Ujumbe';
+
+  @override
+  String get contactProvider => 'Wasiliana na mtoa huduma';
+
+  @override
+  String get noMessages => 'Hakuna ujumbe bado';
+
+  @override
+  String get typeMessage => 'Andika ujumbe';
+
+  @override
+  String get notificationCategories => 'Aina';
+
+  @override
+  String get categorySecurity => 'Akaunti na usalama';
+
+  @override
+  String get categoryService => 'Soko na maombi ya huduma';
+
+  @override
+  String get categoryOperational => 'Maendeleo ya huduma na ratiba';
+
+  @override
+  String get categoryMarketing => 'Matangazo na ofa';
+
+  @override
+  String get inAppNotifications => 'Ndani ya programu';
+
+  @override
+  String get securityNotificationsAlwaysOn =>
+      'Arifa muhimu za usalama hutumwa daima na haziwezi kuzimwa.';
+
+  @override
+  String get outstandingBalance => 'Outstanding Balance';
+
+  @override
+  String get pay => 'Pay';
+
+  @override
+  String get payableFromYourTenancy => 'Payable From Your Tenancy';
+
+  @override
+  String get payInvoice => 'Pay Invoice';
+
+  @override
+  String get paymentCompleted => 'Payment Completed';
+
+  @override
+  String get paymentConfirmed => 'Payment Confirmed';
+
+  @override
+  String get paymentConfirmedByProvider => 'Payment Confirmed By Provider';
+
+  @override
+  String get paymentDidNotComplete => 'Payment Did Not Complete';
+
+  @override
+  String get paymentFailed => 'Payment Failed';
+
+  @override
+  String get paymentHistory => 'Payment History';
+
+  @override
+  String get paymentHistorySubtitle => 'Payment History Subtitle';
+
+  @override
+  String get paymentNotConfirmed => 'Payment Not Confirmed';
+
+  @override
+  String get paymentPending => 'Payment Pending';
+
+  @override
+  String get payNow => 'Pay Now';
+
+  @override
+  String get payOutstandingBalance => 'Pay Outstanding Balance';
+
+  @override
+  String get petPolicy => 'Pet Policy';
+
+  @override
+  String get phoneNumber => 'Phone Number';
+
+  @override
+  String get priceHighToLow => 'Price High To Low';
+
+  @override
+  String get priceLowToHigh => 'Price Low To High';
+
+  @override
+  String get priceOnRequest => 'Price on request';
+
+  @override
+  String get priceRangeKes => 'Price range (KES)';
+
+  @override
+  String get property => 'Property';
+
+  @override
+  String get propertyDetails => 'Property Details';
+
+  @override
+  String get propertyNotFound => 'A beautiful test property with garden.';
+
+  @override
+  String get propertyOwner => 'Mwenye milki';
+
+  @override
+  String get propertySaved => 'Property Saved';
+
+  @override
+  String get propertyType => 'Property type';
+
+  @override
+  String get propertyUnavailable => 'This property is no longer available.';
+
+  @override
+  String get propertyUnsaved => 'Property Unsaved';
+
+  @override
+  String get providerAdd => 'Ongeza';
+
+  @override
+  String get providerAddLocation => 'Ongeza mahali';
+
+  @override
+  String get providerAddService => 'Ongeza huduma';
+
+  @override
+  String get providerAvailability => 'Saa za kazi';
+
+  @override
+  String get providerBaseAmount => 'Kiasi msingi (KES)';
+
+  @override
+  String get providerCancel => 'Ghairi';
+
+  @override
+  String get providerCity => 'Jiji';
+
+  @override
+  String get providerClosed => 'Imefungwa';
+
+  @override
+  String get providerCounty => 'Kaunti';
+
+  @override
+  String get providerDelete => 'Futa';
+
+  @override
+  String get providerError => 'Hitilafu imetokea';
+
+  @override
+  String get providerLatitude => 'Latitudo';
+
+  @override
+  String get providerLocations => 'Maeneo';
+
+  @override
+  String get providerLongitude => 'Longitudo';
+
+  @override
+  String get providerNoAreas => 'Hakuna maeneo ya huduma bado';
+
+  @override
+  String get providerNoLocations => 'Hakuna maeneo bado';
+
+  @override
+  String get providerNoServices => 'Hakuna huduma bado';
+
+  @override
+  String get providerPublicLocation => 'Public';
+
+  @override
+  String get providerRequired => 'Required';
+
+  @override
+  String get providerSave => 'Save';
+
+  @override
+  String get providerSaved => 'Imehifadhiwa';
+
+  @override
+  String get providerServiceAreas => 'Maeneo ya huduma';
+
+  @override
+  String get providerServiceCategory => 'Aina';
+
+  @override
+  String get providerServices => 'HUDUMA';
+
+  @override
+  String get providerServiceTitle => 'Jina la huduma';
+
+  @override
+  String get providerSetPrimary => 'Weka msingi';
+
+  @override
+  String get providerStatus => 'Hali';
+
+  @override
+  String get providerTemporaryClosure => 'Kufungwa kwa muda';
+
+  @override
+  String get quickActions => 'Quick Actions';
+
+  @override
+  String get quickActionsSubtitle => 'Quick Actions Subtitle';
+
+  @override
+  String get readLess => 'Read Less';
+
+  @override
+  String get readMore => 'Read More';
+
+  @override
+  String get receipts => 'Receipts';
+
+  @override
+  String get relatedProperties => 'Related Properties';
+
+  @override
+  String get relevance => 'Relevance';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String get removedFromSaved => 'Removed from saved homes.';
+
+  @override
+  String get rentalAppDocuments => 'Rental App Documents';
+
+  @override
+  String get rentalAppOnboarded => 'Rental App Onboarded';
+
+  @override
+  String get rentalAppOnboardedDesc => 'Rental App Onboarded Desc';
+
+  @override
+  String get rentalAppOutcome => 'Rental App Outcome';
+
+  @override
+  String get rentalAppPreferredEnd => 'Rental App Preferred End';
+
+  @override
+  String get rentalAppPreferredStart => 'Rental App Preferred Start';
+
+  @override
+  String get rentalAppProposedRent => 'Rental App Proposed Rent';
+
+  @override
+  String get rentalAppRespond => 'Rental App Respond';
+
+  @override
+  String get rentalAppTimeline => 'Rental App Timeline';
+
+  @override
+  String get rentalAppTitle => 'Rental App Title';
+
+  @override
+  String get rentalAppUploadDocument => 'Rental App Upload Document';
+
+  @override
+  String get rentalAppWithdraw => 'Rental App Withdraw';
+
+  @override
+  String get rentalListing => 'Rental Listing';
+
+  @override
+  String get reportListing => 'Report Listing';
+
+  @override
+  String get requestVisit => 'Request Visit';
+
+  @override
+  String get reset => 'Reset';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get retryAction => 'Retry Action';
+
+  @override
+  String get retryPayment => 'Retry Payment';
+
+  @override
+  String get runNow => 'Run Now';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get saveCurrentSearch => 'Save Current Search';
+
+  @override
+  String get savedHomes => 'Nyumba zililohifadhiwa';
+
+  @override
+  String get savedLocation => 'Saved Location';
+
+  @override
+  String get savedSearches => 'Tafuta zililohifadhiwa';
+
+  @override
+  String get searchHomes => 'Search homes';
+
+  @override
+  String get searchMatched => 'Search Matched';
+
+  @override
+  String get searchSaved => 'Search Saved';
+
+  @override
+  String get searchUpdated => 'Search Updated';
+
+  @override
+  String get searchWillBeRemoved => 'Search Will Be Removed';
+
+  @override
+  String get sendNotifications => 'Send Notifications';
+
+  @override
+  String get setLocation => 'Set Location';
+
+  @override
+  String get shareNotAvailable => 'Share Not Available';
+
+  @override
+  String get shareProperty => 'Share Property';
+
+  @override
+  String get showAllAmenities => 'Show All Amenities';
+
+  @override
+  String get showHomes => 'Show Homes';
+
+  @override
+  String get showLessAmenities => 'Show Less Amenities';
+
+  @override
+  String get siteVisit => 'Site Visit';
+
+  @override
+  String get siteVisitCancelConfirm => 'Site Visit Cancel Confirm';
+
+  @override
+  String get siteVisitCancelDesc => 'Site Visit Cancel Desc';
+
+  @override
+  String get siteVisitCancelKeep => 'Site Visit Cancel Keep';
+
+  @override
+  String get siteVisitCancelled => 'Site Visit Cancelled';
+
+  @override
+  String get siteVisitCancelledSuccess => 'Site Visit Cancelled Success';
+
+  @override
+  String get siteVisitCancelTitle => 'Cancel visit';
+
+  @override
+  String get siteVisitCompleted => 'Site Visit Completed';
+
+  @override
+  String get siteVisitDeclined => 'Site Visit Declined';
+
+  @override
+  String get siteVisitDurationMin => 'Site Visit Duration Min';
+
+  @override
+  String get siteVisitHostNotes => 'Site Visit Host Notes';
+
+  @override
+  String get siteVisitMyVisits => 'Site Visit My Visits';
+
+  @override
+  String get siteVisitNoShow => 'Site Visit No Show';
+
+  @override
+  String get siteVisitNoVisits => 'Hakuna muonekano';
+
+  @override
+  String get siteVisitNoVisitsDesc => 'No site visits yet';
+
+  @override
+  String get siteVisitOutcome => 'Site Visit Outcome';
+
+  @override
+  String get siteVisitPending => 'Site Visit Pending';
+
+  @override
+  String get siteVisitProperty => 'Site Visit Property';
+
+  @override
+  String get siteVisitRequestError => 'Site Visit Request Error';
+
+  @override
+  String get siteVisitRequestVisit => 'Site Visit Request Visit';
+
+  @override
+  String get siteVisitRescheduled => 'Site Visit Rescheduled';
+
+  @override
+  String get siteVisitRescheduledSuccess => 'Site Visit Rescheduled Success';
+
+  @override
+  String get siteVisitRescheduleSubmit => 'Site Visit Reschedule Submit';
+
+  @override
+  String get siteVisitSubmitted => 'Site Visit Submitted';
+
+  @override
+  String get siteVisitTitle => 'Site Visit Title';
+
+  @override
+  String get siteVisitUpcoming => 'Upcoming';
+
+  @override
+  String get siteVisitVisitDetails => 'Site Visit Visit Details';
+
+  @override
+  String get siteVisitVisitorNotes => 'Site Visit Visitor Notes';
+
+  @override
+  String get smoking => 'Smoking';
+
+  @override
+  String get statement => 'Statement';
+
+  @override
+  String get status => 'Status';
+
+  @override
+  String get tapHeartSaveHome =>
+      'Gusa moyo kwenye orodha yoyote kuihifadhi hapa.';
+
+  @override
+  String get transactionReference => 'Transaction Reference';
+
+  @override
+  String get tryAgain => 'Try Again';
+
+  @override
+  String get tryDifferentMethod => 'Try Different Method';
+
+  @override
+  String get tryWideningFilters => 'Try Widening Filters';
+
+  @override
+  String get turnOffAlerts => 'Turn off';
+
+  @override
+  String get turnOnAlerts => 'Turn On Alerts';
+
+  @override
+  String get unfurnished => 'Unfurnished';
+
+  @override
+  String get unit => 'Unit';
+
+  @override
+  String get unpaidInvoices => 'Unpaid Invoices';
+
+  @override
+  String get viewAllPayments => 'View All Payments';
+
+  @override
+  String get viewAllPaymentsSubtitle => 'View All Payments Subtitle';
+
+  @override
+  String get viewAndPayInvoices => 'View And Pay Invoices';
+
+  @override
+  String get viewInvoices => 'View Invoices';
+
+  @override
+  String get viewOnMap => 'View On Map';
+
+  @override
+  String get viewPaymentHistory => 'View Payment History';
+
+  @override
+  String get viewReceipt => 'View Receipt';
+
+  @override
+  String get waitingForStkPush => 'Waiting For Stk Push';
+
+  @override
+  String get welcomeGuest => 'Karibu GetKeja';
+
+  @override
+  String get yourTenancy => 'Your Tenancy';
+
+  @override
+  String get providerOpen => 'Wazi';
+
+  @override
+  String get providerClose => 'Funga';
+
+  @override
+  String get providerDeleted => 'Imefutwa';
+
+  @override
+  String compareSelectedCount(int count, int max) {
+    return '$count kati ya $max milki';
+  }
+
+  @override
+  String compareSavedAll(int count) {
+    return 'Saved $count homes';
+  }
+
+  @override
+  String welcomeBack(String name) {
+    return 'Welcome back, $name';
+  }
+
+  @override
+  String couldNotSaveSearch(String error) {
+    return 'Could not save search: $error';
+  }
+
+  @override
+  String homesFoundCount(int count) {
+    return '$count homes found';
+  }
 }
